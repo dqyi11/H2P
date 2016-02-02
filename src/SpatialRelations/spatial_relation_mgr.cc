@@ -164,3 +164,11 @@ vector< vector< string > > SpatialRelationMgr::filter( vector< vector< string > 
 bool SpatialRelationMgr::is_eligible( vector< string > string_item, Rule* rule ) {
   return false;
 }
+
+Obstacle* SpatialRelationMgr::get_primary_obstacle() {
+  Obstacle* p_obstacle = NULL;
+  if( mp_functions.size() > 0 ) {
+    p_obstacle = mp_functions[0]->get_primary_obstacle(); 
+  }
+  return p_obstacle;
+}

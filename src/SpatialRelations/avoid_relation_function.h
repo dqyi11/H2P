@@ -12,6 +12,7 @@ namespace h2p {
     virtual ~AvoidRelationFunction();
 
     virtual Rule* get_rule( ReferenceFrameSet* p_reference_frame_set ); 
+    virtual Obstacle* get_primary_obstacle();
     virtual std::string get_name();
 
     Obstacle* mp_obstacle;

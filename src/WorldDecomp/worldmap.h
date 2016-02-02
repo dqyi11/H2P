@@ -15,7 +15,7 @@ namespace h2p {
 
     bool resize( int width, int height );
     bool load_obstacle_info( std::vector< std::vector<Point2D> > polygons);
-    bool init( bool rand_init_points = true );
+    bool init( Obstacle* p_obstacle, bool rand_init_points = true );
 
     virtual void to_xml( const std::string& filename )const;
     virtual void to_xml( xmlDocPtr doc, xmlNodePtr root )const;

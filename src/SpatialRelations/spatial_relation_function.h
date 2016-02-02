@@ -15,6 +15,7 @@ namespace h2p {
     virtual ~SpatialRelationFunction() {};
 
     virtual Rule* get_rule( ReferenceFrameSet* p_reference_frame_set ) = 0; 
+    virtual Obstacle* get_primary_obstacle() = 0;
     virtual std::string get_name() = 0;
   };
 }

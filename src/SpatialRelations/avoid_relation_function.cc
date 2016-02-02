@@ -11,6 +11,10 @@ AvoidRelationFunction::~AvoidRelationFunction() {
   mp_obstacle = NULL;
 }
 
+Obstacle* AvoidRelationFunction::get_primary_obstacle() {
+  return mp_obstacle;
+}
+
 Rule* AvoidRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
   Rule* p_rule;
   return p_rule;  

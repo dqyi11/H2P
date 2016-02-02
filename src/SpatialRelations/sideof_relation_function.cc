@@ -15,6 +15,10 @@ SideOfRelationFunction::~SideOfRelationFunction() {
   mp_obstacle = NULL;
 }
 
+Obstacle* SideOfRelationFunction::get_primary_obstacle() {
+  return mp_obstacle;
+}
+
 Rule* SideOfRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
   Rule* p_rule;
   if( p_reference_frame_set ) {

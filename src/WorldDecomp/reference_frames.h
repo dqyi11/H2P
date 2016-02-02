@@ -36,6 +36,7 @@ namespace h2p {
     virtual ~ReferenceFrameSet();
 
     void init(int width, int height, std::vector< std::vector<Point2D> >& obstacles);
+    void process( Obstacle* p_obstacle );
     StringGrammar* get_string_grammar( Point2D init, Point2D goal );
     StringGrammar* get_string_grammar( int init_x, int init_y, int goal_x, int goal_y );
     

@@ -24,10 +24,11 @@ namespace h2p {
     side_type_t get_side_type( void ) { return m_type; }
 
     virtual Rule* get_rule( ReferenceFrameSet* p_reference_frame_set ); 
+    virtual Obstacle* get_primary_obstacle();
     virtual std::string get_name();
 
-    Obstacle* mp_obstacle;
-    side_type_t         m_type;
+    Obstacle*   mp_obstacle;
+    side_type_t m_type;
   };
 }
 

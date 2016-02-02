@@ -80,9 +80,14 @@ bool SpatialRelationsViz::initWorld(QString filename) {
   //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
   mpReferenceFrameSet = new ReferenceFrameSet();
   mpReferenceFrameSet->init( map_width, map_height, conts );
-  //std::cout << "NUM OF OBS " << conts.size() << std::endl;
   mpMgr = new SpatialRelationMgr( mpReferenceFrameSet->get_world_map() );
   return true;
+}
+
+void SpatialRelationsViz::processWorld( ) {
+   
+  mpReferenceFrameSet->process( mpMgr->get_primary_obstacle() ); 
+  //std::cout << "NUM OF OBS " << conts.size() << std::endl;
 }
 
 void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
@@ -189,50 +194,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       sl_obs_painter.end();
 
-      if ( mShowSubsegment == false ) {
-        /*
-        QPainter alpha_painter(this);
-        QPen alpha_pen( ALPHA_COLOR );
-        alpha_pen.setWidth( LINE_WIDTH );
-        alpha_painter.setPen( alpha_pen );
-
-        for( std::vector<Obstacle*>::iterator it= obstacles.begin();
-             it != obstacles.end(); it++ ) {
-          Obstacle* p_obstacle = (*it);
-          if ( p_obstacle ) {
-            Point2D a_src = p_obstacle->mp_alpha_seg->m_seg.source();
-            Point2D a_end = p_obstacle->mp_alpha_seg->m_seg.target();
-            double a_src_x = CGAL::to_double( a_src.x() );
-            double a_src_y = CGAL::to_double( a_src.y() );
-            double a_end_x = CGAL::to_double( a_end.x() );
-            double a_end_y = CGAL::to_double( a_end.y() );
-            alpha_painter.drawLine( QPoint( a_src_x, a_src_y ), QPoint( a_end_x, a_end_y ) );
-          }
-        }
-        alpha_painter.end();
-
-        QPainter beta_painter(this);
-        QPen beta_pen( BETA_COLOR );
-        beta_pen.setWidth( LINE_WIDTH );
-        beta_painter.setPen( beta_pen );
-
-        for( std::vector<Obstacle*>::iterator it = obstacles.begin();
-             it != obstacles.end(); it++ ) {
-          Obstacle* p_obstacle = (*it);
-          if ( p_obstacle ) {
-            Point2D b_src = p_obstacle->mp_beta_seg->m_seg.source();
-            Point2D b_end = p_obstacle->mp_beta_seg->m_seg.target();
-            double b_src_x = CGAL::to_double( b_src.x() );
-            double b_src_y = CGAL::to_double( b_src.y() );
-            double b_end_x = CGAL::to_double( b_end.x() );
-            double b_end_y = CGAL::to_double( b_end.y() );
-            beta_painter.drawLine( QPoint( b_src_x, b_src_y ), QPoint( b_end_x, b_end_y ) );
-          }
-        }
-        beta_painter.end();
-        */
-      }
-      else {
+      if ( mShowSubsegment == true ) {
         QPainter a_subseg_painter(this);
         QPen a_subseg_pen( ALPHA_COLOR );
         a_subseg_pen.setWidth( LINE_WIDTH );
@@ -240,7 +202,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         for( std::vector<Obstacle*>::iterator it = obstacles.begin();
              it != obstacles.end(); it++ ) {
           Obstacle* p_obstacle = (*it);
-          if ( p_obstacle ) {
+          if ( p_obstacle && p_obstacle->mp_alpha_seg ) {
             //std::cout << "OBS " << p_obstacle->get_index() << " ALPHA:" << p_obstacle->mp_alpha_seg->m_subsegs.size() << std::endl;
             for( std::vector< LineSubSegment* >::iterator itap = p_obstacle->mp_alpha_seg->m_subsegs.begin();
                  itap != p_obstacle->mp_alpha_seg->m_subsegs.end(); itap++ ) {
@@ -259,7 +221,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         for( std::vector<Obstacle*>::iterator it = obstacles.begin();
              it != obstacles.end(); it++ ) {
           Obstacle* p_obstacle = (*it);
-          if ( p_obstacle ) {
+          if ( p_obstacle && p_obstacle->mp_beta_seg ) {
             for( std::vector< LineSubSegment* >::iterator itbp = p_obstacle->mp_beta_seg->m_subsegs.begin();
                  itbp != p_obstacle->mp_beta_seg->m_subsegs.end(); itbp++ ) {
               LineSubSegment* p_subseg_b = (*itbp);

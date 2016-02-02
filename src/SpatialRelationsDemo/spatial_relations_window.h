@@ -52,6 +52,7 @@ namespace h2p {
     QAction*      mpAddBottomofSpatialRelationAction;
 
     QAction*      mpShowConfigAction;
+    QAction*      mpProcessAction;
     QAction*      mpExecuteAction;
 
     SpatialRelationsConfig* mpConfig;
@@ -73,6 +74,7 @@ namespace h2p {
     void onAddBottomofSpatialRelation();
 
     void onShowConfig();
+    void onProcess();
     void onExecute();
   };
 }

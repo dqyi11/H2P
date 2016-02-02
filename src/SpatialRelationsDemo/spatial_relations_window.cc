@@ -58,6 +58,7 @@ void SpatialRelationsWindow::createMenuBar() {
 
   mpManageMenu = menuBar()->addMenu("&Manage");
   mpManageMenu->addAction( mpShowConfigAction ); 
+  mpManageMenu->addAction( mpProcessAction ); 
   mpManageMenu->addAction( mpExecuteAction ); 
 
   mpContextMenu = new QMenu();
@@ -94,6 +95,8 @@ void SpatialRelationsWindow::createActions() {
 
   mpShowConfigAction = new QAction("Show", this);
   connect(mpShowConfigAction, SIGNAL(triggered()), this, SLOT(onShowConfig()));
+  mpProcessAction = new QAction("Process", this);
+  connect(mpProcessAction, SIGNAL(triggered()), this, SLOT(onProcess()));
   mpExecuteAction = new QAction("Execute", this);
   connect(mpExecuteAction, SIGNAL(triggered()), this, SLOT(onExecute()));
 
@@ -403,6 +406,10 @@ void SpatialRelationsWindow::onShowConfig() {
     mpConfig->updateDisplay();
     mpConfig->exec();
   }
+}
+
+void SpatialRelationsWindow::onProcess() {
+
 }
 
 void SpatialRelationsWindow::onExecute() {

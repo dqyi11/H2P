@@ -83,7 +83,7 @@ bool WorldMap::load_obstacle_info( std::vector< std::vector<Point2D> > polygons 
   return true;
 }
 
-bool WorldMap::init( bool rand_init_points ) {
+bool WorldMap::init( Obstacle* p_obstacle, bool rand_init_points ) {
   if ( rand_init_points == true ) {
     _init_points();
   }

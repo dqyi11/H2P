@@ -11,6 +11,13 @@ InBetweenRelationFunction::~InBetweenRelationFunction() {
   mp_obstacles.clear();
 }
 
+Obstacle* InBetweenRelationFunction::get_primary_obstacle() {
+  if( mp_obstacles.size() > 0 ) {
+    return mp_obstacles[0];
+  }
+  return NULL;
+}
+
 Rule* InBetweenRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
   Rule* p_rule;
 

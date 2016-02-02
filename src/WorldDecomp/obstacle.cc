@@ -14,6 +14,9 @@ Obstacle::Obstacle(vector<Point2D> points, int index, WorldMap* world ){
 
   m_dist_bk2cp = 0.0;
 
+  mp_alpha_seg = NULL;
+  mp_beta_seg = NULL;
+
   m_points.clear();
   m_border_segments.clear();
   for( vector<Point2D>::iterator it = points.begin(); it != points.end(); it++ ) {

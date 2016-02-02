@@ -33,6 +33,7 @@ namespace h2p {
     void get_string_classes( ReferenceFrameSet* p_rfs  );
  
     WorldMap* get_world_map() {  return mp_worldmap; }
+    Obstacle* get_primary_obstacle();
 
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
     bool is_eligible( std::vector< std::string > string_item, Rule* rule );

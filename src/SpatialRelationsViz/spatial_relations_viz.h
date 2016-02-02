@@ -50,7 +50,7 @@ namespace h2p {
 
     bool save( QString filename );
     bool load( QString filename );
-    
+        
     void setMode( SpatialRelationsVizMode mode );
     SpatialRelationsVizMode getMode() { return mMode; }
     
@@ -62,7 +62,7 @@ namespace h2p {
     void clear_selected_obstacles() { m_selected_obstacles.clear(); }  
 
     ReferenceFrameSet* get_reference_frame_set() {  return mpReferenceFrameSet; }
-
+    void processWorld();
   protected:
     bool initWorld(QString filename);
 
@@ -72,7 +72,7 @@ namespace h2p {
 
     void mousePressEvent( QMouseEvent * event );
 
-    SpatialRelationMgr*           mpMgr;
+    SpatialRelationMgr* mpMgr;
     ReferenceFrameSet*  mpReferenceFrameSet;
     int                  mWorldWidth;
     int                  mWorldHeight;
