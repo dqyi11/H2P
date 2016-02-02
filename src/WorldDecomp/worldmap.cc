@@ -85,7 +85,7 @@ bool WorldMap::load_obstacle_info( std::vector< std::vector<Point2D> > polygons 
 
 bool WorldMap::init( Obstacle* p_obstacle, bool rand_init_points ) {
   if ( rand_init_points == true ) {
-    _init_points();
+    _init_points( p_obstacle );
   }
   _init_rays();
   _init_segments();
@@ -93,7 +93,7 @@ bool WorldMap::init( Obstacle* p_obstacle, bool rand_init_points ) {
   return true;
 }
 
-bool WorldMap::_init_points() {
+bool WorldMap::_init_points( Obstacle* p_obstacle ) {
   // select random point for each obstacle
   for( std::vector<Obstacle*>::iterator it = _obstacles.begin(); it != _obstacles.end(); it++ ) {
     Obstacle * p_obstacle = (*it);
@@ -111,15 +111,23 @@ bool WorldMap::_init_points() {
   // select central point c
   bool found_cp = false;
   while( found_cp == false ) {
-    if ( (false == is_in_obstacle(_central_point)) && (false == is_in_obs_bk_lines(_central_point)) ) {
-      found_cp = true;
+    if( p_obstacle == NULL ) {
+      if ( (false == is_in_obstacle(_central_point)) && (false == is_in_obs_bk_lines(_central_point)) ) {
+        found_cp = true;
+      }
+      else {
+        float x_ratio = static_cast<float> (rand())/static_cast<float>(RAND_MAX);
+        float y_ratio = static_cast<float> (rand())/static_cast<float>(RAND_MAX);
+        int cp_x = static_cast<int>( x_ratio*static_cast<float>(_sample_width_scale) ) + _map_width /2;
+        int cp_y = static_cast<int>( y_ratio*static_cast<float>(_sample_height_scale) ) + _map_height /2;
+        _central_point = Point2D(cp_x, cp_y);
+      }
     }
     else {
-      float x_ratio = static_cast<float> (rand())/static_cast<float>(RAND_MAX);
-      float y_ratio = static_cast<float> (rand())/static_cast<float>(RAND_MAX);
-      int cp_x = static_cast<int>( x_ratio*static_cast<float>(_sample_width_scale) ) + _map_width /2;
-      int cp_y = static_cast<int>( y_ratio*static_cast<float>(_sample_height_scale) ) + _map_height /2;
-      _central_point = Point2D(cp_x, cp_y);
+      _central_point = p_obstacle->sample_position();
+      if ( false == is_in_obs_bk_lines(_central_point) ) {
+        found_cp = true;
+      }
     }
   }
 

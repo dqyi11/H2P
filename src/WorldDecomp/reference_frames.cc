@@ -3,6 +3,7 @@
 
 #define MERGED_CENTER_SUBREGION "SC"
 
+using namespace std;
 using namespace h2p;
 
 ReferenceFrame::ReferenceFrame( LineSubSegment* p_subseg ) {
@@ -40,7 +41,7 @@ ReferenceFrameSet::ReferenceFrameSet() {
 }
 
 ReferenceFrameSet::~ReferenceFrameSet() {
-  for( std::vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
+  for( vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
        it != _reference_frames.end(); it ++ ) {
     ReferenceFrame* p_rf = (*it);
     delete p_rf;
@@ -50,7 +51,7 @@ ReferenceFrameSet::~ReferenceFrameSet() {
   _string_constraint.clear();
 }
 
-void ReferenceFrameSet::init(int width, int height, std::vector< std::vector<Point2D> >& obstacles) {
+void ReferenceFrameSet::init(int width, int height, vector< vector<Point2D> >& obstacles) {
   if( _p_world_map ) {
     delete _p_world_map;
     _p_world_map = NULL;
@@ -62,10 +63,14 @@ void ReferenceFrameSet::init(int width, int height, std::vector< std::vector<Poi
 }
 
 void ReferenceFrameSet::process( Obstacle* p_obstacle ) {
-  if( _p_world_map ) {
+  if( _p_world_map==NULL ) {
     return;
   }
-
+  cout << "INIT WORLD ";
+  if( p_obstacle ) {
+    cout << " BY " << p_obstacle->get_name();
+  }
+  cout << endl;
   _p_world_map->init( p_obstacle );
 
   for( unsigned int obs_i = 0; obs_i < _p_world_map->get_obstacles().size(); obs_i++ ) {
@@ -98,8 +103,8 @@ void ReferenceFrameSet::process( Obstacle* p_obstacle ) {
   }
 }
 
-ReferenceFrame* ReferenceFrameSet::get_reference_frame( std::string name ) {  
-  for( std::vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
+ReferenceFrame* ReferenceFrameSet::get_reference_frame( string name ) {  
+  for( vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
        it != _reference_frames.end(); it ++ ) {
     ReferenceFrame* p_rf = (*it);
     if( p_rf->m_name == name ) {
@@ -144,11 +149,11 @@ StringGrammar* ReferenceFrameSet::get_string_grammar( SubRegion* p_init, SubRegi
         for( unsigned int j = 0; j < p_linesubsegment_set->m_subsegs.size(); j++) {
           LineSubSegment* p_linesubsegment = p_linesubsegment_set->m_subsegs[j];
           if (p_linesubsegment) {
-            std::string trans_name = p_linesubsegment->get_name();             
+            string trans_name = p_linesubsegment->get_name();             
             SubRegion* p_region_a = p_linesubsegment->m_neighbors[0];
             SubRegion* p_region_b = p_linesubsegment->m_neighbors[1];
-            std::string region_a_name = p_region_a->get_name();
-            std::string region_b_name = p_region_b->get_name();
+            string region_a_name = p_region_a->get_name();
+            string region_b_name = p_region_b->get_name();
             p_grammar->add_transition( region_a_name, region_b_name, trans_name);
           }
         }
@@ -161,12 +166,12 @@ StringGrammar* ReferenceFrameSet::get_string_grammar( SubRegion* p_init, SubRegi
   return p_grammar;
 }
 
-std::vector< std::string > ReferenceFrameSet::get_string( Point2D start, Point2D end, grammar_type_t type ) {
-  std::vector< std::string > id_string;
+vector< string > ReferenceFrameSet::get_string( Point2D start, Point2D end, grammar_type_t type ) {
+  vector< string > id_string;
   Segment2D line(start, end);
   //std::cout << "LINE " << line << std::endl;
   if (type == STRING_GRAMMAR_TYPE) {
-    for( std::vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
+    for( vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
          it != _reference_frames.end(); it ++ ) {
       ReferenceFrame* p_rf = (*it);
       // std::cout << "REF " << p_rf->m_segment << std::endl;
@@ -176,7 +181,7 @@ std::vector< std::string > ReferenceFrameSet::get_string( Point2D start, Point2D
     }
   }
   else if (type == HOMOTOPIC_GRAMMAR_TYPE) {
-    for( std::vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
+    for( vector<ReferenceFrame*>::iterator it = _reference_frames.begin();
          it != _reference_frames.end(); it ++ ) {
       ReferenceFrame* p_rf = (*it);
       // std::cout << "REF " << p_rf->m_segment << std::endl;
@@ -194,10 +199,10 @@ std::vector< std::string > ReferenceFrameSet::get_string( Point2D start, Point2D
   return id_string;
 }
 
-std::vector< std::string > ReferenceFrameSet::get_string ( std::vector<Point2D> points, grammar_type_t type ) {
-  std::vector< std::string > ids;
+vector< string > ReferenceFrameSet::get_string ( vector<Point2D> points, grammar_type_t type ) {
+  vector< string > ids;
   for( unsigned int i = 0; i < points.size()-1; i ++ ) {
-    std::vector< std::string > sub_ids = get_string( points[i], points[i+1], type); 
+    vector< string > sub_ids = get_string( points[i], points[i+1], type); 
     for( unsigned int j = 0; j < sub_ids.size(); j ++ ) {
       if ( type == STRING_GRAMMAR_TYPE ) {
         ids.push_back( sub_ids[j] ); 
@@ -209,14 +214,14 @@ std::vector< std::string > ReferenceFrameSet::get_string ( std::vector<Point2D> 
   return ids;
 }
 
-void ReferenceFrameSet::import_string_constraint( std::vector<Point2D> points, grammar_type_t type ) {
-  std::vector< std::string > constraint = get_string( points, type );
+void ReferenceFrameSet::import_string_constraint( vector<Point2D> points, grammar_type_t type ) {
+  vector< string > constraint = get_string( points, type );
   _string_constraint.push_back( constraint );
 }
 
-bool ReferenceFrameSet::is_constained_substring( std::vector< std::string > sub_str, bool reverse ) {
+bool ReferenceFrameSet::is_constained_substring( vector< string > sub_str, bool reverse ) {
   for( unsigned int i = 0; i < _string_constraint.size(); i ++ ) {
-    std::vector< std::string > constraint = _string_constraint[i];
+    vector< string > constraint = _string_constraint[i];
     if( true == is_eligible_substring( sub_str, constraint, reverse ) ) {
       return true;
     }
@@ -224,12 +229,12 @@ bool ReferenceFrameSet::is_constained_substring( std::vector< std::string > sub_
   return false;
 }
 
-bool ReferenceFrameSet::is_eligible_substring( std::vector< std::string > sub_str, std::vector< std::string > ref_str, bool reverse ) {
+bool ReferenceFrameSet::is_eligible_substring( vector< string > sub_str, vector< string > ref_str, bool reverse ) {
   if ( ref_str.size() < sub_str.size() ) {
     return false;
   }
   if( reverse == false ) {
-    for( std::vector< std::string >::iterator it = sub_str.begin(),
+    for( vector< string >::iterator it = sub_str.begin(),
                                               itr  = ref_str.begin(); 
                                               it != sub_str.end();
                                               it++, itr++ ) {
@@ -239,8 +244,8 @@ bool ReferenceFrameSet::is_eligible_substring( std::vector< std::string > sub_st
     }
   }
   else {
-    std::vector< std::string >::iterator it = sub_str.begin();
-    std::vector< std::string >::reverse_iterator itr  = ref_str.rbegin();
+    vector< string >::iterator it = sub_str.begin();
+    vector< string >::reverse_iterator itr  = ref_str.rbegin();
     while( it != sub_str.end() ) {
       if( (*it) != (*itr) ) {
         return false;

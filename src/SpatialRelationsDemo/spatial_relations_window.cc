@@ -409,7 +409,10 @@ void SpatialRelationsWindow::onShowConfig() {
 }
 
 void SpatialRelationsWindow::onProcess() {
-
+  if( mpViz ) {
+    mpViz->processWorld();
+  }
+  repaint();
 }
 
 void SpatialRelationsWindow::onExecute() {

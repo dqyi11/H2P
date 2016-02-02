@@ -46,7 +46,7 @@ namespace h2p {
 
     SubRegion * in_subregion( Point2D point );
   protected:
-    bool _init_points();
+    bool _init_points( Obstacle* p_obstacle );
     bool _init_rays();
     bool _init_segments();
     bool _init_regions();
