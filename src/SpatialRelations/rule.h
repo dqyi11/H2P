@@ -8,7 +8,7 @@
 namespace h2p {
 
   enum RuleType{
-    EMPTY,
+    STAR,
     ATOM,
     MOLECULE_OR,
     MOLECULE_AND,
@@ -17,10 +17,10 @@ namespace h2p {
 
   class Rule{
   public:
-    Rule(RuleType type=EMPTY, ReferenceFrame* ref=NULL, std::vector<Rule*> set=std::vector<Rule*>() );
+    Rule(RuleType type=STAR, ReferenceFrame* ref=NULL, std::vector<Rule*> set=std::vector<Rule*>() );
     virtual ~Rule();
 
-    bool is_ok( std::vector< std::string > id_str );
+    bool scan( std::vector< std::string > id_str, int& curr_idx );
     bool get_reference_frames(std::vector<ReferenceFrame*>& pos_refs, std::vector<ReferenceFrame*>& neg_refs ); 
   
     std::vector< Rule* > m_rule_set;

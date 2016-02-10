@@ -14,7 +14,7 @@ Rule::~Rule() {
 
 bool Rule::get_reference_frames( vector<ReferenceFrame*>& pos_refs, vector<ReferenceFrame*>& neg_refs ) {
   vector<ReferenceFrame*> tmp_pos_refs, tmp_neg_refs;
-  if(m_type==EMPTY) {
+  if(m_type==STAR) {
     return false;
   }
   else if(m_type==ATOM) {
@@ -43,6 +43,45 @@ bool Rule::get_reference_frames( vector<ReferenceFrame*>& pos_refs, vector<Refer
   return true;
 }
 
-bool Rule::is_ok( std::vector< std::string > id_str ) {
+bool Rule::scan( std::vector< std::string > id_str, int& curr_idx ) {
+  if(m_type==STAR) {
+    return true;
+  }
+  else if(m_type==ATOM) {
+    for( unsigned int i=curr_idx; i < id_str.size(); i++ ) {
+      if( mp_reference_frame->get_name() == id_str[i] ) {
+        curr_idx = i+1;
+        return true;
+      }
+    }
+    return false;
+  }
+  else if(m_type==MOLECULE_OR) {
+    
+  }
+  else if(m_type==MOLECULE_AND) {
+    for( vector<Rule*>::iterator it = m_rule_set.begin();
+         it != m_rule_set.end(); it ++ ) {
+      Rule* p_rule = (*it);
+      if( curr_idx >= id_str.size() ) {
+        return false;
+      }
+      if( p_rule ) {
+         if( false == p_rule->scan( id_str, curr_idx ) ) {
+           return false;
+         }
+      }
+    }
+    return true;
+  }
+  else if(m_type==MOLECULE_NEG) {
+    if( m_rule_set[0]->scan( id_str, curr_idx ) ) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  } 
+ 
   return false;
 }
