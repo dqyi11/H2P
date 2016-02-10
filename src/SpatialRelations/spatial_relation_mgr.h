@@ -36,7 +36,6 @@ namespace h2p {
     Obstacle* get_primary_obstacle();
 
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
-    bool is_eligible( std::vector< std::string > string_item, Rule* rule );
 
     std::vector<StringClass*>             mp_string_classes;
     Rule*                                 mp_rule;

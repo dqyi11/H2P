@@ -57,7 +57,15 @@ bool Rule::scan( std::vector< std::string > id_str, int& curr_idx ) {
     return false;
   }
   else if(m_type==MOLECULE_OR) {
-    
+    for( vector<Rule*>::iterator it = m_rule_set.begin();
+         it != m_rule_set.end(); it ++ ) {
+      Rule* p_rule = (*it);
+      int tmp_curr_idx = curr_idx;
+      if( p_rule->scan( id_str, tmp_curr_idx ) ) {
+        return true;
+      }
+    } 
+    return false;
   }
   else if(m_type==MOLECULE_AND) {
     for( vector<Rule*>::iterator it = m_rule_set.begin();
