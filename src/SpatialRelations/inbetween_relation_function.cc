@@ -20,7 +20,7 @@ Obstacle* InBetweenRelationFunction::get_primary_obstacle() {
 
 Rule* InBetweenRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
   Rule* p_rule;
-
+  vector<ReferenceFrame*> refs;
   if( p_reference_frame_set ) {
     // check whether there is a reference frame connecting to reference frames
     for( unsigned int i=0; i<p_reference_frame_set->get_reference_frames().size(); i++ ) {
@@ -29,31 +29,17 @@ Rule* InBetweenRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_
         if( p_ref->mp_line_subsegment ) {
           if( p_ref->mp_line_subsegment->is_connected( mp_obstacles[0] ) &&
               p_ref->mp_line_subsegment->is_connected( mp_obstacles[1] ) ) {
-            //rules.push_back( make_pair( p_ref, true ) );
+            refs.push_back( p_ref );
           }
         }    
       }
     }
-    /*
-    if( rules.size() == 0 ) {
-      for( unsigned int i=0; i<p_reference_frame_set->get_reference_frames().size(); i++ ) {
-        ReferenceFrame* p_ref = p_reference_frame_set->get_reference_frames()[i];
-        if( p_ref ) {
-          if( p_ref->mp_line_subsegment ) {
-            if( p_ref->mp_line_subsegment->is_connected( mp_obstacles[0] ) &&
-                p_ref->mp_line_subsegment->m_is_connected_to_central_point ) {
-
-              rules.push_back( make_pair( p_ref, true ) );
-            }
-            else if( p_ref->mp_line_subsegment->is_connected( mp_obstacles[1] ) &&
-                     p_ref->mp_line_subsegment->m_is_connected_to_central_point ) {
-              rules.push_back( make_pair( p_ref, true ) );
-            }
-          }
-        }
-      }
-    } */
   }
+  vector<Rule*> or_rules;
+  for( unsigned int i=0; i< refs.size(); i++ ) {
+    or_rules.push_back( new Rule( ATOM, refs[i] ) );
+  }
+  p_rule = new Rule( MOLECULE_OR, NULL, or_rules );
   return p_rule;  
 }
 

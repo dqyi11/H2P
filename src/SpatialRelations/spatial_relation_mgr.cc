@@ -74,10 +74,17 @@ SpatialRelationMgr::~SpatialRelationMgr() {
 }
 
 Rule* SpatialRelationMgr::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
-  Rule* p_rule;
+  Rule* p_rule = NULL;
+  vector< Rule* > tmp_rules;
   for( unsigned int i=0; i < mp_functions.size(); i++ ) {
     cout << "FUNC: " << mp_functions[i]->get_name() << endl;
-    Rule* tmp_rule = mp_functions[i]->get_rule( p_reference_frame_set );
+    tmp_rules.push_back( mp_functions[i]->get_rule( p_reference_frame_set ) );
+  }
+  if( tmp_rules.size() > 1 ) {
+    p_rule = new Rule( MOLECULE_AND, NULL, tmp_rules );
+  }
+  else if( tmp_rules.size() == 1 ) {
+    p_rule = tmp_rules[0];
   }
   return p_rule;
 }

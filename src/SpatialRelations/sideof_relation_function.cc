@@ -21,6 +21,7 @@ Obstacle* SideOfRelationFunction::get_primary_obstacle() {
 
 Rule* SideOfRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set ) {
   Rule* p_rule;
+  vector<ReferenceFrame* > refs;
   if( p_reference_frame_set ) {
     for( unsigned int i=0; i<p_reference_frame_set->get_reference_frames().size(); i++ ) {
       ReferenceFrame* p_ref = p_reference_frame_set->get_reference_frames()[i];
@@ -33,28 +34,40 @@ Rule* SideOfRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set
           case SIDE_TYPE_LEFT:
             // [0.75PI, PI] [-PI, -0.75PI) 
             if( (radius>=0.75*PI && radius<PI) || (radius>=-PI && radius<-0.75*PI) ) {
+              refs.push_back( p_ref );
             }
             break;
           case SIDE_TYPE_RIGHT:
             // [-0.45PI, 0.45PI)
             if( radius>=-0.45*PI && radius<0.45*PI ) {
+              refs.push_back( p_ref );
             }
             break;
           case SIDE_TYPE_TOP:
             // [-0.75PI, -045PI)
             if( radius>=-0.75*PI && radius<-0.45*PI ) {
+              refs.push_back( p_ref );
             }
             break;
           case SIDE_TYPE_BOTTOM:
             // [0.45PI , 0.75PI)
             if( radius>=0.45*PI && radius<0.75*PI ) {
+              refs.push_back( p_ref );
             }
             break;
           } 
         }
       }
     }
+    
+    // IF no reference is find, use region to find associated reference frames  
   }
+
+  vector<Rule*> or_rules;
+  for( unsigned int i=0; i< refs.size(); i++ ) {
+    or_rules.push_back( new Rule( ATOM, refs[i] ) );
+  }
+  p_rule = new Rule( MOLECULE_OR, NULL, or_rules );
   return p_rule;  
 }
 
