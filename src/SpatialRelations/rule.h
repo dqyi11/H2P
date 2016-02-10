@@ -1,6 +1,7 @@
 #ifndef RULE_H_
 #define RULE_H_
 
+#include <utility>
 #include <vector>
 #include "reference_frames.h"
 
@@ -20,6 +21,7 @@ namespace h2p {
     virtual ~Rule();
 
     bool is_ok( std::vector< std::string > id_str );
+    bool get_reference_frames(std::vector<ReferenceFrame*>& pos_refs, std::vector<ReferenceFrame*>& neg_refs ); 
   
     std::vector< Rule* > m_rule_set;
     ReferenceFrame* mp_reference_frame;

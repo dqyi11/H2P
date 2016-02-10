@@ -88,6 +88,8 @@ void SpatialRelationsViz::processWorld( ) {
    
   mpReferenceFrameSet->process( mpMgr->get_primary_obstacle() ); 
   //std::cout << "NUM OF OBS " << conts.size() << std::endl;
+  mpMgr->mp_rule = mpMgr->get_rule( mpReferenceFrameSet );
+  updateVizReferenceFrames();
 }
 
 void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
@@ -313,32 +315,26 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       QPen pos_ref_paintpen( RULE_POS_COLOR );
       pos_ref_paintpen.setWidth( RULE_LINE_WIDTH );
       pos_ref_painter.setPen( pos_ref_paintpen );
-      /*
-      for( vector< pair< ReferenceFrame*, bool > >::iterator it =  mpMgr->m_rules.begin();
-           it != mpMgr->m_rules.end(); it++ ) {
-        pair< ReferenceFrame*, bool > rule = (*it);
-        if( true == rule.second ) {
-          pos_ref_painter.drawLine( toQPoint( rule.first->m_segment.source() ), 
-                                    toQPoint( rule.first->m_segment.target() ));
-        }
+      
+      for( vector< ReferenceFrame* >::iterator it =  m_viz_pos_refs.begin();
+           it != m_viz_pos_refs.end(); it++ ) {
+        ReferenceFrame* p_pos_ref = (*it);
+        pos_ref_painter.drawLine( toQPoint( p_pos_ref->m_segment.source() ), 
+                                  toQPoint( p_pos_ref->m_segment.target() ));
       }
-      */
       pos_ref_painter.end();
 
       QPainter neg_ref_painter(this);
       QPen neg_ref_paintpen( RULE_NEG_COLOR );
       neg_ref_paintpen.setWidth( RULE_LINE_WIDTH );
       neg_ref_painter.setPen( neg_ref_paintpen );
-      /*
-      for( vector< pair< ReferenceFrame*, bool > >::iterator it =  mpMgr->m_rules.begin();
-           it != mpMgr->m_rules.end(); it++ ) {
-        pair< ReferenceFrame*, bool > rule = (*it);
-        if( false == rule.second ) {
-          neg_ref_painter.drawLine( toQPoint( rule.first->m_segment.source() ),
-                                    toQPoint( rule.first->m_segment.target() ));
-        }
+
+      for( vector< ReferenceFrame* >::iterator it =  m_viz_neg_refs.begin();
+           it != m_viz_neg_refs.end(); it++ ) {
+        ReferenceFrame* p_neg_ref = (*it);
+        neg_ref_painter.drawLine( toQPoint( p_neg_ref->m_segment.source() ), 
+                                  toQPoint( p_neg_ref->m_segment.target() ));
       }
-      */
       neg_ref_painter.end();
 
       if( mp_viz_string_class ) {
@@ -771,4 +767,14 @@ bool SpatialRelationsViz::unselect_obstacle( Obstacle* p_obstacle ) {
     }
   }
   return false;
+}
+
+void SpatialRelationsViz::updateVizReferenceFrames() {
+
+  if( mpMgr && mpMgr->mp_rule ) {
+    mpMgr->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
+    cout << "update Viz Reference Frames: POS " << m_viz_pos_refs.size();
+    cout << " NEG " << m_viz_neg_refs.size() << endl;
+  }
+  repaint();
 }

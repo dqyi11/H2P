@@ -15,7 +15,7 @@ namespace h2p {
     std::string get_name();
     void init( ReferenceFrameSet* p_rfs );
     
-    std::vector< std::string >               m_string;
+    std::vector< std::string >     m_string;
     std::vector< ReferenceFrame* > mp_reference_frames;
   };
 
@@ -38,11 +38,11 @@ namespace h2p {
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
     bool is_eligible( std::vector< std::string > string_item, Rule* rule );
 
-    std::vector<StringClass*>                                   mp_string_classes;
-    Rule*                                                       mp_rule;
+    std::vector<StringClass*>             mp_string_classes;
+    Rule*                                 mp_rule;
 
-    std::vector<SpatialRelationFunction*>                       mp_functions; 
-    WorldMap*                                                   mp_worldmap;
+    std::vector<SpatialRelationFunction*> mp_functions; 
+    WorldMap*                             mp_worldmap;
     int m_start_x;
     int m_start_y;
     int m_goal_x;

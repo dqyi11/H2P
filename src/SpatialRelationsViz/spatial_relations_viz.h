@@ -69,6 +69,7 @@ namespace h2p {
     void updateVizSubregions();
     void updateVizLineSubsegments();
     void updateVizStringClass();
+    void updateVizReferenceFrames();
 
     void mousePressEvent( QMouseEvent * event );
 
@@ -92,6 +93,9 @@ namespace h2p {
 
     std::vector<Obstacle*>       m_selected_obstacles;   
     StringClass*                 mp_viz_string_class;
+ 
+    std::vector<ReferenceFrame*> m_viz_pos_refs;
+    std::vector<ReferenceFrame*> m_viz_neg_refs;
 
   signals:
 
