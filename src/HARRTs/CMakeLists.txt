@@ -1,5 +1,5 @@
 
-set(LIB tbpp-harrts)
+set(LIB h2p-harrts)
 
 set(HDR birrtstar.h
         string_class_mgr.h
@@ -23,7 +23,7 @@ include_directories(
                    )
 
 target_link_libraries(${LIB}
-                      tbpp-homotopy
+                      h2p-spatial-relations
                       ${CGAL_LIBRARIES}
                       ${BOOST_LIBRARIES}
                      ) 

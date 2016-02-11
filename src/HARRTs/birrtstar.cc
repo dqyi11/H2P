@@ -176,23 +176,19 @@ bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp
   Point2D start_point( _start[0], _start[1] );
   Point2D goal_point( _goal[0], _goal[1] );
   set_grammar_type(grammar_type);
-  if( STRING_GRAMMAR_TYPE == grammar_type) {
-    _string_grammar = _reference_frames->get_string_grammar( start_point, goal_point );
-  }
-  else if( HOMOTOPIC_GRAMMAR_TYPE == grammar_type ) {
-    _string_grammar = _reference_frames->get_homotopic_grammar(start_point, goal_point );
-  }
-  std::cout << "Init String Class Mgr ... " << std::endl;
+  _string_grammar = _reference_frames->get_string_grammar( start_point, goal_point );
+  
+  cout << "Init String Class Mgr ... " << endl;
   _p_string_class_mgr = new StringClassMgr( _string_grammar );
 
-  std::cout << "Init st_tree.." << std::endl;
+  cout << "Init st_tree.." << endl;
   KDNode2D st_root( start );
   _p_st_root = new BIRRTNode( start );
   _st_nodes.push_back(_p_st_root);
   st_root.setBIRRTNode(_p_st_root);
   _p_st_kd_tree->insert( st_root );
   
-  std::cout << "Init gt_tree.." << std::endl;
+  cout << "Init gt_tree.." << endl;
   KDNode2D gt_root( goal );
   _p_gt_root = new BIRRTNode( goal );
   _gt_nodes.push_back(_p_gt_root);
@@ -267,13 +263,13 @@ bool BIRRTstar::_is_obstacle_free( POS2D pos_a, POS2D pos_b ) {
 
   const bool steep = ( fabs(y2 - y1) > fabs(x2 - x1) );
   if ( steep ) {
-    std::swap( x1, y1 );
-    std::swap( x2, y2 );
+    swap( x1, y1 );
+    swap( x2, y2 );
   }
 
   if ( x1 > x2 ) {
-    std::swap( x1, x2 );
-    std::swap( y1, y2 );
+    swap( x1, x2 );
+    swap( y1, y2 );
   }
 
   const float dx = x2 - x1;
@@ -362,7 +358,7 @@ BIRRTNode* BIRRTstar::_extend( RRTree_type_t tree_type ) {
 
     if( true == _is_obstacle_free( nearest_node, new_pos ) ) {
       if( true == _is_homotopy_eligible( nearest_node.getBIRRTNode(), new_pos, tree_type) ) {
-        std::list<KDNode2D> near_list = _find_near( new_pos, tree_type );
+        list<KDNode2D> near_list = _find_near( new_pos, tree_type );
         KDNode2D new_node( new_pos );
 
         // create new node
@@ -377,9 +373,9 @@ BIRRTNode* BIRRTstar::_extend( RRTree_type_t tree_type ) {
         node_inserted = true;
 
         BIRRTNode* p_nearest_rnode = nearest_node.getBIRRTNode();
-        std::list<BIRRTNode*> near_rnodes;
+        list<BIRRTNode*> near_rnodes;
         near_rnodes.clear();
-        for( std::list<KDNode2D>::iterator itr = near_list.begin();
+        for( list<KDNode2D>::iterator itr = near_list.begin();
              itr != near_list.end(); itr++ ) {
           KDNode2D kd_node = (*itr);
           BIRRTNode* p_near_rnode = kd_node.getBIRRTNode();
@@ -400,20 +396,20 @@ BIRRTNode* BIRRTstar::_extend( RRTree_type_t tree_type ) {
 KDNode2D BIRRTstar::_find_nearest( POS2D pos, RRTree_type_t tree_type ) {
   KDNode2D node( pos );
   if( START_TREE_TYPE == tree_type) {
-    std::pair<KDTree2D::const_iterator,double> found = _p_st_kd_tree->find_nearest( node );
+    pair<KDTree2D::const_iterator,double> found = _p_st_kd_tree->find_nearest( node );
     KDNode2D near_node = *found.first;
     return near_node;
   }
   else if( GOAL_TREE_TYPE == tree_type ) {
-    std::pair<KDTree2D::const_iterator,double> found = _p_gt_kd_tree->find_nearest( node );
+    pair<KDTree2D::const_iterator,double> found = _p_gt_kd_tree->find_nearest( node );
     KDNode2D near_node = *found.first;
     return near_node;
   }
   return node;
 }
 
-std::list<KDNode2D> BIRRTstar::_find_near( POS2D pos, RRTree_type_t tree_type ) {
-  std::list<KDNode2D> near_list;
+list<KDNode2D> BIRRTstar::_find_near( POS2D pos, RRTree_type_t tree_type ) {
+  list<KDNode2D> near_list;
   KDNode2D node(pos);
 
   int num_dimensions = 2;
@@ -421,13 +417,13 @@ std::list<KDNode2D> BIRRTstar::_find_near( POS2D pos, RRTree_type_t tree_type ) 
     int num_vertices = _p_st_kd_tree->size();
     _st_ball_radius =  _theta * _range * pow( log((double)(num_vertices + 1.0))/((double)(num_vertices + 1.0)), 1.0/((double)num_dimensions) );
 
-    _p_st_kd_tree->find_within_range( node, _st_ball_radius, std::back_inserter( near_list ) );
+    _p_st_kd_tree->find_within_range( node, _st_ball_radius, back_inserter( near_list ) );
   }
   else if ( GOAL_TREE_TYPE == tree_type ) {
     int num_vertices = _p_gt_kd_tree->size();
     _gt_ball_radius =  _theta * _range * pow( log((double)(num_vertices + 1.0))/((double)(num_vertices + 1.0)), 1.0/((double)num_dimensions) );
 
-    _p_gt_kd_tree->find_within_range( node, _gt_ball_radius, std::back_inserter( near_list ) );
+    _p_gt_kd_tree->find_within_range( node, _gt_ball_radius, back_inserter( near_list ) );
   }
   return near_list;
 }
@@ -469,7 +465,7 @@ bool BIRRTstar::_remove_edge( BIRRTNode* p_node_parent, BIRRTNode*  p_node_child
 
   p_node_child->mp_parent = NULL;
   bool removed = false;
-  for( std::list<BIRRTNode*>::iterator it=p_node_parent->m_child_nodes.begin();it!=p_node_parent->m_child_nodes.end();it++ ) {
+  for( list<BIRRTNode*>::iterator it=p_node_parent->m_child_nodes.begin();it!=p_node_parent->m_child_nodes.end();it++ ) {
     BIRRTNode* p_current = (BIRRTNode*)(*it);
     if ( p_current == p_node_child || p_current->m_pos==p_node_child->m_pos ) {
       p_current->mp_parent = NULL;
@@ -485,7 +481,7 @@ bool BIRRTstar::_has_edge(BIRRTNode* p_node_parent, BIRRTNode* p_node_child) {
   if ( p_node_parent == NULL || p_node_child == NULL ) {
     return false;
   }
-  for( std::list<BIRRTNode*>::iterator it=p_node_parent->m_child_nodes.begin();it!=p_node_parent->m_child_nodes.end();it++ ) {
+  for( list<BIRRTNode*>::iterator it=p_node_parent->m_child_nodes.begin();it!=p_node_parent->m_child_nodes.end();it++ ) {
     BIRRTNode* p_curr_node = (*it);
     if( p_curr_node == p_node_child ) {
       return true;
@@ -509,7 +505,7 @@ bool BIRRTstar::_add_edge( BIRRTNode* p_node_parent, BIRRTNode* p_node_child ) {
   Point2D start( p_node_parent->m_pos[0], p_node_parent->m_pos[1] );
   Point2D goal( p_node_child->m_pos[0], p_node_child->m_pos[1] );
   //std::cout << "START " << start << " END " << goal << std::endl;
-  std::vector< std::string > ids = _reference_frames->get_string( start, goal, _grammar_type );
+  vector< string > ids = _reference_frames->get_string( start, goal, _grammar_type );
   p_node_child->clear_string();
   p_node_child->append_to_string( p_node_parent->m_substring );
   p_node_child->append_to_string( ids );
@@ -526,20 +522,20 @@ bool BIRRTstar::_add_edge( BIRRTNode* p_node_parent, BIRRTNode* p_node_child ) {
   return true;
 }
 
-std::list<BIRRTNode*> BIRRTstar::_find_all_children( BIRRTNode* p_node ) {
+list<BIRRTNode*> BIRRTstar::_find_all_children( BIRRTNode* p_node ) {
   int level = 0;
   bool finished = false;
-  std::list<BIRRTNode*> child_list;
+  list<BIRRTNode*> child_list;
 
-  std::list<BIRRTNode*> current_level_nodes;
+  list<BIRRTNode*> current_level_nodes;
   current_level_nodes.push_back( p_node );
   while( false==finished ) {
-    std::list<BIRRTNode*> current_level_children;
+    list<BIRRTNode*> current_level_children;
     int child_list_num = child_list.size();
 
-    for( std::list<BIRRTNode*>::iterator it=current_level_nodes.begin(); it!=current_level_nodes.end(); it++ ) {
+    for( list<BIRRTNode*>::iterator it=current_level_nodes.begin(); it!=current_level_nodes.end(); it++ ) {
       BIRRTNode* pCurrentNode = (*it);
-      for( std::list<BIRRTNode*>::iterator itc=pCurrentNode->m_child_nodes.begin(); itc!=pCurrentNode->m_child_nodes.end();itc++ ) {
+      for( list<BIRRTNode*>::iterator itc=pCurrentNode->m_child_nodes.begin(); itc!=pCurrentNode->m_child_nodes.end();itc++ ) {
         BIRRTNode *p_child_node= (*itc);
         if(p_child_node) {
           current_level_children.push_back(p_child_node);
@@ -559,7 +555,7 @@ std::list<BIRRTNode*> BIRRTstar::_find_all_children( BIRRTNode* p_node ) {
     }
     else {
       current_level_nodes.clear();
-      for( std::list<BIRRTNode*>::iterator itt=current_level_children.begin();itt!=current_level_children.end();itt++ ) {
+      for( list<BIRRTNode*>::iterator itt=current_level_children.begin();itt!=current_level_children.end();itt++ ) {
         BIRRTNode * pTempNode = (*itt);
         if( pTempNode ) {
           current_level_nodes.push_back( pTempNode );
@@ -601,11 +597,11 @@ Path* BIRRTstar::find_path( POS2D via_pos ) {
   return p_new_path;
 }
 
-void BIRRTstar::_attach_new_node(BIRRTNode* p_node_new, BIRRTNode* p_nearest_node, std::list<BIRRTNode*> near_nodes, RRTree_type_t tree_type) {
+void BIRRTstar::_attach_new_node(BIRRTNode* p_node_new, BIRRTNode* p_nearest_node, list<BIRRTNode*> near_nodes, RRTree_type_t tree_type) {
   double min_new_node_cost = p_nearest_node->m_cost + _calculate_cost(p_nearest_node->m_pos, p_node_new->m_pos);
   BIRRTNode* p_min_node = p_nearest_node;
 
-  for(std::list<BIRRTNode*>::iterator it=near_nodes.begin();it!=near_nodes.end();it++) {
+  for(list<BIRRTNode*>::iterator it=near_nodes.begin();it!=near_nodes.end();it++) {
     BIRRTNode* p_near_node = *it;
     if ( true == _is_obstacle_free( p_near_node->m_pos, p_node_new->m_pos ) ) {
       if ( true == _is_homotopy_eligible( p_near_node, p_node_new->m_pos, tree_type ) ) {
@@ -626,8 +622,8 @@ void BIRRTstar::_attach_new_node(BIRRTNode* p_node_new, BIRRTNode* p_nearest_nod
 
 }
 
-void BIRRTstar::_rewire_near_nodes(BIRRTNode* p_node_new, std::list<BIRRTNode*> near_nodes, RRTree_type_t tree_type) {
-  for( std::list<BIRRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++ ) {
+void BIRRTstar::_rewire_near_nodes(BIRRTNode* p_node_new, list<BIRRTNode*> near_nodes, RRTree_type_t tree_type) {
+  for( list<BIRRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++ ) {
     BIRRTNode * p_near_node = (*it);
 
     if(p_near_node->m_pos ==p_node_new->m_pos ||  p_near_node->m_pos==_p_st_root->m_pos || p_node_new->mp_parent->m_pos==p_near_node->m_pos) {
@@ -650,7 +646,7 @@ void BIRRTstar::_rewire_near_nodes(BIRRTNode* p_node_new, std::list<BIRRTNode*> 
             }
           }
           else {
-            std::cout << " Failed in removing " << std::endl;
+            cout << " Failed in removing " << endl;
           }
         }
       }
@@ -659,8 +655,8 @@ void BIRRTstar::_rewire_near_nodes(BIRRTNode* p_node_new, std::list<BIRRTNode*> 
 }
 
 void BIRRTstar::_update_cost_to_children( BIRRTNode* p_node, double delta_cost ) {
-  std::list<BIRRTNode*> child_list = _find_all_children( p_node );
-  for( std::list<BIRRTNode*>::iterator it = child_list.begin(); it != child_list.end();it++ ) {
+  list<BIRRTNode*> child_list = _find_all_children( p_node );
+  for( list<BIRRTNode*>::iterator it = child_list.begin(); it != child_list.end();it++ ) {
     BIRRTNode* p_child_node = (*it);
     if( p_child_node ) {
       p_child_node->m_cost -= delta_cost;
@@ -671,10 +667,10 @@ void BIRRTstar::_update_cost_to_children( BIRRTNode* p_node, double delta_cost )
 bool BIRRTstar::_get_closest_node ( POS2D pos, BIRRTNode*& p_node_closet_to_goal, double& delta_cost, RRTree_type_t tree_type ) {
   bool found = false;
 
-  std::list<KDNode2D> near_nodes = _find_near( pos, tree_type );
-  double min_total_cost = std::numeric_limits<double>::max();
+  list<KDNode2D> near_nodes = _find_near( pos, tree_type );
+  double min_total_cost = numeric_limits<double>::max();
 
-  for(std::list<KDNode2D>::iterator it=near_nodes.begin();
+  for(list<KDNode2D>::iterator it=near_nodes.begin();
       it!=near_nodes.end();it++) {
     KDNode2D kd_node = (*it);
     BIRRTNode* p_node = kd_node.getBIRRTNode();
@@ -690,8 +686,8 @@ bool BIRRTstar::_get_closest_node ( POS2D pos, BIRRTNode*& p_node_closet_to_goal
   return found;
 }
 
-void BIRRTstar::dump_distribution(std::string filename) {
-  std::ofstream myfile;
+void BIRRTstar::dump_distribution(string filename) {
+  ofstream myfile;
   myfile.open (filename.c_str());
   if(_pp_cost_distribution) {
     for(int i=0;i<_sampling_width;i++) {
@@ -708,7 +704,7 @@ Path* BIRRTstar::_concatenate_paths( Path* p_from_path, Path* p_to_path ) {
   Path* p_new_path = new Path( p_from_path->m_start, p_to_path->m_start );
   Point2D from_path_end( p_from_path->m_goal[0], p_from_path->m_goal[1] );
   Point2D to_path_end( p_to_path->m_goal[0], p_to_path->m_goal[1] );
-  std::vector< std::string > between_ids = _reference_frames->get_string( from_path_end, to_path_end , _grammar_type );
+  vector< string > between_ids = _reference_frames->get_string( from_path_end, to_path_end , _grammar_type );
   double delta_cost = _calculate_cost( p_from_path->m_goal, p_to_path->m_goal );
 
   p_new_path->append_waypoints( p_from_path->m_way_points );
@@ -723,7 +719,7 @@ Path* BIRRTstar::_concatenate_paths( Path* p_from_path, Path* p_to_path ) {
 
 Path* BIRRTstar::_get_subpath( BIRRTNode* p_end_node, RRTree_type_t tree_type ) {
   Path* p_subpath = NULL; 
-  std::list<BIRRTNode*> node_list;
+  list<BIRRTNode*> node_list;
   get_parent_node_list( p_end_node , node_list );
   if( tree_type == START_TREE_TYPE ) {
     p_subpath = new Path( _p_st_root->m_pos, p_end_node->m_pos );
@@ -734,7 +730,7 @@ Path* BIRRTstar::_get_subpath( BIRRTNode* p_end_node, RRTree_type_t tree_type ) 
   p_subpath->m_cost = p_end_node->m_cost;
   p_subpath->append_substring( p_end_node->m_substring ); 
   p_subpath->m_way_points.clear();
-  for( std::list<BIRRTNode*>::reverse_iterator itr = node_list.rbegin();
+  for( list<BIRRTNode*>::reverse_iterator itr = node_list.rbegin();
        itr != node_list.rend(); itr ++ ) {
     BIRRTNode* p_rrt_node = (*itr);
     p_subpath->m_way_points.push_back( p_rrt_node->m_pos ); 
@@ -742,8 +738,8 @@ Path* BIRRTstar::_get_subpath( BIRRTNode* p_end_node, RRTree_type_t tree_type ) 
   return p_subpath;
 }
 
-std::vector<Path*> BIRRTstar::get_paths() {
-  std::vector<Path*> paths;
+vector<Path*> BIRRTstar::get_paths() {
+  vector<Path*> paths;
   if ( _p_string_class_mgr ) {
     paths = _p_string_class_mgr->export_paths();  
   } 
@@ -761,17 +757,17 @@ bool BIRRTstar::_is_homotopy_eligible( BIRRTNode* p_node_parent, POS2D pos, RRTr
   }
   Point2D start( p_node_parent->m_pos[0], p_node_parent->m_pos[1] );
   Point2D end( pos[0], pos[1] );
-  std::vector< std::string > ids = _reference_frames->get_string( start, end, _grammar_type );
-  std::vector< std::string > temp_ids;
+  vector< string > ids = _reference_frames->get_string( start, end, _grammar_type );
+  vector< string > temp_ids;
 
-  for( std::vector< std::string >::iterator it = p_node_parent->m_substring.begin();
+  for( vector< string >::iterator it = p_node_parent->m_substring.begin();
        it != p_node_parent->m_substring.end(); it ++ ) {
-    std::string id = (*it);
+    string id = (*it);
     temp_ids.push_back( id );
   }
-  for( std::vector< std::string >::iterator it = ids.begin();
+  for( vector< string >::iterator it = ids.begin();
        it != ids.end(); it++) {
-    std::string id = (*it);
+    string id = (*it);
     temp_ids.push_back( id );
   }
 
