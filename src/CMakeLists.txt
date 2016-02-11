@@ -70,6 +70,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/WorldDecomp
                     ${PROJECT_SOURCE_DIR}/src/SpatialRelations
                     ${PROJECT_SOURCE_DIR}/src/SpatialRelationsViz
                     ${PROJECT_SOURCE_DIR}/src/SpatialRelationsDemo
+                    ${PROJECT_SOURCE_DIR}/src/HARRTs
                    )
 
 add_definitions(-Wall -g -O3)
@@ -78,4 +79,4 @@ add_subdirectory(WorldDecomp)
 add_subdirectory(SpatialRelations)
 add_subdirectory(SpatialRelationsViz)
 add_subdirectory(SpatialRelationsDemo)
-
+add_subdirectory(HARRTs)
