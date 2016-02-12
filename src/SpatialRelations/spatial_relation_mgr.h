@@ -9,7 +9,7 @@ namespace h2p {
 
   class StringClass {
   public:
-    StringClass( std::vector< std::string > string );
+    StringClass( std::vector< std::string > id_string );
     virtual ~StringClass();
   
     std::string get_name();

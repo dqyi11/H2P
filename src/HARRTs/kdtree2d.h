@@ -8,7 +8,7 @@
 
 #include "kdtree++/kdtree.hpp"
 
-namespace h2p {
+namespace birrts {
 
   class BIRRTNode;
 

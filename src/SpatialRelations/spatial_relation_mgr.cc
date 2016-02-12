@@ -3,8 +3,8 @@
 using namespace std;
 using namespace h2p;
 
-StringClass::StringClass( vector< std::string > string ) {
-  m_string = string;
+StringClass::StringClass( vector< std::string > string_id ) {
+  m_string = string_id;
 }
 
 StringClass::~StringClass() {

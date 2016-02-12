@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace h2p;
+using namespace birrts;
 
 BIRRTstarPathPlanningInfo::BIRRTstarPathPlanningInfo() {
   m_info_filename = "";

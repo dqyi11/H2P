@@ -13,7 +13,9 @@
 #define DRAWING_LINE_COLOR      QColor(153,76,0)
 #define LINE_WIDTH              2
 
+using namespace std;
 using namespace h2p;
+using namespace birrts;
 
 BIRRTstarViz::BIRRTstarViz( QWidget *parent ) :
     QLabel(parent) {
@@ -136,7 +138,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
         st_tree_painter.setOpacity(0.4);
       }
       st_tree_painter.setPen(st_tree_paintpen);
-      for( std::list<BIRRTNode*>::iterator it= mp_tree->get_st_nodes().begin(); it!=mp_tree->get_st_nodes().end();it++ ) {
+      for( list<BIRRTNode*>::iterator it= mp_tree->get_st_nodes().begin(); it!=mp_tree->get_st_nodes().end();it++ ) {
         BIRRTNode* p_node = (*it);
         if(p_node) {
           if(p_node->mp_parent) {
@@ -160,7 +162,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
         gt_tree_painter.setOpacity(0.4);
       }
       gt_tree_painter.setPen(gt_tree_paintpen);
-      for( std::list<BIRRTNode*>::iterator it= mp_tree->get_gt_nodes().begin(); it!=mp_tree->get_gt_nodes().end();it++ ) {
+      for( list<BIRRTNode*>::iterator it= mp_tree->get_gt_nodes().begin(); it!=mp_tree->get_gt_nodes().end();it++ ) {
         BIRRTNode* p_node = (*it);
         if(p_node) {
           if(p_node->mp_parent) {
@@ -230,7 +232,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
 
   if( mp_tree!=NULL && m_finished_planning==false ) {
     if( mp_tree->get_string_class_mgr() ) {
-      std::vector< StringClass* > classes = mp_tree->get_string_class_mgr()->get_string_classes();
+      vector< StringClass* > classes = mp_tree->get_string_class_mgr()->get_string_classes();
       QPainter path_painter(device);
       QPen path_paintpen( PATH_COLOR );
       path_paintpen.setWidth(3);
@@ -280,7 +282,7 @@ bool BIRRTstarViz::draw_path(QString filename) {
 
   QPixmap pix(m_PPInfo.m_objective_file);
 
-  std::cout << "DUMP PATH IMG " << pix.width() << " " << pix.height() << std::endl;
+  cout << "DUMP PATH IMG " << pix.width() << " " << pix.height() << endl;
 
   QFile file(filename);
   if(file.open(QIODevice::WriteOnly)) {
@@ -377,7 +379,7 @@ void BIRRTstarViz::next_reference_frame() {
   }
 }
 
-std::string BIRRTstarViz::get_reference_frame_name() {
+string BIRRTstarViz::get_reference_frame_name() {
 
   if ( m_reference_frame_index < mp_reference_frames->get_reference_frames().size() ) {
     return mp_reference_frames->get_reference_frames()[m_reference_frame_index]->m_name;
@@ -385,7 +387,7 @@ std::string BIRRTstarViz::get_reference_frame_name() {
   return "NO REF FRAME";
 }
 
-std::string BIRRTstarViz::get_region_name() {
+string BIRRTstarViz::get_region_name() {
   SubRegion* p_subregion = get_selected_subregion();
   if( p_subregion ) {
     return p_subregion->get_name();
@@ -419,8 +421,8 @@ void BIRRTstarViz::next_found_path() {
   }
 }
 
-void BIRRTstarViz::import_string_constraint( std::vector< QPoint > points, grammar_type_t type ) {
-  std::vector< Point2D > ref_points;
+void BIRRTstarViz::import_string_constraint( vector< QPoint > points, grammar_type_t type ) {
+  vector< Point2D > ref_points;
   for( unsigned int i = 0; i < points.size(); i ++ ) {
     ref_points.push_back( Point2D( points[i].x(), points[i].y() ) );
   }
@@ -445,8 +447,8 @@ void BIRRTstarViz::mouseMoveEvent( QMouseEvent * event ) {
     QPoint new_point( event->x(), event->y() );
     if( m_drawed_points.size() > 0 ) {
       QPoint last_point = m_drawed_points.back();
-      if( std::abs( new_point.x() - last_point.x() ) > 1 &&
-          std::abs( new_point.y() - last_point.y() ) > 1 ) {
+      if( abs( new_point.x() - last_point.x() ) > 1 &&
+          abs( new_point.y() - last_point.y() ) > 1 ) {
         m_drawed_points.push_back( new_point );
       }
     }

@@ -10,7 +10,7 @@
 #include "birrtstar_viz.h"
 #include "reference_frames.h"
 
-namespace h2p {
+namespace birrts {
 
   class BIRRTstarConfig;
 
@@ -64,7 +64,7 @@ namespace h2p {
 
     BIRRTstarConfig*   mpBIRRTstarConfig;
     BIRRTstar*         mpBIRRTstar;
-    ReferenceFrameSet* mpReferenceFrameSet;
+    h2p::ReferenceFrameSet* mpReferenceFrameSet;
 
   private slots:
     void contextMenuRequested(QPoint point);

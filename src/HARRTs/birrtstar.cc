@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace h2p;
+using namespace birrts;
 
 BIRRTNode::BIRRTNode(POS2D pos) {
   m_pos = pos;
@@ -179,7 +180,7 @@ bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp
   _string_grammar = _reference_frames->get_string_grammar( start_point, goal_point );
   
   cout << "Init String Class Mgr ... " << endl;
-  _p_string_class_mgr = new StringClassMgr( _string_grammar );
+  _p_string_class_mgr = new StringClassMgr( _reference_frames->get_world_map(), _string_grammar );
 
   cout << "Init st_tree.." << endl;
   KDNode2D st_root( start );

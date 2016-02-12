@@ -7,7 +7,7 @@
 #include "birrtstar_path_planning_info.h"
 #include "reference_frames.h"
 
-namespace h2p {
+namespace birrts {
 
   typedef enum{
     NONE_TREE_SHOW,
@@ -22,7 +22,7 @@ namespace h2p {
   public:
     explicit BIRRTstarViz(QWidget *parent = 0);
     void set_tree(BIRRTstar* p_tree);
-    void set_reference_frame_set(ReferenceFrameSet* p_rf);
+    void set_reference_frame_set(h2p::ReferenceFrameSet* p_rf);
     bool draw_path(QString filename);
     bool save_current_viz(QString filename);
 
@@ -35,9 +35,9 @@ namespace h2p {
     bool show_regions() { return m_show_regions; }
     bool is_finished_planning() { return m_finished_planning; }
  
-    ReferenceFrame* get_selected_reference_frame();
-    SubRegionSet*   get_selected_subregion_set();
-    SubRegion*      get_selected_subregion();
+    h2p::ReferenceFrame* get_selected_reference_frame();
+    h2p::SubRegionSet*   get_selected_subregion_set();
+    h2p::SubRegion*      get_selected_subregion();
 
     void prev_region();
     void next_region();
@@ -52,7 +52,7 @@ namespace h2p {
     std::string get_reference_frame_name();
     std::string get_region_name();
 
-    void import_string_constraint( std::vector< QPoint > points, grammar_type_t type );
+    void import_string_constraint( std::vector< QPoint > points, h2p::grammar_type_t type );
     QString generate_string();
 
     tree_show_type_t get_tree_show_type() { return m_tree_show_type; }
@@ -83,8 +83,8 @@ namespace h2p {
     void draw_current_viz(QPixmap& map);
 
     void paint(QPaintDevice * device);
-    BIRRTstar*          mp_tree;
-    ReferenceFrameSet*  mp_reference_frames;
+    BIRRTstar*              mp_tree;
+    h2p::ReferenceFrameSet* mp_reference_frames;
     bool                m_show_reference_frames;
     bool                m_show_regions;
     bool                m_finished_planning;

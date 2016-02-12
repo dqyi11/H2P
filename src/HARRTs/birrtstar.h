@@ -8,7 +8,7 @@
 #include "string_class_mgr.h"
 
 
-namespace h2p {
+namespace birrts {
 
   typedef double (*COST_FUNC_PTR)(POS2D, POS2D, double**, void*);
 
@@ -59,7 +59,7 @@ namespace h2p {
     BIRRTstar(int width, int height, int segment_length);
     virtual ~BIRRTstar();
 
-    bool init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distrinution, grammar_type_t grammar_type );
+    bool init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distrinution, h2p::grammar_type_t grammar_type );
     void load_map( int** pp_map );
 
     int get_sampling_width() { return _sampling_width; }
@@ -77,13 +77,13 @@ namespace h2p {
     Path* find_path( POS2D via_pos );
     std::vector<Path*> get_paths();
 
-    void set_reference_frames( ReferenceFrameSet* p_reference_frames );
-    ReferenceFrameSet* get_reference_frames() { return _reference_frames; }
+    void set_reference_frames( h2p::ReferenceFrameSet* p_reference_frames );
+    h2p::ReferenceFrameSet* get_reference_frames() { return _reference_frames; }
     StringClassMgr* get_string_class_mgr() { return _p_string_class_mgr; }
 
     void set_run_type( RRTree_run_type_t tree_type ) { _run_type = tree_type; }
     RRTree_run_type_t get_run_type() { return _run_type; } 
-    grammar_type_t get_grammar_type() { return _grammar_type; }
+    h2p::grammar_type_t get_grammar_type() { return _grammar_type; }
     void dump_distribution(std::string filename);
 
   protected:
@@ -117,17 +117,17 @@ namespace h2p {
     bool _get_closest_node( POS2D pos, BIRRTNode*& p_node_closest, double& delta_cost, RRTree_type_t tree_type );
 
     BIRRTNode* _find_ancestor( BIRRTNode* p_node );
-    void set_grammar_type( grammar_type_t grammar_type ) { _grammar_type = grammar_type; }
+    void set_grammar_type( h2p::grammar_type_t grammar_type ) { _grammar_type = grammar_type; }
 
-    ReferenceFrameSet* _reference_frames;
-    StringGrammar*     _string_grammar;
+    h2p::ReferenceFrameSet* _reference_frames;
+    h2p::StringGrammar*     _string_grammar;
  
     POS2D    _start;
     POS2D    _goal;
     BIRRTNode* _p_st_root;
     BIRRTNode* _p_gt_root;
 
-    grammar_type_t _grammar_type;
+    h2p::grammar_type_t _grammar_type;
 
     BIRRTNode* _p_st_new_node;
     BIRRTNode* _p_gt_new_node;
@@ -137,12 +137,12 @@ namespace h2p {
     int _sampling_width;
     int _sampling_height;
 
-    int**           _pp_map_info;
-    StringClassMgr* _p_string_class_mgr;
-    KDTree2D*       _p_st_kd_tree;
-    KDTree2D*       _p_gt_kd_tree;
-    COST_FUNC_PTR   _p_cost_func;
-    double**        _pp_cost_distribution;
+    int**               _pp_map_info;
+    StringClassMgr*     _p_string_class_mgr;
+    KDTree2D*           _p_st_kd_tree;
+    KDTree2D*           _p_gt_kd_tree;
+    COST_FUNC_PTR       _p_cost_func;
+    double**            _pp_cost_distribution;
 
     std::list<BIRRTNode*> _st_nodes;
     std::list<BIRRTNode*> _gt_nodes;

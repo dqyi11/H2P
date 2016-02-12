@@ -12,6 +12,7 @@
 #define BOTH_TREES_RUN_STR    "Run both trees"
 
 using namespace h2p;
+using namespace birrts;
 
 BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
   mpParentWindow = parent;

@@ -2,26 +2,25 @@
 #define STRING_CLASS_MGR_H
 
 #include <vector>
+#include "spatial_relation_mgr.h"
 #include "string_grammar.h"
 
-namespace h2p {
+namespace birrts {
 
   class Path;
 
-  class StringClass {
+  class StringClass : public h2p::StringClass {
   public:
-    StringClass( std::vector< std::string > string );
+    StringClass( std::vector< std::string > id_string );
     virtual ~StringClass();
-    std::string get_name();
   
-    std::vector< std::string > m_string;
     double m_cost;
     Path*  mp_path;
   };
 
-  class StringClassMgr {
+  class StringClassMgr : public h2p::SpatialRelationMgr {
   public:
-    StringClassMgr(StringGrammar* p_grammar);
+    StringClassMgr(h2p::WorldMap* p_worldmap, h2p::StringGrammar* p_grammar);
     virtual ~StringClassMgr();
 
     void import_path( Path* p_path );
@@ -31,7 +30,7 @@ namespace h2p {
     std::vector< StringClass* >& get_string_classes() { return _classes; }  
     void export_grammar( std::string filename );
   protected:
-    StringGrammar* _p_grammar;
+    h2p::StringGrammar* _p_grammar;
     std::vector< StringClass* > _classes;
   };
 

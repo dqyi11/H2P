@@ -2,10 +2,9 @@
 #include "birrtstar.h"
 
 using namespace std;
-using namespace h2p;
+using namespace birrts;
 
-StringClass::StringClass( std::vector< std::string > string ) {
-  m_string = string;
+StringClass::StringClass( vector< string > id_string ) : h2p::StringClass( id_string ) {
   m_cost = 0.0;
   mp_path = NULL;
 }
@@ -16,19 +15,7 @@ StringClass::~StringClass() {
   mp_path = NULL;
 }
 
-string StringClass::get_name() {
-  std::string name = "";
-  for( unsigned int i = 0; i < m_string.size(); i ++ ) {
-    if (i > 0) { 
-      name += " ";
-    }
-    name += m_string[i];
-  }
-  return name;
-}
-
-
-StringClassMgr::StringClassMgr( StringGrammar* p_grammar ) {
+StringClassMgr::StringClassMgr( h2p::WorldMap* p_worldmap, h2p::StringGrammar* p_grammar ) : h2p::SpatialRelationMgr( p_worldmap ) {
   _p_grammar = p_grammar;
 }
 
@@ -38,9 +25,9 @@ StringClassMgr::~StringClassMgr() {
 }
 
 void StringClassMgr::import_path( Path* p_path ) { 
-  std::vector< std::string > non_repeating_id_string = _p_grammar->get_non_repeating_form( p_path->m_string );
+  vector< string > non_repeating_id_string = _p_grammar->get_non_repeating_form( p_path->m_string );
   if ( _p_grammar->is_valid_string( non_repeating_id_string ) == false ) {
-    std::cout << "INVALID STRING " << std::endl;
+    cout << "INVALID STRING " << endl;
   }
   StringClass* p_string_class = find_string_class( non_repeating_id_string );
   if( p_string_class ) {
@@ -57,16 +44,16 @@ void StringClassMgr::import_path( Path* p_path ) {
   }
 }
 
-std::vector<Path*> StringClassMgr::export_paths() {
+vector<Path*> StringClassMgr::export_paths() {
 
-  std::vector<Path*> paths;
+  vector<Path*> paths;
   for( unsigned int i = 0; i < _classes.size(); i++) {
     paths.push_back( _classes[i]->mp_path );
   }
   return paths;
 }
 
-StringClass* StringClassMgr::find_string_class( std::vector< std::string > str ) {
+StringClass* StringClassMgr::find_string_class( vector< string > str ) {
   
   StringClass* p_string_class = NULL;
   for( unsigned int i = 0; i < _classes.size(); i ++ ) {
@@ -87,7 +74,7 @@ StringClass* StringClassMgr::find_string_class( std::vector< std::string > str )
 }
 
 void StringClassMgr::merge() {
-  std::vector< StringClass* > merged_classes;
+  vector< StringClass* > merged_classes;
   //std::cout << "NUM OF CLASSES " << _classes.size() << std::endl;
   for( unsigned int i = 0; i < _classes.size(); i ++ ) {
     StringClass* str_class = _classes[i];
@@ -121,7 +108,7 @@ void StringClassMgr::merge() {
   _classes = merged_classes;
 }
   
-void StringClassMgr::export_grammar( std::string filename ) {
+void StringClassMgr::export_grammar( string filename ) {
   if( _p_grammar ) {
     _p_grammar->output( filename );
   }

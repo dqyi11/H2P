@@ -11,7 +11,7 @@
 
 #include "birrtstar.h"
 
-namespace h2p {
+namespace birrts {
 
   class BIRRTstarPathPlanningInfo {
   public:
@@ -123,7 +123,7 @@ namespace h2p {
     COST_FUNC_PTR mp_func;
     double** mCostDistribution; 
 
-    grammar_type_t m_grammar_type;
+    h2p::grammar_type_t m_grammar_type;
     RRTree_run_type_t m_run_type;
 
     int m_max_iteration_num;

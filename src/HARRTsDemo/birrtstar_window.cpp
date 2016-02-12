@@ -10,7 +10,9 @@
 #include "img_load_util.h"
 //#include "expanding_tree.h"
 
+using namespace std;
 using namespace h2p;
+using namespace birrts;
 
 BIRRTstarWindow::BIRRTstarWindow(QWidget *parent)
     : QMainWindow(parent) {
