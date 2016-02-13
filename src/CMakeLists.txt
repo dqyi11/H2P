@@ -71,7 +71,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/WorldDecomp
                     ${PROJECT_SOURCE_DIR}/src/SpatialRelationsViz
                     ${PROJECT_SOURCE_DIR}/src/SpatialRelationsDemo
                     ${PROJECT_SOURCE_DIR}/src/HARRTs
- #                   ${PROJECT_SOURCE_DIR}/src/HARRTsViz
+                    ${PROJECT_SOURCE_DIR}/src/HARRTsViz
  #                   ${PROJECT_SOURCE_DIR}/src/HARRTsDemo
                    )
 
@@ -82,5 +82,5 @@ add_subdirectory(SpatialRelations)
 add_subdirectory(SpatialRelationsViz)
 add_subdirectory(SpatialRelationsDemo)
 add_subdirectory(HARRTs)
-#add_subdirectory(HARRTsViz)
+add_subdirectory(HARRTsViz)
 #add_subdirectory(HARRTsDemo)

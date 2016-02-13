@@ -72,6 +72,7 @@ namespace h2p {
     void update_viz_reference_frames();
 
     void mousePressEvent( QMouseEvent * event );
+    void paint( QPaintDevice * device );
 
     SpatialRelationMgr* mp_mgr;
     ReferenceFrameSet*  mp_reference_frame_set;

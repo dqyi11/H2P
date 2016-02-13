@@ -93,11 +93,17 @@ void SpatialRelationsViz::process_world( ) {
 }
 
 void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
-    QLabel::paintEvent(e);
+  QLabel::paintEvent(e);
+  paint( this );
+
+}
+
+void SpatialRelationsViz::paint(QPaintDevice * device ) {
+
   if (mp_mgr) {
     if (mp_mgr->mp_worldmap) {
 
-      QPainter region_painter(this);
+      QPainter region_painter(device);
       region_painter.setRenderHint(QPainter::Antialiasing);
       QBrush region_brush( SUBREGION_COLOR );
       region_painter.setPen(Qt::NoPen);
@@ -117,7 +123,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       region_painter.end();
 
-      QPainter line_hl_painter(this);
+      QPainter line_hl_painter(device);
       QPen line_hl_pen( LINE_HIGHLIGHTED_COLOR );
       line_hl_pen.setWidth( LINE_WIDTH_HIGHLIGHTED );
       line_hl_painter.setPen( line_hl_pen );
@@ -134,7 +140,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
 
       std::vector<Obstacle*> obstacles =  mp_mgr->mp_worldmap->get_obstacles();
   
-      QPainter obstacle_painter(this);
+      QPainter obstacle_painter(device);
       obstacle_painter.setRenderHint(QPainter::Antialiasing);
       QPen obstacle_pen( OBSTACLE_COLOR );
       obstacle_painter.setPen(obstacle_pen);
@@ -153,7 +159,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       obstacle_painter.end();
 
-      QPainter hl_obs_painter(this);
+      QPainter hl_obs_painter(device);
       hl_obs_painter.setRenderHint(QPainter::Antialiasing);
       QPen hl_obs_pen( ASSOCIATED_OBSTACLE_COLOR );
       hl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
@@ -176,7 +182,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       hl_obs_painter.end();
 
-      QPainter sl_obs_painter(this);
+      QPainter sl_obs_painter(device);
       sl_obs_painter.setRenderHint(QPainter::Antialiasing);
       QPen sl_obs_pen( SELECTED_OBSTACLE_COLOR );
       sl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
@@ -197,7 +203,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       sl_obs_painter.end();
 
       if ( m_show_subsegment == true ) {
-        QPainter a_subseg_painter(this);
+        QPainter a_subseg_painter(device);
         QPen a_subseg_pen( ALPHA_COLOR );
         a_subseg_pen.setWidth( LINE_WIDTH );
         a_subseg_painter.setPen( a_subseg_pen );
@@ -216,7 +222,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         }
         a_subseg_painter.end();
 
-        QPainter b_subseg_painter(this);
+        QPainter b_subseg_painter(device);
         QPen b_subseg_pen( BETA_COLOR );
         b_subseg_pen.setWidth( LINE_WIDTH );
         b_subseg_painter.setPen( b_subseg_pen );
@@ -235,14 +241,14 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         b_subseg_painter.end();
       }
   
-      QPainter cp_painter(this);
+      QPainter cp_painter(device);
       QPen cp_pen( CENTER_POINT_COLOR );
       cp_pen.setWidth( POINT_SIZE );
       cp_painter.setPen( cp_pen );
       cp_painter.drawPoint( toQPoint( mp_mgr->mp_worldmap->get_central_point() ) );
       cp_painter.end();
 
-      QPainter bk_painter(this);
+      QPainter bk_painter(device);
       QPen bk_pen( BK_COLOR );
       bk_pen.setWidth( POINT_SIZE );
       bk_painter.setPen( bk_pen );
@@ -255,7 +261,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       bk_painter.end();
   
-      QPainter intsec_painter(this);
+      QPainter intsec_painter(device);
       QPen intsec_pen( INTERSECTION_COLOR );
       intsec_pen.setWidth( POINT_SIZE );
       intsec_painter.setPen( intsec_pen );
@@ -277,7 +283,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       intsec_painter.end();
 
-      QPainter text_painter(this);
+      QPainter text_painter(device);
       QPen text_pen( TEXT_COLOR );
       text_painter.setPen(text_pen);
       for( std::vector<Obstacle*>::iterator it = obstacles.begin();
@@ -293,7 +299,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
 
       if( mp_mgr ) {
         if( mp_mgr->m_start_x >= 0 && mp_mgr->m_start_y >= 0 ) {
-          QPainter st_painter(this);
+          QPainter st_painter(device);
           QPen st_paintpen( START_COLOR );
           st_paintpen.setWidth( POINT_SIZE );
           st_painter.setPen( st_paintpen );
@@ -302,7 +308,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         }
 
         if( mp_mgr->m_goal_x >= 0 && mp_mgr->m_goal_y >= 0 ) {
-          QPainter gt_painter(this);
+          QPainter gt_painter(device);
           QPen gt_paintpen( GOAL_COLOR );
           gt_paintpen.setWidth( POINT_SIZE );
           gt_painter.setPen( gt_paintpen );
@@ -311,7 +317,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
         }
       }
 
-      QPainter pos_ref_painter(this);
+      QPainter pos_ref_painter(device);
       QPen pos_ref_paintpen( RULE_POS_COLOR );
       pos_ref_paintpen.setWidth( RULE_LINE_WIDTH );
       pos_ref_painter.setPen( pos_ref_paintpen );
@@ -324,7 +330,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       pos_ref_painter.end();
 
-      QPainter neg_ref_painter(this);
+      QPainter neg_ref_painter(device);
       QPen neg_ref_paintpen( RULE_NEG_COLOR );
       neg_ref_paintpen.setWidth( RULE_LINE_WIDTH );
       neg_ref_painter.setPen( neg_ref_paintpen );
@@ -338,7 +344,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       neg_ref_painter.end();
 
       if( mp_viz_string_class ) {
-        QPainter st_cls_painter(this);
+        QPainter st_cls_painter(device);
         QPen st_cls_paintpen( STRING_CLASS_POINT_COLOR );
         st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
         st_cls_painter.setPen( st_cls_paintpen ); 
