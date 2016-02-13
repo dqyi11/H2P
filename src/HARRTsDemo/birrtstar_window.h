@@ -1,7 +1,6 @@
 #ifndef BIRRTSTARMAINWINDOW_H
 #define BIRRTSTARMAINWINDOW_H
 
-#include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
@@ -9,12 +8,13 @@
 #include <QProgressBar>
 #include "birrtstar_viz.h"
 #include "reference_frames.h"
+#include "spatial_relations_window.h"
 
 namespace birrts {
 
   class BIRRTstarConfig;
 
-  class BIRRTstarWindow : public QMainWindow {
+  class BIRRTstarWindow : public SpatialRelationsWindow {
     Q_OBJECT
     
   public:
@@ -37,13 +37,6 @@ namespace birrts {
   private:
     void updateTitle();
 
-    QMenu*   mpFileMenu;
-    QAction* mpOpenAction;
-    QAction* mpSaveAction;
-    QAction* mpExportAction;
-
-    QMenu*   mpEditMenu;
-    QAction* mpLoadMapAction;
     QAction* mpLoadObjAction;
     QAction* mpRunAction;
 
@@ -51,10 +44,6 @@ namespace birrts {
     QAction* mpSaveScreenAction;
     QAction* mpExportGrammarGraphAction;
     QAction* mpExportAllSimpleStringsAction;
-
-    QMenu*   mpContextMenu;
-    QAction* mpAddStartAction;
-    QAction* mpAddGoalAction;
 
     QLabel*       mpStatusLabel;
     QProgressBar* mpStatusProgressBar;
@@ -68,14 +57,10 @@ namespace birrts {
 
   private slots:
     void contextMenuRequested(QPoint point);
-    void onOpen();
-    void onSave();
     void onExport();
-    void onLoadMap();
     void onLoadObj();
     void onRun();
-    void onAddStart();
-    void onAddGoal();
+    
     void onSaveScreen();
     void onExportGrammar();
     void onExportAllSimpleStrings();

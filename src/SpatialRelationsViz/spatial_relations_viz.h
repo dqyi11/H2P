@@ -17,76 +17,76 @@ namespace h2p {
     Q_OBJECT
   public:
     explicit SpatialRelationsViz( QWidget *parent = 0 );
-    bool loadMap( QString filename );
+    bool load_map( QString filename );
 
-    bool mShowSubsegment;
-    void prevRegion();
-    void nextRegion();
+    bool m_show_subsegment;
+    void prev_region();
+    void next_region();
 
-    void prevSubregion();
-    void nextSubregion();
+    void prev_subregion();
+    void next_subregion();
 
-    int  getRegionIdx()    { return mRegionIdx; }
-    int  getSubregionIdx() { return mSubRegionIdx; }
+    int  get_region_idx()    { return m_region_idx; }
+    int  get_subregion_idx() { return m_subregion_idx; }
 
-    SubRegionSet* getSelectedRegion();
-    SubRegion* getSelectedSubregion();
+    SubRegionSet* get_selected_region();
+    SubRegion* get_selected_subregion();
 
-    void prevLineSubsegmentSet();
-    void nextLineSubsegmentSet();
+    void prev_line_subsegment_set();
+    void next_line_subsegment_set();
 
-    void prevLineSubsegment();
-    void nextLineSubsegment();
+    void prev_line_subsegment();
+    void next_line_subsegment();
 
-    void prevStringClass();
-    void nextStringClass();
+    void prev_string_class();
+    void next_string_class();
     
-    int  getLineSubsegmentSetIdx() { return mSubsegmentSetIdx; }
-    int  getLineSubsegmentIdx() { return mSubsegmentIdx; } 
+    int  get_line_subsegment_set_idx() { return m_subsegment_set_idx; }
+    int  get_line_subsegment_idx() { return m_subsegment_idx; }
 
-    LineSubSegmentSet* getSelectedLineSubsegmentSet();
-    LineSubSegment*    getSelectedLineSubsegment();
-    StringClass*       getSelectedStringClass();  
+    LineSubSegmentSet* get_selected_line_subsegment_set();
+    LineSubSegment*    get_selected_line_subsegment();
+    StringClass*       get_selected_string_class();
 
     bool save( QString filename );
     bool load( QString filename );
         
-    void setMode( SpatialRelationsVizMode mode );
-    SpatialRelationsVizMode getMode() { return mMode; }
+    void set_mode( SpatialRelationsVizMode mode );
+    SpatialRelationsVizMode get_mode() { return m_mode; }
     
-    SpatialRelationMgr* get_spatial_relation_mgr() { return mpMgr; }
+    SpatialRelationMgr* get_spatial_relation_mgr() { return mp_mgr; }
     bool is_selected_obstacle( Obstacle* p_obstacle );
     bool unselect_obstacle( Obstacle* p_obstacle );
 
     std::vector<Obstacle*> get_selected_obstacles() { return m_selected_obstacles; }
     void clear_selected_obstacles() { m_selected_obstacles.clear(); }  
 
-    ReferenceFrameSet* get_reference_frame_set() {  return mpReferenceFrameSet; }
-    void processWorld();
+    ReferenceFrameSet* get_reference_frame_set() {  return mp_reference_frame_set; }
+    void process_world();
   protected:
-    bool initWorld(QString filename);
+    bool init_world(QString filename);
 
-    void updateVizSubregions();
-    void updateVizLineSubsegments();
-    void updateVizStringClass();
-    void updateVizReferenceFrames();
+    void update_viz_subregions();
+    void update_viz_line_subsegments();
+    void update_viz_string_class();
+    void update_viz_reference_frames();
 
     void mousePressEvent( QMouseEvent * event );
 
-    SpatialRelationMgr* mpMgr;
-    ReferenceFrameSet*  mpReferenceFrameSet;
-    int                  mWorldWidth;
-    int                  mWorldHeight;
+    SpatialRelationMgr* mp_mgr;
+    ReferenceFrameSet*  mp_reference_frame_set;
+    int                  m_world_width;
+    int                  m_world_height;
     
-    SpatialRelationsVizMode  mMode;
+    SpatialRelationsVizMode  m_mode;
 
-    int                  mRegionIdx;
-    int                  mSubRegionIdx;
+    int                  m_region_idx;
+    int                  m_subregion_idx;
     
-    int                  mSubsegmentSetIdx;
-    int                  mSubsegmentIdx;
+    int                  m_subsegment_set_idx;
+    int                  m_subsegment_idx;
 
-    int                  mStringClassIdx;
+    int                  m_string_class_idx;
  
     std::vector<SubRegion*>      m_viz_subregions;
     std::vector<LineSubSegment*> m_viz_subsegments;
@@ -101,7 +101,7 @@ namespace h2p {
 
   public slots:
 
-  private slots:
+  protected slots:
     void paintEvent(QPaintEvent * e);
   };
 

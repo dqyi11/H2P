@@ -1,8 +1,7 @@
 #ifndef BIRRTSTAR_VIZ_H_
 #define BIRRTSTAR_VIZ_H_
 
-#include <QLabel>
-
+#include "spatial_relations_viz.h"
 #include "birrtstar.h"
 #include "birrtstar_path_planning_info.h"
 #include "reference_frames.h"
@@ -16,7 +15,7 @@ namespace birrts {
     BOTH_TREES_SHOW
   } tree_show_type_t;
 
-  class BIRRTstarViz : public QLabel
+  class BIRRTstarViz : public SpatialRelationsViz
   {
     Q_OBJECT
   public:

@@ -36,23 +36,23 @@ using namespace h2p;
 SpatialRelationsViz::SpatialRelationsViz(QWidget *parent) :
     QLabel(parent) {
 
-  mpMgr = NULL;
-  mpReferenceFrameSet = NULL;
-  mWorldWidth = 0;
-  mWorldHeight = 0;
-  mRegionIdx = -1;
-  mSubRegionIdx = -1;
-  mSubsegmentSetIdx = -1;
-  mSubsegmentIdx = -1;
-  mStringClassIdx = -1;
-  mShowSubsegment = true;
+  mp_mgr = NULL;
+  mp_reference_frame_set = NULL;
+  m_world_width = 0;
+  m_world_height = 0;
+  m_region_idx = -1;
+  m_subregion_idx = -1;
+  m_subsegment_set_idx = -1;
+  m_subsegment_idx = -1;
+  m_string_class_idx = -1;
+  m_show_subsegment = true;
   m_viz_subregions.clear();
   m_viz_subsegments.clear();
   mp_viz_string_class = NULL;
-  mMode = SUBREGION;
+  m_mode = SUBREGION;
 }
 
-bool SpatialRelationsViz::loadMap( QString filename ) {
+bool SpatialRelationsViz::load_map( QString filename ) {
 
   QPixmap pix(filename);
   if( pix.isNull() == true ) {
@@ -63,39 +63,39 @@ bool SpatialRelationsViz::loadMap( QString filename ) {
   std::cout << " EMPTY PIX " << emptyPix.width() << " * " << emptyPix.height() << std::endl;
   //setPixmap(pix);
   setPixmap(emptyPix);
-  initWorld(filename);
+  init_world(filename);
   return true;
 }
 
-bool SpatialRelationsViz::initWorld(QString filename) {
+bool SpatialRelationsViz::init_world(QString filename) {
 
   std::vector< std::vector<Point2D> > conts;
   int map_width = 0, map_height = 0;
-  if (mpReferenceFrameSet) {
-    delete mpReferenceFrameSet;
-    mpReferenceFrameSet = NULL;
+  if (mp_reference_frame_set) {
+    delete mp_reference_frame_set;
+    mp_reference_frame_set = NULL;
   }
 
   load_map_info( filename.toStdString(), map_width, map_height, conts );   
   //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
-  mpReferenceFrameSet = new ReferenceFrameSet();
-  mpReferenceFrameSet->init( map_width, map_height, conts );
-  mpMgr = new SpatialRelationMgr( mpReferenceFrameSet->get_world_map() );
+  mp_reference_frame_set = new ReferenceFrameSet();
+  mp_reference_frame_set->init( map_width, map_height, conts );
+  mp_mgr = new SpatialRelationMgr( mp_reference_frame_set->get_world_map() );
   return true;
 }
 
-void SpatialRelationsViz::processWorld( ) {
+void SpatialRelationsViz::process_world( ) {
    
-  mpReferenceFrameSet->process( mpMgr->get_primary_obstacle() ); 
+  mp_reference_frame_set->process( mp_mgr->get_primary_obstacle() ); 
   //std::cout << "NUM OF OBS " << conts.size() << std::endl;
-  mpMgr->mp_rule = mpMgr->get_rule( mpReferenceFrameSet );
-  updateVizReferenceFrames();
+  mp_mgr->mp_rule = mp_mgr->get_rule( mp_reference_frame_set );
+  update_viz_reference_frames();
 }
 
 void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
     QLabel::paintEvent(e);
-  if (mpMgr) {
-    if (mpMgr->mp_worldmap) {
+  if (mp_mgr) {
+    if (mp_mgr->mp_worldmap) {
 
       QPainter region_painter(this);
       region_painter.setRenderHint(QPainter::Antialiasing);
@@ -132,7 +132,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       line_hl_painter.end();
 
-      std::vector<Obstacle*> obstacles =  mpMgr->mp_worldmap->get_obstacles();
+      std::vector<Obstacle*> obstacles =  mp_mgr->mp_worldmap->get_obstacles();
   
       QPainter obstacle_painter(this);
       obstacle_painter.setRenderHint(QPainter::Antialiasing);
@@ -158,7 +158,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       QPen hl_obs_pen( ASSOCIATED_OBSTACLE_COLOR );
       hl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
       hl_obs_painter.setPen(hl_obs_pen);
-      LineSubSegment* p_subseg = getSelectedLineSubsegment();
+      LineSubSegment* p_subseg = get_selected_line_subsegment();
       if( p_subseg ) {
         for( std::vector<Obstacle*>::iterator it = p_subseg->m_connected_obstacles.begin();
              it != p_subseg->m_connected_obstacles.end(); it++ ) {
@@ -196,7 +196,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       sl_obs_painter.end();
 
-      if ( mShowSubsegment == true ) {
+      if ( m_show_subsegment == true ) {
         QPainter a_subseg_painter(this);
         QPen a_subseg_pen( ALPHA_COLOR );
         a_subseg_pen.setWidth( LINE_WIDTH );
@@ -239,7 +239,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       QPen cp_pen( CENTER_POINT_COLOR );
       cp_pen.setWidth( POINT_SIZE );
       cp_painter.setPen( cp_pen );
-      cp_painter.drawPoint( toQPoint( mpMgr->mp_worldmap->get_central_point() ) );
+      cp_painter.drawPoint( toQPoint( mp_mgr->mp_worldmap->get_central_point() ) );
       cp_painter.end();
 
       QPainter bk_painter(this);
@@ -291,22 +291,22 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
       }
       text_painter.end();
 
-      if( mpMgr ) {
-        if( mpMgr->m_start_x >= 0 && mpMgr->m_start_y >= 0 ) {
+      if( mp_mgr ) {
+        if( mp_mgr->m_start_x >= 0 && mp_mgr->m_start_y >= 0 ) {
           QPainter st_painter(this);
           QPen st_paintpen( START_COLOR );
           st_paintpen.setWidth( POINT_SIZE );
           st_painter.setPen( st_paintpen );
-          st_painter.drawPoint( QPoint( mpMgr->m_start_x, mpMgr->m_start_y ) );
+          st_painter.drawPoint( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ) );
           st_painter.end();
         }
 
-        if( mpMgr->m_goal_x >= 0 && mpMgr->m_goal_y >= 0 ) {
+        if( mp_mgr->m_goal_x >= 0 && mp_mgr->m_goal_y >= 0 ) {
           QPainter gt_painter(this);
           QPen gt_paintpen( GOAL_COLOR );
           gt_paintpen.setWidth( POINT_SIZE );
           gt_painter.setPen( gt_paintpen );
-          gt_painter.drawPoint( QPoint( mpMgr->m_goal_x, mpMgr->m_goal_y ) );
+          gt_painter.drawPoint( QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
           gt_painter.end();
         }
       }
@@ -345,7 +345,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
 
         if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
           
-          st_cls_painter.drawLine( QPoint( mpMgr->m_start_x, mpMgr->m_start_y ),
+          st_cls_painter.drawLine( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ),
                                    toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
           for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
 
@@ -357,7 +357,7 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
             }
           }
           st_cls_painter.drawLine( toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
-                                   QPoint( mpMgr->m_goal_x, mpMgr->m_goal_y ) );
+                                   QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
         }
  
         st_cls_painter.end();     
@@ -367,209 +367,209 @@ void SpatialRelationsViz::paintEvent(QPaintEvent * e) {
   }
 }
 
-void SpatialRelationsViz::prevRegion() {
-  if( mpMgr->mp_worldmap ) {
-    if ( mRegionIdx >= 0 ) {
-      mRegionIdx--;
-      mSubRegionIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+void SpatialRelationsViz::prev_region() {
+  if( mp_mgr->mp_worldmap ) {
+    if ( m_region_idx >= 0 ) {
+      m_region_idx--;
+      m_subregion_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
     else {
-      mRegionIdx = static_cast<int>(mpMgr->mp_worldmap->get_subregion_set().size())-1;
-      mSubRegionIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+      m_region_idx = static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size())-1;
+      m_subregion_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
   }
 }
 
-void SpatialRelationsViz::nextRegion() {
-  if( mpMgr->mp_worldmap ) {
-    if ( mRegionIdx < static_cast<int>(mpMgr->mp_worldmap->get_subregion_set().size())-1 ) {
-      mRegionIdx++;
-      mSubRegionIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+void SpatialRelationsViz::next_region() {
+  if( mp_mgr->mp_worldmap ) {
+    if ( m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size())-1 ) {
+      m_region_idx++;
+      m_subregion_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
     else {
-      mRegionIdx = -1;
-      mSubRegionIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+      m_region_idx = -1;
+      m_subregion_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
   }
 }
 
-void SpatialRelationsViz::prevSubregion() {
-  if ( mpMgr->mp_worldmap ) {
-    if ( mRegionIdx >= 0 && mRegionIdx < static_cast<int>(mpMgr->mp_worldmap->get_subregion_set().size()) ) {
-      SubRegionSet* p_subregions = mpMgr->mp_worldmap->get_subregion_set() [mRegionIdx];
+void SpatialRelationsViz::prev_subregion() {
+  if ( mp_mgr->mp_worldmap ) {
+    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size()) ) {
+      SubRegionSet* p_subregions = mp_mgr->mp_worldmap->get_subregion_set() [m_region_idx];
       int sub_num = static_cast<int>( p_subregions->m_subregions.size() );
-      if ( mSubRegionIdx > 0) {
-        mSubRegionIdx --;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+      if ( m_subregion_idx > 0) {
+        m_subregion_idx --;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
       else{
-        mSubRegionIdx = sub_num - 1;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+        m_subregion_idx = sub_num - 1;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
     }
   }
 }
 
-void SpatialRelationsViz::nextSubregion() {
-  if ( mpMgr->mp_worldmap ) {
-    if ( mRegionIdx >= 0 && mRegionIdx < static_cast<int>(mpMgr->mp_worldmap->get_subregion_set().size()) ) {
-         SubRegionSet* p_subregions = mpMgr->mp_worldmap->get_subregion_set() [mRegionIdx];
+void SpatialRelationsViz::next_subregion() {
+  if ( mp_mgr->mp_worldmap ) {
+    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size()) ) {
+         SubRegionSet* p_subregions = mp_mgr->mp_worldmap->get_subregion_set() [m_region_idx];
       int sub_num = static_cast<int>( p_subregions->m_subregions.size() );
-      if ( mSubRegionIdx < sub_num-1) {
-        mSubRegionIdx ++;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+      if ( m_subregion_idx < sub_num-1) {
+        m_subregion_idx ++;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
       else{
-        mSubRegionIdx = 0;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+        m_subregion_idx = 0;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
     }
   }
 }
 
-void SpatialRelationsViz::prevLineSubsegmentSet() {
-  if( mpMgr->mp_worldmap ) {
-    if ( mSubsegmentSetIdx >= 0 ) {
-      mSubsegmentSetIdx--;
-      mSubsegmentIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+void SpatialRelationsViz::prev_line_subsegment_set() {
+  if( mp_mgr->mp_worldmap ) {
+    if ( m_subsegment_set_idx >= 0 ) {
+      m_subsegment_set_idx--;
+      m_subsegment_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
     else {
-      mSubsegmentSetIdx = static_cast<int>(mpMgr->mp_worldmap->get_linesubsegment_set().size())-1;
-      mSubsegmentIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+      m_subsegment_set_idx = static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size())-1;
+      m_subsegment_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
   }
 }
 
-void SpatialRelationsViz::nextLineSubsegmentSet() {
-  if( mpMgr->mp_worldmap ) {
-    if ( mSubsegmentSetIdx < static_cast<int>(mpMgr->mp_worldmap->get_linesubsegment_set().size())-1 ) {
-      mSubsegmentSetIdx++;
-      mSubsegmentIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+void SpatialRelationsViz::next_line_subsegment_set() {
+  if( mp_mgr->mp_worldmap ) {
+    if ( m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size())-1 ) {
+      m_subsegment_set_idx++;
+      m_subsegment_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
     else {
-      mSubsegmentSetIdx = -1;
-      mSubsegmentIdx = 0;
-      updateVizSubregions();
-      updateVizLineSubsegments();
+      m_subsegment_set_idx = -1;
+      m_subsegment_idx = 0;
+      update_viz_subregions();
+      update_viz_line_subsegments();
     }
   }
 }
 
-void SpatialRelationsViz::prevStringClass() {
-  if( mpMgr ) {
-    if( mStringClassIdx >= 0 ) {
-      mStringClassIdx --;
-      updateVizStringClass();
+void SpatialRelationsViz::prev_string_class() {
+  if( mp_mgr ) {
+    if( m_string_class_idx >= 0 ) {
+      m_string_class_idx --;
+      update_viz_string_class();
     }
     else {
-      mStringClassIdx = mpMgr->mp_string_classes.size()-1;
-      updateVizStringClass();
+      m_string_class_idx = mp_mgr->mp_string_classes.size()-1;
+      update_viz_string_class();
     }
   }
 }
 
-void SpatialRelationsViz::nextStringClass() {
-  if( mpMgr ) {
-    if( mStringClassIdx < mpMgr->mp_string_classes.size()-1 ) {
-      mStringClassIdx ++;
-      updateVizStringClass();
+void SpatialRelationsViz::next_string_class() {
+  if( mp_mgr ) {
+    if( m_string_class_idx < mp_mgr->mp_string_classes.size()-1 ) {
+      m_string_class_idx ++;
+      update_viz_string_class();
     }
     else {
-      mStringClassIdx = -1;
-      updateVizStringClass();
+      m_string_class_idx = -1;
+      update_viz_string_class();
     }
   }
 }
 
-void SpatialRelationsViz::prevLineSubsegment() {
-  if ( mpMgr->mp_worldmap ) {
-    if ( mSubsegmentSetIdx >= 0 && mSubsegmentSetIdx < static_cast<int>(mpMgr->mp_worldmap->get_linesubsegment_set().size()) ) {
-      LineSubSegmentSet* p_subsegment_set = mpMgr->mp_worldmap->get_linesubsegment_set() [mSubsegmentSetIdx];
+void SpatialRelationsViz::prev_line_subsegment() {
+  if ( mp_mgr->mp_worldmap ) {
+    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size()) ) {
+      LineSubSegmentSet* p_subsegment_set = mp_mgr->mp_worldmap->get_linesubsegment_set() [m_subsegment_set_idx];
       int sub_num = static_cast<int>( p_subsegment_set->m_subsegs.size() );
-      if ( mSubsegmentIdx > 0) {
-        mSubsegmentIdx --;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+      if ( m_subsegment_idx > 0) {
+        m_subsegment_idx --;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
       else{
-        mSubsegmentIdx = sub_num - 1;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+        m_subsegment_idx = sub_num - 1;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
     }
   }
 }
 
-void SpatialRelationsViz::nextLineSubsegment() {
-  if ( mpMgr->mp_worldmap ) {
-    if ( mSubsegmentSetIdx >= 0 && mSubsegmentSetIdx < static_cast<int>(mpMgr->mp_worldmap->get_linesubsegment_set().size()) ) {
-      LineSubSegmentSet* p_subsegment_set = mpMgr->mp_worldmap->get_linesubsegment_set() [mSubsegmentSetIdx];
+void SpatialRelationsViz::next_line_subsegment() {
+  if ( mp_mgr->mp_worldmap ) {
+    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size()) ) {
+      LineSubSegmentSet* p_subsegment_set = mp_mgr->mp_worldmap->get_linesubsegment_set() [m_subsegment_set_idx];
       int sub_num = static_cast<int>( p_subsegment_set->m_subsegs.size() );
-      if ( mSubsegmentIdx < sub_num-1) {
-        mSubsegmentIdx ++;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+      if ( m_subsegment_idx < sub_num-1) {
+        m_subsegment_idx ++;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
       else{
-        mSubsegmentIdx = 0;
-        updateVizSubregions();
-        updateVizLineSubsegments();
+        m_subsegment_idx = 0;
+        update_viz_subregions();
+        update_viz_line_subsegments();
       }
     }
   }
 }
 
 bool SpatialRelationsViz::save( QString filename ) {
-  if( mpMgr->mp_worldmap ) {
-    mpMgr->mp_worldmap->to_xml(filename.toStdString());
+  if( mp_mgr->mp_worldmap ) {
+    mp_mgr->mp_worldmap->to_xml(filename.toStdString());
     return true;
   }
   return false;
 }
 
 bool SpatialRelationsViz::load( QString filename ) {
-  if ( mpMgr->mp_worldmap == NULL) {
-    mpMgr->mp_worldmap = new WorldMap();
+  if ( mp_mgr->mp_worldmap == NULL) {
+    mp_mgr->mp_worldmap = new WorldMap();
   }
 
-  mpMgr->mp_worldmap->from_xml(filename.toStdString());
+  mp_mgr->mp_worldmap->from_xml(filename.toStdString());
 
-  QPixmap emptyPix( mpMgr->get_world_map()->get_width(), mpMgr->get_world_map()->get_height() );
+  QPixmap emptyPix( mp_mgr->get_world_map()->get_width(), mp_mgr->get_world_map()->get_height() );
   emptyPix.fill(QColor("white"));
   std::cout << " EMPTY PIX " << emptyPix.width() << " * " << emptyPix.height() << std::endl;
   //setPixmap(pix);
   setPixmap(emptyPix);
 
-  mpMgr->get_world_map()->init(false);
+  mp_mgr->get_world_map()->init(false);
   repaint();
 
   return true;
 }
 
-SubRegionSet* SpatialRelationsViz::getSelectedRegion() {
+SubRegionSet* SpatialRelationsViz::get_selected_region() {
   SubRegionSet* p_region = NULL;
-  if ( mpMgr->get_world_map() ) {
-    if ( mpMgr->get_world_map()->get_subregion_set().size() > 0 ) {
-      if( mRegionIdx >= 0 && mRegionIdx < mpMgr->get_world_map()->get_subregion_set().size() ) {
-        return mpMgr->get_world_map()->get_subregion_set()[ mRegionIdx ];
+  if ( mp_mgr->get_world_map() ) {
+    if ( mp_mgr->get_world_map()->get_subregion_set().size() > 0 ) {
+      if( m_region_idx >= 0 && m_region_idx < mp_mgr->get_world_map()->get_subregion_set().size() ) {
+        return mp_mgr->get_world_map()->get_subregion_set()[ m_region_idx ];
       }
     }  
   }
@@ -577,60 +577,60 @@ SubRegionSet* SpatialRelationsViz::getSelectedRegion() {
 }
 
 
-SubRegion* SpatialRelationsViz::getSelectedSubregion() {
+SubRegion* SpatialRelationsViz::get_selected_subregion() {
   SubRegion* p_subregion = NULL;
-  SubRegionSet* p_region = getSelectedRegion(); 
+  SubRegionSet* p_region = get_selected_region();
   if( p_region ) {
     if( p_region->m_subregions.size() > 0 ) {
-      if( mSubRegionIdx >= 0 && mSubRegionIdx < p_region->m_subregions.size() ) {
-        return p_region->m_subregions[mSubRegionIdx];
+      if( m_subregion_idx >= 0 && m_subregion_idx < p_region->m_subregions.size() ) {
+        return p_region->m_subregions[m_subregion_idx];
       }
     }
   }
   return p_subregion;
 }
 
-StringClass* SpatialRelationsViz::getSelectedStringClass() {
+StringClass* SpatialRelationsViz::get_selected_string_class() {
   StringClass* p_string_class = NULL;
-  if( mpMgr->mp_string_classes.size() > 0 ) {
-    if( mStringClassIdx >= 0 && mStringClassIdx < mpMgr->mp_string_classes.size() ) {
-      return mpMgr->mp_string_classes[mStringClassIdx];
+  if( mp_mgr->mp_string_classes.size() > 0 ) {
+    if( m_string_class_idx >= 0 && m_string_class_idx < mp_mgr->mp_string_classes.size() ) {
+      return mp_mgr->mp_string_classes[m_string_class_idx];
     }
   } 
   return p_string_class;
 }
 
-LineSubSegmentSet* SpatialRelationsViz::getSelectedLineSubsegmentSet() {
+LineSubSegmentSet* SpatialRelationsViz::get_selected_line_subsegment_set() {
   LineSubSegmentSet* p_subseg_set = NULL;
-  if ( mpMgr->get_world_map() ) {
-    if ( mpMgr->get_world_map()->get_linesubsegment_set().size() > 0 ) {
-      if( mSubsegmentSetIdx >= 0 && mSubsegmentSetIdx < mpMgr->get_world_map()->get_linesubsegment_set().size() ) {
-        return mpMgr->get_world_map()->get_linesubsegment_set()[ mSubsegmentSetIdx ];
+  if ( mp_mgr->get_world_map() ) {
+    if ( mp_mgr->get_world_map()->get_linesubsegment_set().size() > 0 ) {
+      if( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < mp_mgr->get_world_map()->get_linesubsegment_set().size() ) {
+        return mp_mgr->get_world_map()->get_linesubsegment_set()[ m_subsegment_set_idx ];
       }
     }  
   }
   return p_subseg_set;
 }
 
-LineSubSegment* SpatialRelationsViz::getSelectedLineSubsegment() {
+LineSubSegment* SpatialRelationsViz::get_selected_line_subsegment() {
   LineSubSegment* p_subseg= NULL;  
-  LineSubSegmentSet* p_subseg_set = getSelectedLineSubsegmentSet(); 
+  LineSubSegmentSet* p_subseg_set = get_selected_line_subsegment_set();
   if( p_subseg_set ) {
     if( p_subseg_set->m_subsegs.size() > 0 ) {
-      if( mSubsegmentIdx >= 0 && mSubsegmentIdx < p_subseg_set->m_subsegs.size() ) {
-        return p_subseg_set->m_subsegs[mSubsegmentIdx];
+      if( m_subsegment_idx >= 0 && m_subsegment_idx < p_subseg_set->m_subsegs.size() ) {
+        return p_subseg_set->m_subsegs[m_subsegment_idx];
       }
     }
   }
   return p_subseg;
 }
 
-void SpatialRelationsViz::updateVizSubregions() {
+void SpatialRelationsViz::update_viz_subregions() {
   m_viz_subregions.clear();
-  if( SUBREGION == mMode ) {
-    SubRegionSet* p_region = getSelectedRegion();
+  if( SUBREGION == m_mode ) {
+    SubRegionSet* p_region = get_selected_region();
     if( p_region ) {
-      SubRegion* p_subregion = getSelectedSubregion(); 
+      SubRegion* p_subregion = get_selected_subregion();
       if (p_subregion) {
         m_viz_subregions.push_back( p_subregion );
       }
@@ -642,10 +642,10 @@ void SpatialRelationsViz::updateVizSubregions() {
       }
     }
   }
-  else if( LINE_SUBSEGMENT == mMode ) {
-    LineSubSegmentSet* p_subseg_set = getSelectedLineSubsegmentSet();
+  else if( LINE_SUBSEGMENT == m_mode ) {
+    LineSubSegmentSet* p_subseg_set = get_selected_line_subsegment_set();
     if( p_subseg_set ) {
-      LineSubSegment* p_subseg = getSelectedLineSubsegment();
+      LineSubSegment* p_subseg = get_selected_line_subsegment();
       if( p_subseg ) {
         for( unsigned int i=0; i < p_subseg->m_neighbors.size(); i++ ) {
           SubRegion* p_subregion = p_subseg->m_neighbors[i];
@@ -656,12 +656,12 @@ void SpatialRelationsViz::updateVizSubregions() {
   }
 }
 
-void SpatialRelationsViz::updateVizLineSubsegments() {
+void SpatialRelationsViz::update_viz_line_subsegments() {
   m_viz_subsegments.clear();
-  if( SUBREGION == mMode ) {
-    SubRegionSet* p_region = getSelectedRegion();
+  if( SUBREGION == m_mode ) {
+    SubRegionSet* p_region = get_selected_region();
     if( p_region ) {
-      SubRegion* p_subregion = getSelectedSubregion(); 
+      SubRegion* p_subregion = get_selected_subregion();
       if (p_subregion) {
         for( unsigned int i=0; i < p_subregion->m_neighbors.size(); i++ ) {
           LineSubSegment* p_subseg = p_subregion->m_neighbors[i];
@@ -692,10 +692,10 @@ void SpatialRelationsViz::updateVizLineSubsegments() {
       } 
     }
   }
-  else if( LINE_SUBSEGMENT == mMode ) {
-    LineSubSegmentSet* p_subseg_set = getSelectedLineSubsegmentSet();
+  else if( LINE_SUBSEGMENT == m_mode ) {
+    LineSubSegmentSet* p_subseg_set = get_selected_line_subsegment_set();
     if( p_subseg_set ) {
-      LineSubSegment* p_subseg = getSelectedLineSubsegment();
+      LineSubSegment* p_subseg = get_selected_line_subsegment();
       if( p_subseg ) {
         m_viz_subsegments.push_back( p_subseg ); 
       }
@@ -712,24 +712,24 @@ void SpatialRelationsViz::updateVizLineSubsegments() {
 
 }
 
-void SpatialRelationsViz::updateVizStringClass() {
-  mp_viz_string_class = getSelectedStringClass();
+void SpatialRelationsViz::update_viz_string_class() {
+  mp_viz_string_class = get_selected_string_class();
 }
 
-void SpatialRelationsViz::setMode( SpatialRelationsVizMode mode ) {
-  mMode = mode;
-  mRegionIdx = -1;
-  mSubRegionIdx = -1;
-  mSubsegmentSetIdx = -1;
-  mSubsegmentIdx = -1;
-  updateVizSubregions();
-  updateVizLineSubsegments();
+void SpatialRelationsViz::set_mode( SpatialRelationsVizMode mode ) {
+  m_mode = mode;
+  m_region_idx = -1;
+  m_subregion_idx = -1;
+  m_subsegment_set_idx = -1;
+  m_subsegment_idx = -1;
+  update_viz_subregions();
+  update_viz_line_subsegments();
 }
 
 void SpatialRelationsViz::mousePressEvent( QMouseEvent * event ) {
   if( event->button() == Qt::LeftButton ) {
     Point2D clicked_point( event->x(), event->y() );
-    Obstacle* p_selected_obstacle = mpReferenceFrameSet->get_world_map()->find_obstacle( clicked_point );
+    Obstacle* p_selected_obstacle = mp_reference_frame_set->get_world_map()->find_obstacle( clicked_point );
     if( p_selected_obstacle ) {
       if( is_selected_obstacle( p_selected_obstacle ) ) {
         unselect_obstacle( p_selected_obstacle );
@@ -743,8 +743,8 @@ void SpatialRelationsViz::mousePressEvent( QMouseEvent * event ) {
 }
 
 bool SpatialRelationsViz::is_selected_obstacle( Obstacle* p_obstacle ) {
-  for(unsigned int i=0; i < m_selected_obstacles.size(); i++ ) {
-    Obstacle* p_current_obstacle = m_selected_obstacles[i];
+    for(unsigned int i=0; i < m_selected_obstacles.size(); i++ ) {
+        Obstacle* p_current_obstacle = m_selected_obstacles[i];
     if( p_current_obstacle ) {
       if( p_current_obstacle == p_obstacle ) {
         return true;
@@ -769,10 +769,10 @@ bool SpatialRelationsViz::unselect_obstacle( Obstacle* p_obstacle ) {
   return false;
 }
 
-void SpatialRelationsViz::updateVizReferenceFrames() {
+void SpatialRelationsViz::update_viz_reference_frames() {
 
-  if( mpMgr && mpMgr->mp_rule ) {
-    mpMgr->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
+  if( mp_mgr && mp_mgr->mp_rule ) {
+    mp_mgr->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
     cout << "update Viz Reference Frames: POS " << m_viz_pos_refs.size();
     cout << " NEG " << m_viz_neg_refs.size() << endl;
   }

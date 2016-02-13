@@ -18,7 +18,7 @@ namespace h2p {
     Q_OBJECT
     
   public:
-    SpatialRelationsWindow(QWidget *parent = 0);
+    SpatialRelationsWindow(SpatialRelationsViz* p_viz = new SpatialRelationsViz(), QWidget *parent = 0);
     ~SpatialRelationsWindow();
 
     SpatialRelationsViz * mpViz;
@@ -29,7 +29,7 @@ namespace h2p {
     void updateStatusBar();
 
     void keyPressEvent(QKeyEvent * e);
-  private:
+  
     QMessageBox*  mpMsgBox;
     QMenu*        mpFileMenu;
     QMenu*        mpAddMenu;
@@ -58,7 +58,7 @@ namespace h2p {
     SpatialRelationsConfig* mpConfig;
 
     QPoint        mCursorPoint;
-  private slots:
+  protected slots:
     void contextMenuRequested( QPoint point );
     void onOpen();
     void onSave();

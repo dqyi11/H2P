@@ -69,6 +69,15 @@ void BIRRTstarWindow::createMenuBar() {
   mpEditMenu->addAction(mpLoadObjAction);
   mpEditMenu->addAction(mpRunAction);
 
+  mpAddMenu = menuBar()->addMenu("&Add");
+  mpAddMenu->addAction( mpAddInbetweenSpatialRelationAction );
+  mpAddSideofRelationMenu = mpAddMenu->addMenu("&Side-of Relation");
+  mpAddSideofRelationMenu->addAction( mpAddLeftofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddRightofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddTopofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddBottomofSpatialRelationAction );
+  mpAddMenu->addAction( mpAddAvoidSpatialRelationAction );
+  
   mpToolMenu = menuBar()->addMenu("&Tool");
   mpToolMenu->addAction(mpSaveScreenAction);
   mpToolMenu->addAction(mpExportGrammarGraphAction);
@@ -96,6 +105,19 @@ void BIRRTstarWindow::createActions() {
   connect(mpLoadMapAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
   connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
   connect(mpRunAction, SIGNAL(triggered()), this, SLOT(onRun()));
+
+  mpAddInbetweenSpatialRelationAction = new QAction("In-between Relation", this);
+  connect(mpAddInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddInbetweenSpatialRelation()));
+  mpAddAvoidSpatialRelationAction = new QAction("Avoid Relation", this);
+  connect(mpAddAvoidSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidSpatialRelation()));
+  mpAddLeftofSpatialRelationAction = new QAction("Left-of Relation", this);
+  connect(mpAddLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddLeftofSpatialRelation()));
+  mpAddRightofSpatialRelationAction = new QAction("Right-of Relation", this);
+  connect(mpAddRightofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddRightofSpatialRelation()));
+  mpAddTopofSpatialRelationAction = new QAction("Top-of Relation", this);
+  connect(mpAddTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddTopofSpatialRelation()));
+  mpAddBottomofSpatialRelationAction = new QAction("Bottom-of Relation", this);
+  connect(mpAddBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddBottomofSpatialRelation()));
 
   mpAddStartAction = new QAction("Add Start", this);
   mpAddGoalAction = new QAction("Add Goal", this);

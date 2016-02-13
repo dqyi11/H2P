@@ -12,9 +12,9 @@
 using namespace std;
 using namespace h2p;
 
-SpatialRelationsWindow::SpatialRelationsWindow( QWidget *parent )
+SpatialRelationsWindow::SpatialRelationsWindow( SpatialRelationsViz* p_viz, QWidget *parent )
     : QMainWindow( parent ) {
-  mpViz = new SpatialRelationsViz();
+  mpViz = p_viz;
   mpMsgBox = new QMessageBox();
   createActions();
   createMenuBar();
@@ -112,7 +112,7 @@ void SpatialRelationsWindow::onOpen() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
           tr("Open File"), "./", tr("Map Files (*.*)"));
   if( tempFilename.isEmpty() == false ) {
-    mpViz->loadMap(tempFilename);
+    mpViz->load_map(tempFilename);
     updateStatusBar();
   }
 }
@@ -136,11 +136,11 @@ void SpatialRelationsWindow::onLoad() {
 void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Space  ) {
     if(mpViz) {
-      if(mpViz->getMode() == SUBREGION ) {
-        mpViz->setMode( LINE_SUBSEGMENT );
+      if(mpViz->get_mode() == SUBREGION ) {
+        mpViz->set_mode( LINE_SUBSEGMENT );
       }
       else {
-        mpViz->setMode( SUBREGION );
+        mpViz->set_mode( SUBREGION );
       }
       updateStatusBar();
       repaint();
@@ -148,11 +148,11 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if (event->key() == Qt::Key_S  ) {
     if(mpViz) {
-      if(mpViz->mShowSubsegment == true) {
-        mpViz->mShowSubsegment = false;
+      if(mpViz->m_show_subsegment == true) {
+        mpViz->m_show_subsegment = false;
       }
       else {
-        mpViz->mShowSubsegment = true;
+        mpViz->m_show_subsegment = true;
       }
       updateStatusBar();
       repaint();
@@ -160,11 +160,11 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if(event->key() == Qt::Key_Up ) {
     if(mpViz) {
-      if( mpViz->getMode() == SUBREGION ) {
-        mpViz->nextRegion();
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->next_region();
       }
       else {
-        mpViz->nextLineSubsegmentSet();
+        mpViz->next_line_subsegment_set();
       }
       updateStatusBar();
       repaint();
@@ -172,11 +172,11 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if(event->key() == Qt::Key_Down ) {
     if(mpViz) {
-      if( mpViz->getMode() == SUBREGION ) {
-        mpViz->prevRegion();
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->prev_region();
       }
       else {
-        mpViz->prevLineSubsegmentSet();
+        mpViz->prev_line_subsegment_set();
       }
       updateStatusBar();
       repaint();
@@ -184,11 +184,11 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if(event->key() == Qt::Key_Right ) {
     if(mpViz) {
-      if( mpViz->getMode() == SUBREGION ) {
-        mpViz->nextSubregion();
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->next_subregion();
       }
       else {
-        mpViz->nextLineSubsegment();
+        mpViz->next_line_subsegment();
       }
       updateStatusBar();
       repaint();
@@ -196,11 +196,11 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if(event->key() == Qt::Key_Left ) {
     if(mpViz) {
-      if( mpViz->getMode() == SUBREGION ) {
-        mpViz->prevSubregion();
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->prev_subregion();
       }
       else {
-        mpViz->prevLineSubsegment();
+        mpViz->prev_line_subsegment();
       }
       updateStatusBar();
       repaint();
@@ -208,13 +208,13 @@ void SpatialRelationsWindow::keyPressEvent(QKeyEvent *event) {
   }
   else if(event->key() == Qt::Key_PageDown ) {
     if(mpViz) {
-      mpViz->nextStringClass();
+      mpViz->next_string_class();
       repaint();
     }
   }
   else if(event->key() == Qt::Key_PageUp ) {
     if(mpViz) {
-      mpViz->prevStringClass();
+      mpViz->prev_string_class();
       repaint();
     }
   }
@@ -225,21 +225,21 @@ void SpatialRelationsWindow::updateStatusBar() {
 
   if(mpStatusLabel) {
     QString status = "";
-    if( mpViz->getSelectedRegion() ) {
-      status += "Region (" + QString::number(mpViz->getRegionIdx()) + ")";
-      if ( mpViz->getSelectedSubregion() ) {
-        status += "- (" + QString::number(mpViz->getSubregionIdx()) + ")";
+    if( mpViz->get_selected_region() ) {
+      status += "Region (" + QString::number(mpViz->get_region_idx()) + ")";
+      if ( mpViz->get_selected_subregion() ) {
+        status += "- (" + QString::number(mpViz->get_subregion_idx()) + ")";
         status += " = ";
-        for( unsigned int i = 0; i < mpViz->getSelectedSubregion()->m_neighbors.size(); i ++ ) {
-          LineSubSegment* p_line_subseg = mpViz->getSelectedSubregion()->m_neighbors[i];
+        for( unsigned int i = 0; i < mpViz->get_selected_subregion()->m_neighbors.size(); i ++ ) {
+          LineSubSegment* p_line_subseg = mpViz->get_selected_subregion()->m_neighbors[i];
           status += " [ " + QString::fromStdString(p_line_subseg->get_name())  + " ] ";
         } 
       }
       else {
         status += " = ";
-        if ( mpViz->getSelectedRegion() ) {
-          status += " [ " + QString::fromStdString(mpViz->getSelectedRegion()->mp_line_segments_a->get_name())  + " ] ";
-          status += " [ " + QString::fromStdString(mpViz->getSelectedRegion()->mp_line_segments_b->get_name())  + " ] ";
+        if ( mpViz->get_selected_region() ) {
+          status += " [ " + QString::fromStdString(mpViz->get_selected_region()->mp_line_segments_a->get_name())  + " ] ";
+          status += " [ " + QString::fromStdString(mpViz->get_selected_region()->mp_line_segments_b->get_name())  + " ] ";
         }
       }
     }
@@ -410,7 +410,7 @@ void SpatialRelationsWindow::onShowConfig() {
 
 void SpatialRelationsWindow::onProcess() {
   if( mpViz ) {
-    mpViz->processWorld();
+    mpViz->process_world();
   }
   repaint();
 }

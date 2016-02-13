@@ -173,7 +173,7 @@ bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp
     }
   }
   
-  std::cout << "Init grammar ... " << std::endl; 
+  cout << "Init grammar ... " << endl; 
   Point2D start_point( _start[0], _start[1] );
   Point2D goal_point( _goal[0], _goal[1] );
   set_grammar_type(grammar_type);
