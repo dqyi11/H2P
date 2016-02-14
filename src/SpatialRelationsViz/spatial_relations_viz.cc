@@ -70,16 +70,16 @@ bool SpatialRelationsViz::load_map( QString filename ) {
 bool SpatialRelationsViz::init_world(QString filename) {
 
   std::vector< std::vector<Point2D> > conts;
-  int map_width = 0, map_height = 0;
+  //int map_width = 0, map_height = 0;
   if (mp_reference_frame_set) {
     delete mp_reference_frame_set;
     mp_reference_frame_set = NULL;
   }
 
-  load_map_info( filename.toStdString(), map_width, map_height, conts );   
+  load_map_info( filename.toStdString(), m_world_width, m_world_height, conts );
   //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
   mp_reference_frame_set = new ReferenceFrameSet();
-  mp_reference_frame_set->init( map_width, map_height, conts );
+  mp_reference_frame_set->init( m_world_width, m_world_height, conts );
   mp_mgr = new SpatialRelationMgr( mp_reference_frame_set->get_world_map() );
   return true;
 }
@@ -545,7 +545,8 @@ void SpatialRelationsViz::next_line_subsegment() {
 
 bool SpatialRelationsViz::save( QString filename ) {
   if( mp_mgr->mp_worldmap ) {
-    mp_mgr->mp_worldmap->to_xml(filename.toStdString());
+    mp_mgr->mp_worldmap->to_xml(filename.toStdString(
+));
     return true;
   }
   return false;

@@ -117,6 +117,7 @@ void BIRRTstarWindow::onRun() {
       msgBox.exec();
       return;
     }
+
     planPath();
     repaint();
   }
@@ -154,6 +155,8 @@ void BIRRTstarWindow::planPath() {
   mpBIRRTstar->set_run_type( p_viz->m_PPInfo.m_run_type );
   POS2D start(p_viz->m_PPInfo.m_start.x(), p_viz->m_PPInfo.m_start.y());
   POS2D goal(p_viz->m_PPInfo.m_goal.x(), p_viz->m_PPInfo.m_goal.y());
+
+  p_viz->get_spatial_relation_mgr()->get_string_classes( p_viz->get_reference_frame_set() );
     
   mpBIRRTstar->init(start, goal, p_viz->m_PPInfo.mp_func, p_viz->m_PPInfo.mCostDistribution, p_viz->m_PPInfo.m_grammar_type);
   p_viz->m_PPInfo.get_obstacle_info(mpBIRRTstar->get_map_info());
@@ -204,7 +207,7 @@ void BIRRTstarWindow::onAddGoal() {
     if( p_viz->get_spatial_relation_mgr() ) {
       p_viz->get_spatial_relation_mgr()->m_goal_x = mCursorPoint.x();
       p_viz->get_spatial_relation_mgr()->m_goal_y = mCursorPoint.y();
-      p_viz->m_PPInfo.m_start = mCursorPoint;
+      p_viz->m_PPInfo.m_goal = mCursorPoint;
       repaint();
     }
   }
