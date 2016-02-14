@@ -14,56 +14,26 @@ namespace birrts {
 
   class BIRRTstarConfig;
 
-  class BIRRTstarWindow : public SpatialRelationsWindow {
+  class BIRRTstarWindow : public h2p::SpatialRelationsWindow {
     Q_OBJECT
     
   public:
-    BIRRTstarWindow(QWidget *parent = 0);
+    BIRRTstarWindow(BIRRTstarViz* p_viz = new BIRRTstarViz(), QWidget *parent = 0);
     ~BIRRTstarWindow();
 
     bool exportPaths();
     void planPath();
     bool setupPlanning(QString filename);
-    BIRRTstarViz * mpViz;
-
-    void keyPressEvent(QKeyEvent * e);
 
   protected:
-    void createMenuBar();
-    void createActions();
-    bool openMap(QString filename);
-    void updateStatus();
-
-  private:
-    void updateTitle();
-
-    QAction* mpLoadObjAction;
-    QAction* mpRunAction;
-
-    QMenu*   mpToolMenu;
-    QAction* mpSaveScreenAction;
-    QAction* mpExportGrammarGraphAction;
-    QAction* mpExportAllSimpleStringsAction;
-
-    QLabel*       mpStatusLabel;
-    QProgressBar* mpStatusProgressBar;
-
-    QPixmap* mpMap;
-    QPoint   mCursorPoint;
 
     BIRRTstarConfig*   mpBIRRTstarConfig;
     BIRRTstar*         mpBIRRTstar;
-    h2p::ReferenceFrameSet* mpReferenceFrameSet;
 
-  private slots:
-    void contextMenuRequested(QPoint point);
-    void onExport();
-    void onLoadObj();
+  protected slots:
     void onRun();
-    
     void onSaveScreen();
-    void onExportGrammar();
-    void onExportAllSimpleStrings();
+
   };
 
 }

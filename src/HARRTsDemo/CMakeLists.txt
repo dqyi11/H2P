@@ -14,6 +14,7 @@ include_directories(
 
 target_link_libraries(h2p-harrts-demo
                       h2p-harrts-viz
+                      h2p-spatial-relations-window
                       ${QT_LIBRARIES}
                       ${OpenCV_LIBRARIES}
                      )

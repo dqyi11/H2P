@@ -15,6 +15,7 @@ add_library(${LIB} SHARED
 
 target_link_libraries(${LIB} 
                       h2p-harrts
+                      h2p-spatial-relations-viz
                       ${QT_LIBRARIES}
                       ${CGAL_LIBRARIES}
                       ${BOOST_LIBRARIES}

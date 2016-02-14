@@ -24,9 +24,9 @@ namespace h2p {
     SpatialRelationsViz * mpViz;
 
   protected:
-    void createMenuBar();
-    void createActions();
-    void updateStatusBar();
+    virtual void createMenuBar();
+    virtual void createActions();
+    virtual void updateStatusBar();
 
     void keyPressEvent(QKeyEvent * e);
   

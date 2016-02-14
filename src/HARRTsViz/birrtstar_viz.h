@@ -25,11 +25,7 @@ namespace birrts {
     bool save_current_viz(QString filename);
 
     void set_finished_planning( bool finished ) { m_finished_planning = finished; }
-    bool get_finished_planning() { return m_finished_planning; }
-
     bool is_finished_planning() { return m_finished_planning; }
- 
-    QString generate_string();
 
     tree_show_type_t get_tree_show_type() { return m_tree_show_type; }
     void switch_tree_show_type();

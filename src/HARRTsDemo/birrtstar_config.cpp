@@ -16,9 +16,9 @@ using namespace birrts;
 
 BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
   mpParentWindow = parent;
-
-  mpCheckMinDist = new QCheckBox();
-  if (mpParentWindow->mpViz->m_PPInfo.m_min_dist_enabled==true) {
+  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+  mpCheckMinDist = new QCheckBox();  
+  if (p_viz->m_PPInfo.m_min_dist_enabled==true) {
     mpCheckMinDist->setChecked(true);
   }
   else {
@@ -29,16 +29,16 @@ BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
 
   mpLabelIterationNum = new QLabel("Iteration Num: ");
   mpLineEditIterationNum = new QLineEdit();
-  mpLineEditIterationNum->setText(QString::number(mpParentWindow->mpViz->m_PPInfo.m_max_iteration_num));
+  mpLineEditIterationNum->setText(QString::number(p_viz->m_PPInfo.m_max_iteration_num));
   mpLineEditIterationNum->setMaximumWidth(40);
   mpLabelSegmentLength = new QLabel("Segment Len: ");
   mpLineEditSegmentLength = new QLineEdit();
-  mpLineEditSegmentLength->setText(QString::number(mpParentWindow->mpViz->m_PPInfo.m_segment_length));
+  mpLineEditSegmentLength->setText(QString::number(p_viz->m_PPInfo.m_segment_length));
   mpLineEditSegmentLength->setMaximumWidth(40);
 
   mpLabelCost = new QLabel("Cost Map: ");
   mpLineEditCost = new QLineEdit();
-  mpLineEditCost->setText(mpParentWindow->mpViz->m_PPInfo.m_objective_file);
+  mpLineEditCost->setText(p_viz->m_PPInfo.m_objective_file);
   mpLineEditCost->setMaximumWidth(300);
 
   QHBoxLayout * minDistLayout = new QHBoxLayout();
@@ -61,13 +61,13 @@ BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
   mpComboGrammarType = new QComboBox();
   mpComboGrammarType->addItem(STRING_GRAMMAR_STR);
   mpComboGrammarType->addItem(HOMOTOPIC_GRAMMAR_STR);
-  mpComboGrammarType->setCurrentIndex(static_cast<int>( mpParentWindow->mpViz->m_PPInfo.m_grammar_type));
+  mpComboGrammarType->setCurrentIndex(static_cast<int>( p_viz->m_PPInfo.m_grammar_type));
   mpLabelRunType = new QLabel("Run type:");
   mpComboRunType = new QComboBox();
   mpComboRunType->addItem(START_TREE_RUN_STR);
   mpComboRunType->addItem(GOAL_TREE_RUN_STR);
   mpComboRunType->addItem(BOTH_TREES_RUN_STR);
-  mpComboRunType->setCurrentIndex(static_cast<int>( mpParentWindow->mpViz->m_PPInfo.m_run_type));
+  mpComboRunType->setCurrentIndex(static_cast<int>( p_viz->m_PPInfo.m_run_type));
   typeLayout->addWidget(mpLabelGrammarType);
   typeLayout->addWidget(mpComboGrammarType);
   typeLayout->addWidget(mpLabelRunType);
@@ -123,49 +123,55 @@ void BIRRTstarConfig::onBtnAddClicked() {
 
 void BIRRTstarConfig::updateDisplay() {
   if(mpParentWindow) {
-    if(mpParentWindow->mpViz) {
-      if( mpParentWindow->mpViz->m_PPInfo.m_min_dist_enabled==true ) {
+    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    if(p_viz) {
+      if( p_viz->m_PPInfo.m_min_dist_enabled==true ) {
         mpCheckMinDist->setChecked(true);
       }
       else {
         mpCheckMinDist->setChecked(false);
       }
-      mpLineEditSegmentLength->setText(QString::number(mpParentWindow->mpViz->m_PPInfo.m_segment_length));
-      mpLineEditIterationNum->setText(QString::number(mpParentWindow->mpViz->m_PPInfo.m_max_iteration_num));
-      mpLineEditCost->setText(mpParentWindow->mpViz->m_PPInfo.m_objective_file);
+      mpLineEditSegmentLength->setText(QString::number(p_viz->m_PPInfo.m_segment_length));
+      mpLineEditIterationNum->setText(QString::number(p_viz->m_PPInfo.m_max_iteration_num));
+      mpLineEditCost->setText(p_viz->m_PPInfo.m_objective_file);
 
-      mpComboGrammarType->setCurrentIndex((int)mpParentWindow->mpViz->m_PPInfo.m_grammar_type);
-      mpComboRunType->setCurrentIndex((int)mpParentWindow->mpViz->m_PPInfo.m_run_type);
+      mpComboGrammarType->setCurrentIndex((int)p_viz->m_PPInfo.m_grammar_type);
+      mpComboRunType->setCurrentIndex((int)p_viz->m_PPInfo.m_run_type);
     }
   }
 }
 
 void BIRRTstarConfig::updateConfiguration() {
   int numObj = 0;
-  if (mpCheckMinDist->isChecked()==true) {
-    numObj += 1;
-    mpParentWindow->mpViz->m_PPInfo.m_min_dist_enabled=true;
-  }
-  else {
-    mpParentWindow->mpViz->m_PPInfo.m_min_dist_enabled=false;
-  }
+  if(mpParentWindow) {
+    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    if (mpCheckMinDist->isChecked()==true) {
+      numObj += 1;
+      p_viz->m_PPInfo.m_min_dist_enabled=true;
+    }
+    else {
+      p_viz->m_PPInfo.m_min_dist_enabled=false;
+    }
 
-  mpParentWindow->mpViz->m_PPInfo.m_objective_file = mpLineEditCost->text();
-  mpParentWindow->mpViz->m_PPInfo.m_max_iteration_num = mpLineEditIterationNum->text().toInt();
-    mpParentWindow->mpViz->m_PPInfo.m_segment_length = mpLineEditSegmentLength->text().toDouble();
-    
-  int grammar_type_idx = mpComboGrammarType->currentIndex();
-  mpParentWindow->mpViz->m_PPInfo.m_grammar_type = static_cast< grammar_type_t >( grammar_type_idx);
-  int run_type_idx = mpComboRunType->currentIndex();
-  mpParentWindow->mpViz->m_PPInfo.m_run_type = static_cast< RRTree_run_type_t >( run_type_idx);
+    p_viz->m_PPInfo.m_objective_file = mpLineEditCost->text();
+    p_viz->m_PPInfo.m_max_iteration_num = mpLineEditIterationNum->text().toInt();
+    p_viz->m_PPInfo.m_segment_length = mpLineEditSegmentLength->text().toDouble();
 
+    int grammar_type_idx = mpComboGrammarType->currentIndex();
+    p_viz->m_PPInfo.m_grammar_type = static_cast< grammar_type_t >( grammar_type_idx);
+    int run_type_idx = mpComboRunType->currentIndex();
+    p_viz->m_PPInfo.m_run_type = static_cast< RRTree_run_type_t >( run_type_idx);
+  }
 }
 
 bool BIRRTstarConfig::isCompatible(QString fitnessFile) {
   QPixmap pixmap(fitnessFile);
-  if (pixmap.width()==mpParentWindow->mpViz->m_PPInfo.m_map_width
-          && pixmap.height()==mpParentWindow->mpViz->m_PPInfo.m_map_height) {
-    return true;
+  if(mpParentWindow) {
+    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    if (pixmap.width()==p_viz->m_PPInfo.m_map_width
+            && pixmap.height()==p_viz->m_PPInfo.m_map_height) {
+      return true;
+    }
   }
   return false;
 }
