@@ -72,8 +72,8 @@ void SpatialRelationsWindow::createActions() {
   connect(mpOpenAction, SIGNAL(triggered()), this, SLOT(onOpen()));
   mpSaveAction = new QAction("Save", this);
   connect(mpSaveAction, SIGNAL(triggered()), this, SLOT(onSave()));
-  mpLoadAction = new QAction("Load", this);
-  connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoad()));
+  mpLoadAction = new QAction("Load Map", this);
+  connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
 
   mpAddStartAction = new QAction("Add Start", this);
   mpAddGoalAction = new QAction("Add Goal", this);
@@ -110,10 +110,9 @@ void SpatialRelationsWindow::contextMenuRequested( QPoint point ) {
 
 void SpatialRelationsWindow::onOpen() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
-          tr("Open File"), "./", tr("Map Files (*.*)"));
+          tr("Save File"), "./", tr("XML Files (*.xml)"));
   if( tempFilename.isEmpty() == false ) {
-    mpViz->load_map(tempFilename);
-    updateStatusBar();
+      mpViz->load(tempFilename);
   }
 }
 
@@ -125,11 +124,12 @@ void SpatialRelationsWindow::onSave() {
   }
 }
 
-void SpatialRelationsWindow::onLoad() {
+void SpatialRelationsWindow::onLoadMap() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
-          tr("Save File"), "./", tr("XML Files (*.xml)"));
+            tr("Open File"), "./", tr("Map Files (*.*)"));
   if( tempFilename.isEmpty() == false ) {
-      mpViz->load(tempFilename);
+    mpViz->load_map(tempFilename);
+    updateStatusBar();
   }
 }
 
@@ -416,6 +416,7 @@ void SpatialRelationsWindow::onProcess() {
 }
 
 void SpatialRelationsWindow::onExecute() {
+  cout << "SpatialRelationsWindow::onExecute" << endl;
   if( mpViz->get_spatial_relation_mgr()->m_start_x < 0 ||
       mpViz->get_spatial_relation_mgr()->m_start_y < 0 ) {
     if( mpMsgBox ) {

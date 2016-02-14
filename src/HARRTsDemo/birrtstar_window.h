@@ -40,7 +40,10 @@ namespace birrts {
     void onRun();
     void onSaveScreen();
 
+    void onLoadMap();
     void onLoadObj();
+    void onAddStart();
+    void onAddGoal();
 
   };
 

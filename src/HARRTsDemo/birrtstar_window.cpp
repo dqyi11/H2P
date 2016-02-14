@@ -32,9 +32,12 @@ BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
   statusBar()->addWidget(mpStatusLabel);
   statusBar()->addWidget(mpStatusProgressBar);
   */
+  disconnect(mpLoadAction, SIGNAL(triggered()), 0, 0);
+  connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
   mpLoadObjAction = new QAction("Config Objective", this);
   connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
 
+  disconnect(mpExecuteAction, SIGNAL(triggered()), 0, 0);
   connect(mpExecuteAction, SIGNAL(triggered()), this, SLOT(onRun()));
   mpSaveScreenAction = new QAction("Save Screen", this);
   connect(mpSaveScreenAction, SIGNAL(triggered()), this, SLOT(onSaveScreen()));
@@ -42,6 +45,11 @@ BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
   mpToolMenu = menuBar()->addMenu("&Tool");
   mpToolMenu->addAction(mpLoadObjAction);
   mpToolMenu->addAction(mpSaveScreenAction);
+
+  disconnect(mpAddStartAction, SIGNAL(triggered()), 0, 0);
+  disconnect(mpAddGoalAction, SIGNAL(triggered()), 0, 0);
+  connect(mpAddStartAction, SIGNAL(triggered()), this, SLOT(onAddStart()));
+  connect(mpAddGoalAction, SIGNAL(triggered()), this, SLOT(onAddGoal()));
 }
 
 BIRRTstarWindow::~BIRRTstarWindow() {
@@ -88,6 +96,7 @@ bool BIRRTstarWindow::exportPaths() {
 }
 
 void BIRRTstarWindow::onRun() {
+  cout << "BIRRTstarWindow::onRun" << endl;
   if(mpViz) {
     BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
     if (p_viz->m_PPInfo.m_map_width <= 0 || p_viz->m_PPInfo.m_map_height <= 0) {
@@ -177,4 +186,40 @@ void BIRRTstarWindow::onSaveScreen() {
   p_viz->save_current_viz( tempFilename );
 }
 
+void BIRRTstarWindow::onAddStart() {
+  if( mpViz ) {
+    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+    if( p_viz->get_spatial_relation_mgr() ) {
+      p_viz->get_spatial_relation_mgr()->m_start_x = mCursorPoint.x();
+      p_viz->get_spatial_relation_mgr()->m_start_y = mCursorPoint.y();
+      p_viz->m_PPInfo.m_start = mCursorPoint;
+      repaint();
+    }
+  }
+}
 
+void BIRRTstarWindow::onAddGoal() {
+  if( mpViz ) {
+    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+    if( p_viz->get_spatial_relation_mgr() ) {
+      p_viz->get_spatial_relation_mgr()->m_goal_x = mCursorPoint.x();
+      p_viz->get_spatial_relation_mgr()->m_goal_y = mCursorPoint.y();
+      p_viz->m_PPInfo.m_start = mCursorPoint;
+      repaint();
+    }
+  }
+}
+
+void BIRRTstarWindow::onLoadMap() {
+  QString tempFilename = QFileDialog::getOpenFileName(this,
+            tr("Open File"), "./", tr("Map Files (*.*)"));
+  if( tempFilename.isEmpty() == false ) {
+    if( mpViz ) {
+      BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+      p_viz->load_map(tempFilename);
+      p_viz->m_PPInfo.m_map_width = p_viz->get_width();
+      p_viz->m_PPInfo.m_map_height = p_viz->get_height();
+      updateStatusBar();
+    }
+  }
+}

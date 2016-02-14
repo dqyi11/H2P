@@ -62,7 +62,7 @@ namespace h2p {
     void contextMenuRequested( QPoint point );
     void onOpen();
     void onSave();
-    void onLoad();
+    void onLoadMap();
     void onAddStart();
     void onAddGoal();
 

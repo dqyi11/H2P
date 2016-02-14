@@ -63,6 +63,9 @@ namespace h2p {
 
     ReferenceFrameSet* get_reference_frame_set() {  return mp_reference_frame_set; }
     void process_world();
+
+    int get_width() { return m_world_width; }
+    int get_height() { return m_world_height; }
   protected:
     bool init_world(QString filename);
 
