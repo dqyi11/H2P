@@ -26,6 +26,12 @@ namespace birrts {
     bool setupPlanning(QString filename);
 
   protected:
+    QAction* mpLoadObjAction;
+
+    QMenu*   mpToolMenu;
+    QAction* mpSaveScreenAction;
+    QAction* mpExportGrammarGraphAction;
+    QAction* mpExportAllSimpleStringsAction;
 
     BIRRTstarConfig*   mpBIRRTstarConfig;
     BIRRTstar*         mpBIRRTstar;
@@ -33,6 +39,8 @@ namespace birrts {
   protected slots:
     void onRun();
     void onSaveScreen();
+
+    void onLoadObj();
 
   };
 

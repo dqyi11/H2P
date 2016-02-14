@@ -32,6 +32,16 @@ BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
   statusBar()->addWidget(mpStatusLabel);
   statusBar()->addWidget(mpStatusProgressBar);
   */
+  mpLoadObjAction = new QAction("Config Objective", this);
+  connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
+
+  connect(mpExecuteAction, SIGNAL(triggered()), this, SLOT(onRun()));
+  mpSaveScreenAction = new QAction("Save Screen", this);
+  connect(mpSaveScreenAction, SIGNAL(triggered()), this, SLOT(onSaveScreen()));
+
+  mpToolMenu = menuBar()->addMenu("&Tool");
+  mpToolMenu->addAction(mpLoadObjAction);
+  mpToolMenu->addAction(mpSaveScreenAction);
 }
 
 BIRRTstarWindow::~BIRRTstarWindow() {
@@ -47,6 +57,10 @@ BIRRTstarWindow::~BIRRTstarWindow() {
     delete mpViz;
     mpViz = NULL;
   }
+}
+
+void BIRRTstarWindow::onLoadObj() {
+  mpBIRRTstarConfig->exec();
 }
 
 bool BIRRTstarWindow::setupPlanning(QString filename) {
