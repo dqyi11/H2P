@@ -219,7 +219,11 @@ void BIRRTstarWindow::onLoadMap() {
   if( tempFilename.isEmpty() == false ) {
     if( mpViz ) {
       BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+      QFileInfo fileInfo(tempFilename);
+      QString filename(fileInfo.fileName());
       p_viz->load_map(tempFilename);
+      p_viz->m_PPInfo.m_map_filename = filename;
+      p_viz->m_PPInfo.m_map_fullpath = tempFilename;
       p_viz->m_PPInfo.m_map_width = p_viz->get_width();
       p_viz->m_PPInfo.m_map_height = p_viz->get_height();
       updateStatusBar();
