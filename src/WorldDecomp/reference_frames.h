@@ -48,12 +48,12 @@ namespace h2p {
     ReferenceFrame* get_reference_frame( std::string name );    
    
     void import_string_constraint( std::vector<Point2D> points, grammar_type_t type );
-    bool is_constained_substring( std::vector< std::string > sub_str, bool reverse );
+    bool is_constrained_substring( std::vector< std::string > sub_str, bool reverse );
     std::vector< std::vector< std::string > >& get_string_constraint() { return _string_constraint; }
 
   protected:
     StringGrammar* get_string_grammar( SubRegion* p_init, SubRegion* p_goal );
-  bool is_eligible_substring( std::vector< std::string > substring, std::vector< std::string > ref_str, bool reverse );
+    bool is_eligible_substring( std::vector< std::string > substring, std::vector< std::string > ref_str, bool reverse );
   
     WorldMap*                                 _p_world_map;
     std::vector<ReferenceFrame*>              _reference_frames;

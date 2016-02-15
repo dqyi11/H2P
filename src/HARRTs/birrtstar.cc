@@ -773,10 +773,10 @@ bool BIRRTstar::_is_homotopy_eligible( BIRRTNode* p_node_parent, POS2D pos, RRTr
   }
 
   if( tree_type == START_TREE_TYPE ) {
-    return _reference_frames->is_constained_substring(temp_ids, false);
+    return _reference_frames->is_constrained_substring(temp_ids, false);
   } 
   else if( tree_type == GOAL_TREE_TYPE ) {
-    return _reference_frames->is_constained_substring(temp_ids, true);
+    return _reference_frames->is_constrained_substring(temp_ids, true);
   } 
  
   return false;

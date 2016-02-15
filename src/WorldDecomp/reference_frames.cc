@@ -219,7 +219,7 @@ void ReferenceFrameSet::import_string_constraint( vector<Point2D> points, gramma
   _string_constraint.push_back( constraint );
 }
 
-bool ReferenceFrameSet::is_constained_substring( vector< string > sub_str, bool reverse ) {
+bool ReferenceFrameSet::is_constrained_substring( vector< string > sub_str, bool reverse ) {
   for( unsigned int i = 0; i < _string_constraint.size(); i ++ ) {
     vector< string > constraint = _string_constraint[i];
     if( true == is_eligible_substring( sub_str, constraint, reverse ) ) {
