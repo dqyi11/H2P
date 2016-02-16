@@ -26,12 +26,11 @@ BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
 
   mpStatusLabel = new QLabel();
   mpStatusLabel->setFixedWidth(120);
-  /*
+
   mpStatusProgressBar = new QProgressBar();
-    
   statusBar()->addWidget(mpStatusLabel);
   statusBar()->addWidget(mpStatusProgressBar);
-  */
+
   disconnect(mpLoadAction, SIGNAL(triggered()), 0, 0);
   connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
   mpLoadObjAction = new QAction("Config Objective", this);
@@ -71,7 +70,7 @@ void BIRRTstarWindow::onLoadObj() {
   mpBIRRTstarConfig->exec();
 }
 
-bool BIRRTstarWindow::setupPlanning(QString filename) {
+bool BIRRTstarWindow::setup_planning(QString filename) {
   if(mpViz) {
     BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
     p_viz->m_PPInfo.load_from_file(filename);
@@ -84,7 +83,7 @@ bool BIRRTstarWindow::setupPlanning(QString filename) {
   return false;
 }
 
-bool BIRRTstarWindow::exportPaths() {
+bool BIRRTstarWindow::export_paths() {
   if(mpViz) {
     BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
     bool success = false;
@@ -118,13 +117,13 @@ void BIRRTstarWindow::onRun() {
       return;
     }
 
-    planPath();
+    plan_path();
     repaint();
   }
 
 }
 
-void BIRRTstarWindow::planPath() {
+void BIRRTstarWindow::plan_path() {
   if(mpBIRRTstar) {
     delete mpBIRRTstar;
     mpBIRRTstar = NULL;
@@ -171,6 +170,7 @@ void BIRRTstarWindow::planPath() {
     msg += QString::number(mpBIRRTstar->get_string_class_mgr()->mp_string_classes.size());
     qDebug() << msg;
 
+    update_status();
     repaint();
   }
   qDebug() << "START MERGE ";
@@ -229,4 +229,45 @@ void BIRRTstarWindow::onLoadMap() {
       updateStatusBar();
     }
   }
+}
+
+void BIRRTstarWindow::update_status() {
+  if(mpViz==NULL) {
+    return;
+  }
+  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+  if(mpStatusProgressBar) {
+    if(mpBIRRTstar) {
+      mpStatusProgressBar->setMinimum(0);
+      mpStatusProgressBar->setMaximum(p_viz->m_PPInfo.m_max_iteration_num);
+      mpStatusProgressBar->setValue(mpBIRRTstar->get_current_iteration());
+    }
+  }
+  if(mpStatusLabel) {
+    QString status = "";
+    if (p_viz->is_finished_planning() == false) {
+      SubRegion* p_rgn = p_viz->get_selected_subregion();
+      if(p_rgn) {
+        status += QString::fromStdString(p_rgn->get_name());
+      }
+      status += " || ";
+      LineSubSegment* p_sgm = p_viz->get_selected_line_subsegment();
+      if(p_sgm) {
+        status += QString::fromStdString(p_sgm->get_name());
+      }
+    }
+    else {
+      h2p::StringClass* p_cls = p_viz->get_selected_string_class();
+      if( p_cls ) {
+        status += QString::fromStdString( p_cls->get_name() );
+      }
+    }
+    mpStatusLabel->setText(status);
+  }
+  repaint();
+}
+
+void BIRRTstarWindow::keyPressEvent(QKeyEvent * e) {
+  SpatialRelationsWindow::keyPressEvent(e);
+  update_status();
 }

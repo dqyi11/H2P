@@ -21,11 +21,14 @@ namespace birrts {
     BIRRTstarWindow(BIRRTstarViz* p_viz = new BIRRTstarViz(), QWidget *parent = 0);
     ~BIRRTstarWindow();
 
-    bool exportPaths();
-    void planPath();
-    bool setupPlanning(QString filename);
+    bool export_paths();
+    void plan_path();
+    bool setup_planning(QString filename);
 
   protected:
+    void keyPressEvent(QKeyEvent * e);
+    void update_status();
+
     QAction* mpLoadObjAction;
 
     QMenu*   mpToolMenu;
@@ -35,6 +38,8 @@ namespace birrts {
 
     BIRRTstarConfig*   mpBIRRTstarConfig;
     BIRRTstar*         mpBIRRTstar;
+
+    QProgressBar* mpStatusProgressBar;
 
   protected slots:
     void onRun();

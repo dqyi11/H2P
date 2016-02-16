@@ -15,11 +15,11 @@ int main(int argc, char *argv[]) {
     BIRRTstarWindow w;
     if(no_gui) {
         //std::cout << "NO GUI" << std::endl;
-        if(w.setupPlanning(filename)) {
+        if(w.setup_planning(filename)) {
             qDebug() << "CONFIG FILE LOADED";
         }
-        w.planPath();
-        if(w.exportPaths()) {
+        w.plan_path();
+        if(w.export_paths()) {
             qDebug() << "PATH EXPORTED";
         }
         return 0;
