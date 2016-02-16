@@ -28,7 +28,7 @@ void BIRRTNode::clear_string() {
 
 void BIRRTNode::append_to_string( vector< string > ids ) {
   for( unsigned int i = 0; i < ids.size(); i ++ ) {
-    std::string id = ids[i];
+    string id = ids[i];
     m_substring.push_back( id );
   }
 }
@@ -46,16 +46,16 @@ Path::~Path() {
   m_cost = 0.0;
 }
 
-void Path::append_waypoints( std::vector<POS2D> waypoints, bool reverse ) {
+void Path::append_waypoints( vector<POS2D> waypoints, bool reverse ) {
   if ( reverse ) {
-    for( std::vector<POS2D>::reverse_iterator itr = waypoints.rbegin();
+    for( vector<POS2D>::reverse_iterator itr = waypoints.rbegin();
          itr != waypoints.rend(); itr++ ) {
       POS2D pos = (*itr);
       m_way_points.push_back( pos );
     }
   }
   else {
-    for( std::vector<POS2D>::iterator it = waypoints.begin();
+    for( vector<POS2D>::iterator it = waypoints.begin();
          it != waypoints.end(); it++ ) {
       POS2D pos = (*it);
       m_way_points.push_back( pos );
@@ -63,21 +63,31 @@ void Path::append_waypoints( std::vector<POS2D> waypoints, bool reverse ) {
   }
 }
 
-void Path::append_substring( std::vector< std::string > ids, bool reverse ) {
+void Path::append_substring( vector< string > ids, bool reverse ) {
   if ( reverse ) {
-    for( std::vector< std::string >::reverse_iterator itr = ids.rbegin();
+    for( vector< string >::reverse_iterator itr = ids.rbegin();
          itr != ids.rend(); itr++ ) {
-      std::string str = (*itr);
+      string str = (*itr);
       m_string.push_back( str );
     }
   }
   else {
-    for( std::vector< std::string >::iterator it = ids.begin();
+    for( vector< string >::iterator it = ids.begin();
          it != ids.end(); it++ ) {
-      std::string str = (*it);
+      string str = (*it);
       m_string.push_back( str );
     }
   }
+}
+
+string Path::get_string_name() {
+  string string_name = "";
+  for( vector< string >::iterator it = m_string.begin();
+       it != m_string.end(); it++ ) {
+    string str = (*it);
+    string_name += str;
+  }
+  return string_name;
 }
 
 BIRRTstar::BIRRTstar( int width, int height, int segment_length ) {
@@ -91,8 +101,8 @@ BIRRTstar::BIRRTstar( int width, int height, int segment_length ) {
   _run_type = RUN_BOTH_TREES_TYPE;
 
   _grammar_type = STRING_GRAMMAR_TYPE;
-  _p_st_kd_tree = new KDTree2D( std::ptr_fun(tac) );
-  _p_gt_kd_tree = new KDTree2D( std::ptr_fun(tac) );
+  _p_st_kd_tree = new KDTree2D( ptr_fun(tac) );
+  _p_gt_kd_tree = new KDTree2D( ptr_fun(tac) );
 
   _range = (_sampling_width > _sampling_height) ? _sampling_width:_sampling_height;
   _st_ball_radius = _range;

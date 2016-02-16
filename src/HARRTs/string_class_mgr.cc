@@ -25,15 +25,18 @@ StringClassMgr::~StringClassMgr() {
 }
 
 void StringClassMgr::import_path( Path* p_path ) { 
+  cout << "add path " << endl;
   vector< string > non_repeating_id_string = _p_grammar->get_non_repeating_form( p_path->m_string );
   if ( _p_grammar->is_valid_string( non_repeating_id_string ) == false ) {
     cout << "INVALID STRING " << endl;
+    return;
   }
   StringClass* p_string_class = find_string_class( non_repeating_id_string );
   if( p_string_class ) {
     if( p_string_class->m_cost > p_path->m_cost ) {
       p_string_class->m_cost = p_path->m_cost;
-      p_string_class->mp_path = p_path;      
+      p_string_class->mp_path = p_path;    
+      cout << "ADDING TO EXISTING STRING CLASS " << p_string_class->get_name() << endl;  
     }
   }
   else {
@@ -42,6 +45,7 @@ void StringClassMgr::import_path( Path* p_path ) {
     p_string_class->mp_path = p_path;
     //_classes.push_back(p_string_class);
     mp_string_classes.push_back( p_string_class );
+    cout << "ADDING TO NEW STRING CLASS " << p_string_class->get_name() << endl;  
   }
 }
 
@@ -80,7 +84,7 @@ StringClass* StringClassMgr::find_string_class( vector< string > str ) {
   return p_string_class;
 }
 
-vector< StringClass* >  StringClassMgr::merge() {
+vector< StringClass* > StringClassMgr::merge() {
   vector< StringClass* > merged_classes;
   //std::cout << "NUM OF CLASSES " << _classes.size() << std::endl;
   for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
@@ -120,5 +124,20 @@ vector< StringClass* >  StringClassMgr::merge() {
 void StringClassMgr::export_grammar( string filename ) {
   if( _p_grammar ) {
     _p_grammar->output( filename );
+  }
+}
+
+void StringClassMgr::get_string_classes( h2p::ReferenceFrameSet* p_rfs ) {
+
+  vector< vector< string > > string_set = get_strings( p_rfs );
+  mp_string_classes.clear();
+  for( vector< vector< string > >::iterator it = string_set.begin();
+       it != string_set.end(); it ++ ) {
+    vector< string > item = (*it);
+    StringClass* p_class = new StringClass( item );
+    p_class->init( p_rfs );
+    mp_string_classes.push_back( p_class );
+    p_rfs->import_string_constraint(item);
+
   }
 }

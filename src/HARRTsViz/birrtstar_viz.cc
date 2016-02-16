@@ -104,13 +104,15 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
 
     if( mp_viz_string_class ) {
       StringClass* p_str_cls = dynamic_cast<StringClass*>( mp_viz_string_class );
-      Path* p = p_str_cls->mp_path;
-      if(p) {
-        int point_num = p->m_way_points.size();
+      if( p_str_cls ) {
+        Path* p = p_str_cls->mp_path;
+        if(p) {
+          int point_num = p->m_way_points.size();
 
-        if(point_num > 0) {
-          for(int i=0;i<point_num-1;i++) {
-            pathpainter.drawLine( QPoint(p->m_way_points[i][0], p->m_way_points[i][1]), QPoint(p->m_way_points[i+1][0], p->m_way_points[i+1][1]) );
+          if(point_num > 0) {
+            for(int i=0;i<point_num-1;i++) {
+              pathpainter.drawLine( QPoint(p->m_way_points[i][0], p->m_way_points[i][1]), QPoint(p->m_way_points[i+1][0], p->m_way_points[i+1][1]) );
+            }
           }
         }
       }

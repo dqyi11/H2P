@@ -126,9 +126,8 @@ void SpatialRelationMgr::remove_spatial_relation_function( string name ) {
   }
 }
 
-void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
   
-  mp_string_classes.clear();
+vector< vector< string > > SpatialRelationMgr::get_strings( ReferenceFrameSet* p_rfs  ) {
   vector< vector< string > > string_set;
   
   if( p_rfs ) {
@@ -141,6 +140,12 @@ void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
       p_grammar=NULL;
     }   
   }
+  return string_set;
+}
+
+void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
+  vector< vector< string > > string_set = get_strings( p_rfs );
+  mp_string_classes.clear();
   for( vector< vector< string > >::iterator it = string_set.begin();
        it != string_set.end(); it ++ ) {
     vector< string > item = (*it);
@@ -151,7 +156,6 @@ void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
 
   }
 }
-
 
 vector< vector< string > > SpatialRelationMgr::filter( vector< vector< string > > string_set, Rule* rule ) {
   vector< vector < string > > output_set;

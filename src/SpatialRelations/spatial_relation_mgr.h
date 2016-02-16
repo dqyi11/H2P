@@ -30,7 +30,8 @@ namespace h2p {
     bool has_spatial_relation_function( std::string name );
     void remove_spatial_relation_function( std::string name );
   
-    void get_string_classes( ReferenceFrameSet* p_rfs  );
+    std::vector< std::vector< std::string > > get_strings( ReferenceFrameSet* p_rfs ); 
+    virtual void get_string_classes( ReferenceFrameSet* p_rfs  );
  
     WorldMap* get_world_map() {  return mp_worldmap; }
     Obstacle* get_primary_obstacle();

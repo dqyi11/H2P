@@ -45,7 +45,7 @@ namespace birrts {
     ~Path();
     void append_waypoints( std::vector<POS2D> waypoints, bool reverse = false );
     void append_substring( std::vector< std::string > ids, bool reverse = false );
-
+    std::string get_string_name();
     double m_cost;
     POS2D  m_start;
     POS2D  m_goal;

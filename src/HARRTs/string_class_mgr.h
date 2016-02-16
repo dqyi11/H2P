@@ -26,6 +26,9 @@ namespace birrts {
     void import_path( Path* p_path );
     std::vector<Path*> export_paths();
     std::vector< StringClass* >  merge();
+    
+    virtual void get_string_classes( h2p::ReferenceFrameSet* p_rfs );
+
     StringClass* find_string_class( std::vector< std::string > str );
     //std::vector< StringClass* >& get_string_classes() { return _classes; }
     void export_grammar( std::string filename );
