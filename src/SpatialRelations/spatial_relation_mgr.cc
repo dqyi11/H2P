@@ -147,6 +147,8 @@ void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
     StringClass* p_class = new StringClass( item );
     p_class->init( p_rfs );
     mp_string_classes.push_back( p_class );
+    p_rfs->import_string_constraint(item);
+
   }
 }
 

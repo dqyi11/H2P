@@ -21,7 +21,7 @@ StringClassMgr::StringClassMgr( h2p::WorldMap* p_worldmap, h2p::StringGrammar* p
 
 StringClassMgr::~StringClassMgr() {
   _p_grammar = NULL;
-  _classes.clear();
+  //_classes.clear();
 }
 
 void StringClassMgr::import_path( Path* p_path ) { 
@@ -40,15 +40,19 @@ void StringClassMgr::import_path( Path* p_path ) {
     p_string_class = new StringClass( non_repeating_id_string ); 
     p_string_class->m_cost = p_path->m_cost;
     p_string_class->mp_path = p_path;
-    _classes.push_back(p_string_class);
+    //_classes.push_back(p_string_class);
+    mp_string_classes.push_back( p_string_class );
   }
 }
 
 vector<Path*> StringClassMgr::export_paths() {
 
   vector<Path*> paths;
-  for( unsigned int i = 0; i < _classes.size(); i++) {
-    paths.push_back( _classes[i]->mp_path );
+  for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
+       it != mp_string_classes.end(); it++ ) {
+    h2p::StringClass* p_tmp_str_cls = (*it);
+    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
+    paths.push_back( p_str_cls->mp_path );
   }
   return paths;
 }
@@ -56,30 +60,35 @@ vector<Path*> StringClassMgr::export_paths() {
 StringClass* StringClassMgr::find_string_class( vector< string > str ) {
   
   StringClass* p_string_class = NULL;
-  for( unsigned int i = 0; i < _classes.size(); i ++ ) {
-    if( _classes[i]->m_string.size() == str.size()) {
+  for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
+       it != mp_string_classes.end(); it++ ) {
+    h2p::StringClass* p_tmp_str_cls = (*it);
+    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
+    if( p_str_cls->m_string.size() == str.size()) {
       bool identical = true;
-      for( unsigned int j = 0; j < _classes[i]->m_string.size(); j ++) {
-        if( _classes[i]->m_string[j] != str[j] ) {
+      for( unsigned int j = 0; j < p_str_cls->m_string.size(); j ++) {
+        if( p_str_cls->m_string[j] != str[j] ) {
           identical = false;
           break;
         }
       }
       if( identical ) {
-        return _classes[i];
+        return p_str_cls;
       }
     }
   }
   return p_string_class;
 }
 
-void StringClassMgr::merge() {
+vector< StringClass* >  StringClassMgr::merge() {
   vector< StringClass* > merged_classes;
   //std::cout << "NUM OF CLASSES " << _classes.size() << std::endl;
-  for( unsigned int i = 0; i < _classes.size(); i ++ ) {
-    StringClass* str_class = _classes[i];
+  for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
+       it != mp_string_classes.end(); it++ ) {
+    h2p::StringClass* p_tmp_str_cls = (*it);
+    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
     if( merged_classes.size() == 0 ) {
-      merged_classes.push_back( str_class );
+      merged_classes.push_back( p_str_cls );
     }
     else {
       //std::cout << "MERGE CLASS SIZE " << merged_classes.size() << std::endl;
@@ -87,25 +96,25 @@ void StringClassMgr::merge() {
       for( unsigned int j = 0; j < merged_classes.size(); j++) {
         StringClass* str_class_in_mer = merged_classes[j];
         //std::cout << "COMPARE [" << str_class->get_name() << "] and [" << str_class_in_mer->get_name() << "]" << std::endl;
-        if( _p_grammar->is_equivalent( str_class_in_mer->m_string, str_class->m_string ) ) {
-          if( str_class_in_mer->m_string.size() < str_class->m_string.size() ) {
-            str_class_in_mer->m_string = str_class->m_string;
+        if( _p_grammar->is_equivalent( str_class_in_mer->m_string, p_str_cls->m_string ) ) {
+          if( str_class_in_mer->m_string.size() < p_str_cls->m_string.size() ) {
+            str_class_in_mer->m_string = p_str_cls->m_string;
           }
-          if ( str_class_in_mer->m_cost > str_class->m_cost ) {
-            str_class_in_mer->m_cost = str_class->m_cost;
-            str_class_in_mer->mp_path = str_class->mp_path;
+          if ( str_class_in_mer->m_cost > p_str_cls->m_cost ) {
+            str_class_in_mer->m_cost = p_str_cls->m_cost;
+            str_class_in_mer->mp_path = p_str_cls->mp_path;
           }
           found_equivalence = true;
           break;
         }
       }
       if( found_equivalence == false) {
-          merged_classes.push_back( str_class );
+          merged_classes.push_back( p_str_cls );
       }
     }
   }
 
-  _classes = merged_classes;
+  return merged_classes;
 }
   
 void StringClassMgr::export_grammar( string filename ) {

@@ -25,13 +25,13 @@ namespace birrts {
 
     void import_path( Path* p_path );
     std::vector<Path*> export_paths();
-    void merge();
+    std::vector< StringClass* >  merge();
     StringClass* find_string_class( std::vector< std::string > str );
-    std::vector< StringClass* >& get_string_classes() { return _classes; }  
+    //std::vector< StringClass* >& get_string_classes() { return _classes; }
     void export_grammar( std::string filename );
   protected:
     h2p::StringGrammar* _p_grammar;
-    std::vector< StringClass* > _classes;
+    //std::vector< StringClass* > _classes;
   };
 
 }

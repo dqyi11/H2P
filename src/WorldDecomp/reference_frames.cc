@@ -214,9 +214,17 @@ vector< string > ReferenceFrameSet::get_string ( vector<Point2D> points, grammar
   return ids;
 }
 
+void ReferenceFrameSet::import_string_constraint( vector<string> id_string ) {
+
+    if(false==is_constrained_substring( id_string, false )) {
+        _string_constraint.push_back( id_string );
+    }
+}
+
 void ReferenceFrameSet::import_string_constraint( vector<Point2D> points, grammar_type_t type ) {
   vector< string > constraint = get_string( points, type );
-  _string_constraint.push_back( constraint );
+  //_string_constraint.push_back( constraint );
+  import_string_constraint( constraint );
 }
 
 bool ReferenceFrameSet::is_constrained_substring( vector< string > sub_str, bool reverse ) {

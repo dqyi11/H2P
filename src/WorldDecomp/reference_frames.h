@@ -47,6 +47,7 @@ namespace h2p {
     WorldMap* get_world_map() { return _p_world_map; }
     ReferenceFrame* get_reference_frame( std::string name );    
    
+    void import_string_constraint( std::vector<std::string> id_string );
     void import_string_constraint( std::vector<Point2D> points, grammar_type_t type );
     bool is_constrained_substring( std::vector< std::string > sub_str, bool reverse );
     std::vector< std::vector< std::string > >& get_string_constraint() { return _string_constraint; }

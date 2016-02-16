@@ -168,7 +168,7 @@ void BIRRTstarWindow::planPath() {
   while(mpBIRRTstar->get_current_iteration() <= p_viz->m_PPInfo.m_max_iteration_num) {
     QString msg = "CurrentIteration " + QString::number(mpBIRRTstar->get_current_iteration()) + " ";
     mpBIRRTstar->extend();
-    msg += QString::number(mpBIRRTstar->get_string_class_mgr()->get_string_classes().size()); 
+    msg += QString::number(mpBIRRTstar->get_string_class_mgr()->mp_string_classes.size());
     qDebug() << msg;
 
     repaint();
