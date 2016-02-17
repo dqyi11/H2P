@@ -297,27 +297,6 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
     }
     text_painter.end();
 
-    StringClassMgr* p_cls_mgr = get_string_class_mgr();
-    if( p_cls_mgr ) {
-      if( p_cls_mgr->m_start_x >= 0 && p_cls_mgr->m_start_y >= 0 ) {
-        QPainter st_painter(device);
-        QPen st_paintpen( START_COLOR );
-        st_paintpen.setWidth( POINT_SIZE );
-        st_painter.setPen( st_paintpen );
-        st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
-        st_painter.end();
-      }
-
-      if( p_cls_mgr->m_goal_x >= 0 && p_cls_mgr->m_goal_y >= 0 ) {
-        QPainter gt_painter(device);
-        QPen gt_paintpen( GOAL_COLOR );
-        gt_paintpen.setWidth( POINT_SIZE );
-        gt_painter.setPen( gt_paintpen );
-        gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
-        gt_painter.end();
-      }
-    }
-
     QPainter pos_ref_painter(device);
     QPen pos_ref_paintpen( RULE_POS_COLOR );
     pos_ref_paintpen.setWidth( RULE_LINE_WIDTH );
@@ -422,7 +401,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
       }
       gt_tree_painter.end();
     }
-  } 
+  }
 
   StringClass* p_str_cls = get_selected_string_class();
   if( p_str_cls ) {
@@ -444,13 +423,34 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
     }
     else {
       cout << p_str_cls->get_name() << endl;
-      cout << "NULL PATH" << endl;
+      //cout << "NULL PATH" << endl;
     }
 
     pathpainter.end();
   }
   else{
-    cout << "NULL STRING CLASS" << endl;
+    //cout << "NULL STRING CLASS" << endl;
+  }
+
+  StringClassMgr* p_cls_mgr = get_string_class_mgr();
+  if( p_cls_mgr ) {
+    if( p_cls_mgr->m_start_x >= 0 && p_cls_mgr->m_start_y >= 0 ) {
+      QPainter st_painter(device);
+      QPen st_paintpen( START_COLOR );
+      st_paintpen.setWidth( POINT_SIZE );
+      st_painter.setPen( st_paintpen );
+      st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
+      st_painter.end();
+    }
+
+    if( p_cls_mgr->m_goal_x >= 0 && p_cls_mgr->m_goal_y >= 0 ) {
+      QPainter gt_painter(device);
+      QPen gt_paintpen( GOAL_COLOR );
+      gt_paintpen.setWidth( POINT_SIZE );
+      gt_painter.setPen( gt_paintpen );
+      gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
+      gt_painter.end();
+    }
   }
 
 }
