@@ -8,6 +8,7 @@
 #include "birrtstar_config.h"
 #include "birrtstar_window.h"
 #include "img_load_util.h"
+#include "si_viz_util.h"
 //#include "expanding_tree.h"
 
 using namespace std;
@@ -155,6 +156,7 @@ void BIRRTstarWindow::plan_path() {
   POS2D goal(p_viz->m_PPInfo.m_goal.x(), p_viz->m_PPInfo.m_goal.y());
 
   StringClassMgr* p_str_cls_mgr = p_viz->get_string_class_mgr();
+  p_str_cls_mgr->set_grammar( pfs->get_string_grammar( h2p::toPoint2D(p_viz->m_PPInfo.m_start) , h2p::toPoint2D(p_viz->m_PPInfo.m_goal) ) );
   p_str_cls_mgr->get_string_classes( pfs );
   cout << "string class num " << p_viz->get_string_class_mgr()->mp_string_classes.size() << endl;
 

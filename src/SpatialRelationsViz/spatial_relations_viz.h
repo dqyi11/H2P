@@ -17,7 +17,7 @@ namespace h2p {
     Q_OBJECT
   public:
     explicit SpatialRelationsViz( QWidget *parent = 0 );
-    bool load_map( QString filename );
+    virtual bool load_map( QString filename );
 
     bool m_show_subsegment;
     bool m_show_string_class_reference_path;
@@ -50,7 +50,7 @@ namespace h2p {
     StringClass*       get_selected_string_class();
 
     bool save( QString filename );
-    bool load( QString filename );
+    virtual bool load( QString filename );
         
     void set_mode( SpatialRelationsVizMode mode );
     SpatialRelationsVizMode get_mode() { return m_mode; }
@@ -68,7 +68,7 @@ namespace h2p {
     int get_width() { return m_world_width; }
     int get_height() { return m_world_height; }
   protected:
-    bool init_world(QString filename);
+    virtual bool init_world(QString filename);
 
     void update_viz_subregions();
     void update_viz_line_subsegments();

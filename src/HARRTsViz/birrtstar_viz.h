@@ -21,6 +21,9 @@ namespace birrts {
     explicit BIRRTstarViz(QWidget *parent = 0);
     void set_tree(BIRRTstar* p_tree);
 
+    virtual bool load_map( QString filename );
+    virtual bool load( QString filename );
+
     bool draw_path(QString filename);
     bool save_current_viz(QString filename);
 
@@ -39,6 +42,7 @@ namespace birrts {
   public slots:
 
   protected:
+    virtual bool init_world(QString filename);
 
     void draw_path_on_map(QPixmap& map);
     void draw_current_viz(QPixmap& map);

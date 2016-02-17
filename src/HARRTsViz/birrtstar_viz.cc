@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "img_load_util.h"
 #include "birrtstar_viz.h"
 
 #define START_TREE_COLOR        QColor(160,160,0)
@@ -34,6 +35,43 @@ BIRRTstarViz::BIRRTstarViz( QWidget *parent ) :
 void BIRRTstarViz::set_tree( BIRRTstar* p_tree ) {
   mp_tree = p_tree;
 }
+
+bool BIRRTstarViz::load( QString filename ) {
+  return false;
+}
+
+bool BIRRTstarViz::load_map( QString filename ) {
+
+  QPixmap pix(filename);
+  if( pix.isNull() == true ) {
+    return false;
+  }
+  QPixmap emptyPix(pix.width(), pix.height());
+  emptyPix.fill(QColor("white"));
+  std::cout << " EMPTY PIX " << emptyPix.width() << " * " << emptyPix.height() << std::endl;
+  //setPixmap(pix);
+  setPixmap(emptyPix);
+  init_world(filename);
+  return true;
+}
+
+bool BIRRTstarViz::init_world(QString filename) {
+
+  std::vector< std::vector<Point2D> > conts;
+  //int map_width = 0, map_height = 0;
+  if (mp_reference_frame_set) {
+    delete mp_reference_frame_set;
+    mp_reference_frame_set = NULL;
+  }
+
+  load_map_info( filename.toStdString(), m_world_width, m_world_height, conts );
+  //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
+  mp_reference_frame_set = new h2p::ReferenceFrameSet();
+  mp_reference_frame_set->init( m_world_width, m_world_height, conts );
+  mp_mgr = new StringClassMgr( mp_reference_frame_set->get_world_map() );
+  return true;
+}
+
 
 void BIRRTstarViz::paintEvent( QPaintEvent * e ) {
   QLabel::paintEvent(e);
@@ -208,6 +246,6 @@ void BIRRTstarViz::switch_tree_show_type() {
 }
 
 StringClassMgr* BIRRTstarViz::get_string_class_mgr() {
-  h2p::SpatialRelationMgr* p_spatial_relation_mgr = get_spatial_relation_mgr();
-  return static_cast<StringClassMgr*>(p_spatial_relation_mgr);
+  //h2p::SpatialRelationMgr* p_spatial_relation_mgr = get_spatial_relation_mgr();
+  return static_cast<StringClassMgr*>(mp_mgr);
 }
