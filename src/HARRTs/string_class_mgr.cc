@@ -54,12 +54,23 @@ bool contains( vector< string > string_set, string string_item ) {
 }
 
 StringClassMgr::StringClassMgr( h2p::WorldMap* p_worldmap, h2p::StringGrammar* p_grammar ) : h2p::SpatialRelationMgr( p_worldmap ) {
+  mp_string_classes.clear();
+  m_start_x = -1;
+  m_start_y = -1;
+  m_goal_x = -1;
+  m_goal_y = -1;
   _p_grammar = p_grammar;
 }
 
 StringClassMgr::~StringClassMgr() {
   _p_grammar = NULL;
-  //_classes.clear();
+  for( vector<StringClass*>::iterator it = mp_string_classes.begin();
+       it != mp_string_classes.end(); it++ ) {
+    StringClass* p_str_cls = (*it);
+    delete p_str_cls;
+    p_str_cls = NULL;
+  }
+  mp_string_classes.clear();
 }
 
 bool StringClassMgr::import_path( Path* p_path ) {

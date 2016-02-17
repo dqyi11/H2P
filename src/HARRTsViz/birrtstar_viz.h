@@ -116,7 +116,6 @@ namespace birrts {
     BIRRTstarVizMode     m_mode;
 
     BIRRTstar*              mp_tree;
-    h2p::ReferenceFrameSet* mp_reference_frames;
     bool                m_show_reference_frames;
     bool                m_show_regions;
     bool                m_finished_planning;
@@ -132,7 +131,7 @@ namespace birrts {
     std::vector<h2p::LineSubSegment*> m_viz_subsegments;
 
     std::vector<h2p::Obstacle*>       m_selected_obstacles;
-    StringClass*                 mp_viz_string_class;
+    StringClass*                      mp_viz_string_class;
 
     std::vector<h2p::ReferenceFrame*> m_viz_pos_refs;
     std::vector<h2p::ReferenceFrame*> m_viz_neg_refs;
