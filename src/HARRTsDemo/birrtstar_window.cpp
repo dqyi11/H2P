@@ -596,5 +596,13 @@ void BIRRTstarWindow::keyPressEvent(QKeyEvent * event) {
       repaint();
     }
   }
+  else if ( event->key() == Qt::Key_T ) {
+    if(mpViz) {
+      mpViz->switch_tree_show_type();
+      cout << "TREE DISP " <<mpViz->get_tree_show_type() << endl;
+    }
+    update_status();
+    repaint();
+  }
 
 }
