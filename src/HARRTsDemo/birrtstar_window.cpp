@@ -6,10 +6,14 @@
 #include <QKeyEvent>
 #include <QStatusBar>
 #include "birrtstar_config.h"
+#include "birrtstar_spatial_relations_config.h"
 #include "birrtstar_window.h"
 #include "img_load_util.h"
 #include "si_viz_util.h"
-//#include "expanding_tree.h"
+#include "inbetween_relation_function.h"
+#include "avoid_relation_function.h"
+#include "sideof_relation_function.h"
+#include "spatial_relations_config.h"
 
 using namespace std;
 using namespace birrts;
@@ -20,6 +24,12 @@ BIRRTstarWindow::BIRRTstarWindow(QWidget *parent) : QMainWindow(parent) {
   mpViz = new BIRRTstarViz();
   mpBIRRTstarConfig = new BIRRTstarConfig(this);
   mpBIRRTstarConfig->hide();
+  mpConfig = new BIRRTstarSpatialRelationsConfig(this);
+  mpConfig->hide();
+
+  mpMsgBox = new QMessageBox();
+  createActions();
+  createMenuBar();
 
   setCentralWidget(mpViz);
 
@@ -29,10 +39,6 @@ BIRRTstarWindow::BIRRTstarWindow(QWidget *parent) : QMainWindow(parent) {
   mpStatusProgressBar = new QProgressBar();
   statusBar()->addWidget(mpStatusLabel);
   statusBar()->addWidget(mpStatusProgressBar);
-
-
-
-
 }
 
 BIRRTstarWindow::~BIRRTstarWindow() {
@@ -44,7 +50,15 @@ BIRRTstarWindow::~BIRRTstarWindow() {
     delete mpBIRRTstar;
     mpBIRRTstar = NULL;
   }
-  if(mpViz) {
+  if( mpMsgBox ) {
+    delete mpMsgBox;
+    mpMsgBox = NULL;
+  }
+  if( mpConfig ) {
+    delete mpConfig;
+    mpConfig = NULL;
+  }
+  if( mpViz ) {
     delete mpViz;
     mpViz = NULL;
   }
@@ -271,6 +285,27 @@ void BIRRTstarWindow::onAddGoal() {
   }
 }
 
+void BIRRTstarWindow::contextMenuRequested( QPoint point ) {
+  mCursorPoint = point;
+  mpContextMenu->popup( mapToGlobal( point ) );
+}
+
+void BIRRTstarWindow::onOpen() {
+  QString tempFilename = QFileDialog::getOpenFileName(this,
+          tr("Save File"), "./", tr("XML Files (*.xml)"));
+  if( tempFilename.isEmpty() == false ) {
+      mpViz->load(tempFilename);
+  }
+}
+
+void BIRRTstarWindow::onSave() {
+  QString tempFilename = QFileDialog::getSaveFileName(this,
+          tr("Save File"), "./", tr("XML Files (*.xml)"));
+  if( tempFilename.isEmpty() == false ) {
+      mpViz->save(tempFilename);
+  }
+}
+
 void BIRRTstarWindow::onLoadMap() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
             tr("Open File"), "./", tr("Map Files (*.*)"));
@@ -287,6 +322,153 @@ void BIRRTstarWindow::onLoadMap() {
       update_status();
     }
   }
+}
+
+void BIRRTstarWindow::onAddInbetweenSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 2 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Inbetween Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::InBetweenRelationFunction* p_func = new h2p::InBetweenRelationFunction();
+  for( unsigned int i=0; i < selected_obstacles.size(); i++ ) {
+    h2p::Obstacle* p_obs = selected_obstacles[i];
+    p_func->mp_obstacles.push_back( p_obs );
+  }
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
+
+void BIRRTstarWindow::onAddAvoidSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Avoid Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::AvoidRelationFunction* p_func = new h2p::AvoidRelationFunction();
+  p_func->mp_obstacle = selected_obstacles[0];
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+
+  if( mpConfig ) {
+    mpConfig->updateDisplay();
+  }
+}
+
+void BIRRTstarWindow::onAddLeftofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_LEFT );
+  p_func->mp_obstacle = selected_obstacles[0];
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
+
+void BIRRTstarWindow::onAddRightofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Right-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_RIGHT );
+  p_func->mp_obstacle = selected_obstacles[0];
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
+
+void BIRRTstarWindow::onAddTopofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Top-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_TOP );
+  p_func->mp_obstacle = selected_obstacles[0];
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
+
+void BIRRTstarWindow::onAddBottomofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Bottom-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_BOTTOM );
+  p_func->mp_obstacle = selected_obstacles[0];
+  if( mpViz ) {
+    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
+
+void BIRRTstarWindow::onShowConfig() {
+  if( mpConfig ) {
+    mpConfig->updateDisplay();
+    mpConfig->exec();
+  }
+}
+
+void BIRRTstarWindow::onProcess() {
+  if( mpViz ) {
+    mpViz->process_world();
+  }
+  repaint();
 }
 
 void BIRRTstarWindow::update_status() {

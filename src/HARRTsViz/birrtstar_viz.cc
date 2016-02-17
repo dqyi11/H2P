@@ -628,3 +628,31 @@ bool BIRRTstarViz::unselect_obstacle( h2p::Obstacle* p_obstacle ) {
   }
   return false;
 }
+
+
+void BIRRTstarViz::update_viz_reference_frames() {
+
+  if( mp_mgr && mp_mgr->mp_rule ) {
+    mp_mgr->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
+    cout << "update Viz Reference Frames: POS " << m_viz_pos_refs.size();
+    cout << " NEG " << m_viz_neg_refs.size() << endl;
+  }
+  repaint();
+}
+
+void BIRRTstarViz::process_world( ) {
+
+  mp_reference_frame_set->process( mp_mgr->get_primary_obstacle() );
+  //std::cout << "NUM OF OBS " << conts.size() << std::endl;
+  mp_mgr->mp_rule = mp_mgr->get_rule( mp_reference_frame_set );
+  update_viz_reference_frames();
+}
+
+bool BIRRTstarViz::save( QString filename ) {
+  if( mp_mgr->mp_worldmap ) {
+    mp_mgr->mp_worldmap->to_xml(filename.toStdString(
+));
+    return true;
+  }
+  return false;
+}

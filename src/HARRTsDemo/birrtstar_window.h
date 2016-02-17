@@ -11,11 +11,11 @@
 #include <QPixmap>
 #include "birrtstar_viz.h"
 #include "reference_frames.h"
-#include "spatial_relations_config.h"
 
 namespace birrts {
 
   class BIRRTstarConfig;
+  class BIRRTstarSpatialRelationsConfig;
 
   class BIRRTstarWindow : public QMainWindow {
     Q_OBJECT
@@ -34,6 +34,7 @@ namespace birrts {
     void keyPressEvent(QKeyEvent * event);
     void update_status();
 
+    BIRRTstarSpatialRelationsConfig* mpConfig;
     BIRRTstarConfig*   mpBIRRTstarConfig;
     BIRRTstar*         mpBIRRTstar;
 
@@ -72,18 +73,29 @@ namespace birrts {
     QAction* mpExportGrammarGraphAction;
     QAction* mpExportAllSimpleStringsAction;
 
-    h2p::SpatialRelationsConfig* mpConfig;
-
     QPoint        mCursorPoint;
 
   protected slots:
-    void onRun();
-    void onSaveScreen();
 
+    void contextMenuRequested( QPoint point );
+    void onOpen();
+    void onSave();
     void onLoadMap();
-    void onLoadObj();
     void onAddStart();
     void onAddGoal();
+    void onLoadObj();
+
+    void onAddInbetweenSpatialRelation();
+    void onAddAvoidSpatialRelation();
+    void onAddLeftofSpatialRelation();
+    void onAddRightofSpatialRelation();
+    void onAddTopofSpatialRelation();
+    void onAddBottomofSpatialRelation();
+
+    void onShowConfig();
+    void onProcess();
+    void onRun();
+    void onSaveScreen();
 
   };
 

@@ -6,6 +6,8 @@ add_executable(h2p-harrts-demo
                birrtstar_config.cpp
                birrtstar_window.h
                birrtstar_window.cpp
+               birrtstar_spatial_relations_config.h
+               birrtstar_spatial_relations_config.cc
                birrtstar_demo.cpp
                )
 
