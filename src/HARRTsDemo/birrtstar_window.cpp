@@ -230,7 +230,7 @@ void BIRRTstarWindow::plan_path() {
   p_str_cls_mgr->get_string_classes( pfs );
   cout << "string class num " << p_viz->get_string_class_mgr()->mp_string_classes.size() << endl;
 
-  mpBIRRTstar->init(start, goal, p_viz->m_PPInfo.mp_func, p_viz->m_PPInfo.mCostDistribution, p_viz->m_PPInfo.m_grammar_type);
+  mpBIRRTstar->init(start, goal, p_viz->m_PPInfo.mp_func, p_viz->m_PPInfo.mCostDistribution, p_str_cls_mgr );
   p_viz->m_PPInfo.get_obstacle_info(mpBIRRTstar->get_map_info());
   p_viz->set_tree(mpBIRRTstar);
   p_viz->set_finished_planning( false );
@@ -342,7 +342,7 @@ void BIRRTstarWindow::onAddInbetweenSpatialRelation() {
     p_func->mp_obstacles.push_back( p_obs );
   }
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -363,7 +363,7 @@ void BIRRTstarWindow::onAddAvoidSpatialRelation() {
   h2p::AvoidRelationFunction* p_func = new h2p::AvoidRelationFunction();
   p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -388,7 +388,7 @@ void BIRRTstarWindow::onAddLeftofSpatialRelation() {
   h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_LEFT );
   p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -409,7 +409,7 @@ void BIRRTstarWindow::onAddRightofSpatialRelation() {
   h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_RIGHT );
   p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -430,7 +430,7 @@ void BIRRTstarWindow::onAddTopofSpatialRelation() {
   h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_TOP );
   p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -451,7 +451,7 @@ void BIRRTstarWindow::onAddBottomofSpatialRelation() {
   h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_BOTTOM );
   p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
   }
   mpViz->clear_selected_obstacles();
   repaint();

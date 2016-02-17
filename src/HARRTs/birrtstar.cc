@@ -100,7 +100,6 @@ BIRRTstar::BIRRTstar( int width, int height, int segment_length ) {
   _reference_frames = NULL;
   _run_type = RUN_BOTH_TREES_TYPE;
 
-  _grammar_type = STRING_GRAMMAR_TYPE;
   _p_st_kd_tree = new KDTree2D( ptr_fun(tac) );
   _p_gt_kd_tree = new KDTree2D( ptr_fun(tac) );
 
@@ -147,7 +146,7 @@ BIRRTstar::~BIRRTstar() {
   }
 }
 
-bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distribution, grammar_type_t grammar_type ) {
+bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distribution, StringClassMgr* p_string_class_mgr ) {
   if( _p_st_root ) {
     delete _p_st_root;
     _p_st_root = NULL;
@@ -156,11 +155,8 @@ bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp
     delete _p_gt_root;
     _p_gt_root = NULL;
   }
-  if( _p_string_class_mgr ) {
-    delete _p_string_class_mgr;
-    _p_string_class_mgr = NULL;
-  }
- 
+  _p_string_class_mgr = NULL;
+
   if (_reference_frames == NULL) {
     return false;
   }
@@ -186,11 +182,12 @@ bool BIRRTstar::init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp
   cout << "Init grammar ... " << endl; 
   Point2D start_point( _start[0], _start[1] );
   Point2D goal_point( _goal[0], _goal[1] );
-  set_grammar_type(grammar_type);
+
   _string_grammar = _reference_frames->get_string_grammar( start_point, goal_point );
   
-  cout << "Init String Class Mgr ... " << endl;
-  _p_string_class_mgr = new StringClassMgr( _reference_frames->get_world_map(), _string_grammar );
+  //cout << "Init String Class Mgr ... " << endl;
+  //_p_string_class_mgr = new StringClassMgr( _reference_frames->get_world_map(), _string_grammar );
+  _p_string_class_mgr = p_string_class_mgr;
 
   cout << "Init st_tree.." << endl;
   KDNode2D st_root( start );
@@ -516,7 +513,7 @@ bool BIRRTstar::_add_edge( BIRRTNode* p_node_parent, BIRRTNode* p_node_child ) {
   Point2D start( p_node_parent->m_pos[0], p_node_parent->m_pos[1] );
   Point2D goal( p_node_child->m_pos[0], p_node_child->m_pos[1] );
   //std::cout << "START " << start << " END " << goal << std::endl;
-  vector< string > ids = _reference_frames->get_string( start, goal, _grammar_type );
+  vector< string > ids = _reference_frames->get_string( start, goal );
   p_node_child->clear_string();
   p_node_child->append_to_string( p_node_parent->m_substring );
   p_node_child->append_to_string( ids );
@@ -715,7 +712,7 @@ Path* BIRRTstar::_concatenate_paths( Path* p_from_path, Path* p_to_path ) {
   Path* p_new_path = new Path( p_from_path->m_start, p_to_path->m_start );
   Point2D from_path_end( p_from_path->m_goal[0], p_from_path->m_goal[1] );
   Point2D to_path_end( p_to_path->m_goal[0], p_to_path->m_goal[1] );
-  vector< string > between_ids = _reference_frames->get_string( from_path_end, to_path_end , _grammar_type );
+  vector< string > between_ids = _reference_frames->get_string( from_path_end, to_path_end );
   double delta_cost = _calculate_cost( p_from_path->m_goal, p_to_path->m_goal );
 
   p_new_path->append_waypoints( p_from_path->m_way_points );
@@ -768,7 +765,7 @@ bool BIRRTstar::_is_homotopy_eligible( BIRRTNode* p_node_parent, POS2D pos, RRTr
   }
   Point2D start( p_node_parent->m_pos[0], p_node_parent->m_pos[1] );
   Point2D end( pos[0], pos[1] );
-  vector< string > ids = _reference_frames->get_string( start, end, _grammar_type );
+  vector< string > ids = _reference_frames->get_string( start, end );
   vector< string > temp_ids;
 
   for( vector< string >::iterator it = p_node_parent->m_substring.begin();
@@ -790,4 +787,11 @@ bool BIRRTstar::_is_homotopy_eligible( BIRRTNode* p_node_parent, POS2D pos, RRTr
   } 
  
   return false;
+}
+
+h2p::WorldMap* BIRRTstar::get_world_map() {
+  if( get_reference_frames() ) {
+    get_reference_frames()->get_world_map();
+  }
+  return NULL;
 }

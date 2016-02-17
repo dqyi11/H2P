@@ -67,7 +67,6 @@ namespace birrts {
     virtual bool load_map( QString filename );
     void process_world();
 
-    h2p::SpatialRelationMgr* get_spatial_relation_mgr() { return mp_mgr; }
     bool is_selected_obstacle( h2p::Obstacle* p_obstacle );
     bool unselect_obstacle( h2p::Obstacle* p_obstacle );
 
@@ -109,7 +108,9 @@ namespace birrts {
 
     void paint(QPaintDevice * device);
 
-    h2p::SpatialRelationMgr* mp_mgr;
+    h2p::WorldMap* get_world_map();
+
+    StringClassMgr* mp_mgr;
     h2p::ReferenceFrameSet*  mp_reference_frame_set;
     int                  m_world_width;
     int                  m_world_height;

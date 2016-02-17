@@ -59,7 +59,7 @@ namespace birrts {
     BIRRTstar(int width, int height, int segment_length);
     virtual ~BIRRTstar();
 
-    bool init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distrinution, h2p::grammar_type_t grammar_type );
+    bool init( POS2D start, POS2D goal, COST_FUNC_PTR p_func, double** pp_cost_distrinution, StringClassMgr* p_string_class_mgr );
     void load_map( int** pp_map );
 
     int get_sampling_width() { return _sampling_width; }
@@ -79,11 +79,12 @@ namespace birrts {
 
     void set_reference_frames( h2p::ReferenceFrameSet* p_reference_frames );
     h2p::ReferenceFrameSet* get_reference_frames() { return _reference_frames; }
+    h2p::WorldMap* get_world_map();
     StringClassMgr* get_string_class_mgr() { return _p_string_class_mgr; }
 
     void set_run_type( RRTree_run_type_t tree_type ) { _run_type = tree_type; }
     RRTree_run_type_t get_run_type() { return _run_type; } 
-    h2p::grammar_type_t get_grammar_type() { return _grammar_type; }
+
     void dump_distribution(std::string filename);
 
   protected:
@@ -117,7 +118,6 @@ namespace birrts {
     bool _get_closest_node( POS2D pos, BIRRTNode*& p_node_closest, double& delta_cost, RRTree_type_t tree_type );
 
     BIRRTNode* _find_ancestor( BIRRTNode* p_node );
-    void set_grammar_type( h2p::grammar_type_t grammar_type ) { _grammar_type = grammar_type; }
 
     h2p::ReferenceFrameSet* _reference_frames;
     h2p::StringGrammar*     _string_grammar;
@@ -126,8 +126,6 @@ namespace birrts {
     POS2D    _goal;
     BIRRTNode* _p_st_root;
     BIRRTNode* _p_gt_root;
-
-    h2p::grammar_type_t _grammar_type;
 
     BIRRTNode* _p_st_new_node;
     BIRRTNode* _p_gt_new_node;

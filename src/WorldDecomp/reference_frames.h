@@ -40,8 +40,8 @@ namespace h2p {
     StringGrammar* get_string_grammar( Point2D init, Point2D goal );
     StringGrammar* get_string_grammar( int init_x, int init_y, int goal_x, int goal_y );
     
-    std::vector< std::string > get_string ( Point2D start, Point2D end, grammar_type_t type );
-    std::vector< std::string > get_string ( std::vector<Point2D> points, grammar_type_t type );
+    std::vector< std::string > get_string ( Point2D start, Point2D end, grammar_type_t type = STRING_GRAMMAR_TYPE );
+    std::vector< std::string > get_string ( std::vector<Point2D> points, grammar_type_t type = STRING_GRAMMAR_TYPE );
     std::vector<ReferenceFrame*>& get_reference_frames() { return _reference_frames; }
 
     WorldMap* get_world_map() { return _p_world_map; }

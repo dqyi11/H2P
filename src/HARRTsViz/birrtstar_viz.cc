@@ -47,8 +47,8 @@ BIRRTstarViz::BIRRTstarViz( QWidget *parent ) {
   m_show_regions = false;
   m_finished_planning = false;
 
-  mp_mgr = NULL;
   mp_reference_frame_set = NULL;
+  mp_mgr = NULL;
   m_tree_show_type = BOTH_TREES_SHOW;
 
 }
@@ -89,10 +89,9 @@ bool BIRRTstarViz::init_world(QString filename) {
   //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
   mp_reference_frame_set = new h2p::ReferenceFrameSet();
   mp_reference_frame_set->init( m_world_width, m_world_height, conts );
-  mp_mgr = new StringClassMgr( mp_reference_frame_set->get_world_map() );
+  mp_mgr = new StringClassMgr( get_world_map() );
   return true;
 }
-
 
 void BIRRTstarViz::paintEvent( QPaintEvent * e ) {
   QLabel::paintEvent(e);
@@ -102,52 +101,73 @@ void BIRRTstarViz::paintEvent( QPaintEvent * e ) {
 
 void BIRRTstarViz::paint(QPaintDevice * device) {
 
-  if (mp_mgr) {
-    if (mp_mgr->mp_worldmap) {
+  if (get_world_map()) {
 
-      QPainter region_painter(device);
-      region_painter.setRenderHint(QPainter::Antialiasing);
-      QBrush region_brush( SUBREGION_COLOR );
-      region_painter.setPen(Qt::NoPen);
-      for( std::vector<h2p::SubRegion*>::iterator itr = m_viz_subregions.begin();
-           itr != m_viz_subregions.end(); itr++ ) {
+    QPainter region_painter(device);
+    region_painter.setRenderHint(QPainter::Antialiasing);
+    QBrush region_brush( SUBREGION_COLOR );
+    region_painter.setPen(Qt::NoPen);
+    for( std::vector<h2p::SubRegion*>::iterator itr = m_viz_subregions.begin();
+         itr != m_viz_subregions.end(); itr++ ) {
 
-        h2p::SubRegion* p_subreg = (*itr);
-        if (p_subreg) {
-          QPolygon poly;
-          for( unsigned int j=0; j < p_subreg->m_points.size(); j++ ) {
-            poly << h2p::toQPoint( p_subreg->m_points[j] );
-          }
-          QPainterPath tmpPath;
-          tmpPath.addPolygon(poly);
-          region_painter.fillPath(tmpPath, region_brush);
+      h2p::SubRegion* p_subreg = (*itr);
+      if (p_subreg) {
+        QPolygon poly;
+        for( unsigned int j=0; j < p_subreg->m_points.size(); j++ ) {
+          poly << h2p::toQPoint( p_subreg->m_points[j] );
         }
+        QPainterPath tmpPath;
+        tmpPath.addPolygon(poly);
+        region_painter.fillPath(tmpPath, region_brush);
       }
-      region_painter.end();
+    }
+    region_painter.end();
 
-      QPainter line_hl_painter(device);
-      QPen line_hl_pen( LINE_HIGHLIGHTED_COLOR );
-      line_hl_pen.setWidth( LINE_WIDTH_HIGHLIGHTED );
-      line_hl_painter.setPen( line_hl_pen );
+    QPainter line_hl_painter(device);
+    QPen line_hl_pen( LINE_HIGHLIGHTED_COLOR );
+    line_hl_pen.setWidth( LINE_WIDTH_HIGHLIGHTED );
+    line_hl_painter.setPen( line_hl_pen );
 
-      for( std::vector< h2p::LineSubSegment* >::iterator itLSS = m_viz_subsegments.begin();
-           itLSS != m_viz_subsegments.end(); itLSS++ ) {
-        h2p::LineSubSegment* p_line_subsegment = (*itLSS);
-        if( p_line_subsegment ) {
-          line_hl_painter.drawLine( h2p::toQPoint( p_line_subsegment->m_subseg.source() ),
-                                    h2p::toQPoint( p_line_subsegment->m_subseg.target() ) );
+    for( std::vector< h2p::LineSubSegment* >::iterator itLSS = m_viz_subsegments.begin();
+         itLSS != m_viz_subsegments.end(); itLSS++ ) {
+      h2p::LineSubSegment* p_line_subsegment = (*itLSS);
+      if( p_line_subsegment ) {
+        line_hl_painter.drawLine( h2p::toQPoint( p_line_subsegment->m_subseg.source() ),
+                                  h2p::toQPoint( p_line_subsegment->m_subseg.target() ) );
+      }
+    }
+    line_hl_painter.end();
+
+    std::vector<h2p::Obstacle*> obstacles = get_world_map()->get_obstacles();
+
+    QPainter obstacle_painter(device);
+    obstacle_painter.setRenderHint(QPainter::Antialiasing);
+    QPen obstacle_pen( OBSTACLE_COLOR );
+    obstacle_painter.setPen(obstacle_pen);
+    for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+         it != obstacles.end(); it++ ) {
+      h2p::Obstacle* p_obstacle = (*it);
+      if (p_obstacle) {
+        QPolygon poly;
+        for( Polygon2D::Vertex_iterator itP=p_obstacle->m_pgn.vertices_begin();
+             itP != p_obstacle->m_pgn.vertices_end(); itP++ ) {
+          Point2D p = (*itP);
+          poly << h2p::toQPoint( p );
         }
+        obstacle_painter.drawPolygon(poly);
       }
-      line_hl_painter.end();
+    }
+    obstacle_painter.end();
 
-      std::vector<h2p::Obstacle*> obstacles =  mp_mgr->mp_worldmap->get_obstacles();
-
-      QPainter obstacle_painter(device);
-      obstacle_painter.setRenderHint(QPainter::Antialiasing);
-      QPen obstacle_pen( OBSTACLE_COLOR );
-      obstacle_painter.setPen(obstacle_pen);
-      for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
-           it != obstacles.end(); it++ ) {
+    QPainter hl_obs_painter(device);
+    hl_obs_painter.setRenderHint(QPainter::Antialiasing);
+    QPen hl_obs_pen( ASSOCIATED_OBSTACLE_COLOR );
+    hl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
+    hl_obs_painter.setPen(hl_obs_pen);
+    h2p::LineSubSegment* p_subseg = get_selected_line_subsegment();
+    if( p_subseg ) {
+      for( std::vector<h2p::Obstacle*>::iterator it = p_subseg->m_connected_obstacles.begin();
+           it != p_subseg->m_connected_obstacles.end(); it++ ) {
         h2p::Obstacle* p_obstacle = (*it);
         if (p_obstacle) {
           QPolygon poly;
@@ -156,230 +176,204 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
             Point2D p = (*itP);
             poly << h2p::toQPoint( p );
           }
-          obstacle_painter.drawPolygon(poly);
+          hl_obs_painter.drawPolygon(poly);
         }
       }
-      obstacle_painter.end();
+    }
+    hl_obs_painter.end();
 
-      QPainter hl_obs_painter(device);
-      hl_obs_painter.setRenderHint(QPainter::Antialiasing);
-      QPen hl_obs_pen( ASSOCIATED_OBSTACLE_COLOR );
-      hl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
-      hl_obs_painter.setPen(hl_obs_pen);
-      h2p::LineSubSegment* p_subseg = get_selected_line_subsegment();
-      if( p_subseg ) {
-        for( std::vector<h2p::Obstacle*>::iterator it = p_subseg->m_connected_obstacles.begin();
-             it != p_subseg->m_connected_obstacles.end(); it++ ) {
-          h2p::Obstacle* p_obstacle = (*it);
-          if (p_obstacle) {
-            QPolygon poly;
-            for( Polygon2D::Vertex_iterator itP=p_obstacle->m_pgn.vertices_begin();
-                 itP != p_obstacle->m_pgn.vertices_end(); itP++ ) {
-              Point2D p = (*itP);
-              poly << h2p::toQPoint( p );
-            }
-            hl_obs_painter.drawPolygon(poly);
-          }
+    QPainter sl_obs_painter(device);
+    sl_obs_painter.setRenderHint(QPainter::Antialiasing);
+    QPen sl_obs_pen( SELECTED_OBSTACLE_COLOR );
+    sl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
+    sl_obs_painter.setPen(sl_obs_pen);
+    for( std::vector<h2p::Obstacle*>::iterator it = m_selected_obstacles.begin();
+         it != m_selected_obstacles.end(); it++ ) {
+      h2p::Obstacle* p_obstacle = (*it);
+      if (p_obstacle) {
+        QPolygon poly;
+        for( Polygon2D::Vertex_iterator itP=p_obstacle->m_pgn.vertices_begin();
+             itP != p_obstacle->m_pgn.vertices_end(); itP++ ) {
+          Point2D p = (*itP);
+          poly << h2p::toQPoint( p );
         }
+        sl_obs_painter.drawPolygon(poly);
       }
-      hl_obs_painter.end();
+    }
+    sl_obs_painter.end();
 
-      QPainter sl_obs_painter(device);
-      sl_obs_painter.setRenderHint(QPainter::Antialiasing);
-      QPen sl_obs_pen( SELECTED_OBSTACLE_COLOR );
-      sl_obs_pen.setWidth( SELECTED_LINE_WIDTH );
-      sl_obs_painter.setPen(sl_obs_pen);
-      for( std::vector<h2p::Obstacle*>::iterator it = m_selected_obstacles.begin();
-           it != m_selected_obstacles.end(); it++ ) {
-        h2p::Obstacle* p_obstacle = (*it);
-        if (p_obstacle) {
-          QPolygon poly;
-          for( Polygon2D::Vertex_iterator itP=p_obstacle->m_pgn.vertices_begin();
-               itP != p_obstacle->m_pgn.vertices_end(); itP++ ) {
-            Point2D p = (*itP);
-            poly << h2p::toQPoint( p );
-          }
-          sl_obs_painter.drawPolygon(poly);
-        }
-      }
-      sl_obs_painter.end();
-
-      if ( m_show_subsegment == true ) {
-        QPainter a_subseg_painter(device);
-        QPen a_subseg_pen( ALPHA_COLOR );
-        a_subseg_pen.setWidth( LINE_WIDTH );
-        a_subseg_painter.setPen( a_subseg_pen );
-        for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
-             it != obstacles.end(); it++ ) {
-          h2p::Obstacle* p_obstacle = (*it);
-          if ( p_obstacle && p_obstacle->mp_alpha_seg ) {
-            //std::cout << "OBS " << p_obstacle->get_index() << " ALPHA:" << p_obstacle->mp_alpha_seg->m_subsegs.size() << std::endl;
-            for( std::vector< h2p::LineSubSegment* >::iterator itap = p_obstacle->mp_alpha_seg->m_subsegs.begin();
-                 itap != p_obstacle->mp_alpha_seg->m_subsegs.end(); itap++ ) {
-              h2p::LineSubSegment* p_subseg_a = (*itap);
-              a_subseg_painter.drawLine( h2p::toQPoint( p_subseg_a->m_subseg.source() ),
-                                         h2p::toQPoint( p_subseg_a->m_subseg.target() ));
-            }
-          }
-        }
-        a_subseg_painter.end();
-
-        QPainter b_subseg_painter(device);
-        QPen b_subseg_pen( BETA_COLOR );
-        b_subseg_pen.setWidth( LINE_WIDTH );
-        b_subseg_painter.setPen( b_subseg_pen );
-        for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
-             it != obstacles.end(); it++ ) {
-          h2p::Obstacle* p_obstacle = (*it);
-          if ( p_obstacle && p_obstacle->mp_beta_seg ) {
-            for( std::vector< h2p::LineSubSegment* >::iterator itbp = p_obstacle->mp_beta_seg->m_subsegs.begin();
-                 itbp != p_obstacle->mp_beta_seg->m_subsegs.end(); itbp++ ) {
-              h2p::LineSubSegment* p_subseg_b = (*itbp);
-              b_subseg_painter.drawLine( h2p::toQPoint( p_subseg_b->m_subseg.source() ),
-                                         h2p::toQPoint( p_subseg_b->m_subseg.target() ));
-            }
-          }
-        }
-        b_subseg_painter.end();
-      }
-
-      QPainter cp_painter(device);
-      QPen cp_pen( CENTER_POINT_COLOR );
-      cp_pen.setWidth( POINT_SIZE );
-      cp_painter.setPen( cp_pen );
-      cp_painter.drawPoint( h2p::toQPoint( mp_mgr->mp_worldmap->get_central_point() ) );
-      cp_painter.end();
-
-      QPainter bk_painter(device);
-      QPen bk_pen( BK_COLOR );
-      bk_pen.setWidth( POINT_SIZE );
-      bk_painter.setPen( bk_pen );
+    if ( m_show_subsegment == true ) {
+      QPainter a_subseg_painter(device);
+      QPen a_subseg_pen( ALPHA_COLOR );
+      a_subseg_pen.setWidth( LINE_WIDTH );
+      a_subseg_painter.setPen( a_subseg_pen );
       for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
            it != obstacles.end(); it++ ) {
         h2p::Obstacle* p_obstacle = (*it);
-        if ( p_obstacle ) {
-          bk_painter.drawPoint( h2p::toQPoint( p_obstacle->m_bk ) );
-        }
-      }
-      bk_painter.end();
-
-      QPainter intsec_painter(device);
-      QPen intsec_pen( INTERSECTION_COLOR );
-      intsec_pen.setWidth( POINT_SIZE );
-      intsec_painter.setPen( intsec_pen );
-      for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
-           it != obstacles.end(); it++ ) {
-        h2p::Obstacle* p_obstacle = (*it);
-        if ( p_obstacle ) {
-          for( std::vector< h2p::IntersectionPoint >::iterator itap = p_obstacle->m_alpha_intersection_points.begin();
-               itap != p_obstacle->m_alpha_intersection_points.end(); itap++ ) {
-            h2p::IntersectionPoint alpha_intsec = (*itap);
-            intsec_painter.drawPoint( h2p::toQPoint( alpha_intsec.m_point ) );
-          }
-          for( std::vector< h2p::IntersectionPoint >::iterator itbp = p_obstacle->m_beta_intersection_points.begin();
-               itbp != p_obstacle->m_beta_intersection_points.end(); itbp++ ) {
-            h2p::IntersectionPoint beta_intsec = (*itbp);
-            intsec_painter.drawPoint( h2p::toQPoint( beta_intsec.m_point ) );
+        if ( p_obstacle && p_obstacle->mp_alpha_seg ) {
+          //std::cout << "OBS " << p_obstacle->get_index() << " ALPHA:" << p_obstacle->mp_alpha_seg->m_subsegs.size() << std::endl;
+          for( std::vector< h2p::LineSubSegment* >::iterator itap = p_obstacle->mp_alpha_seg->m_subsegs.begin();
+               itap != p_obstacle->mp_alpha_seg->m_subsegs.end(); itap++ ) {
+            h2p::LineSubSegment* p_subseg_a = (*itap);
+            a_subseg_painter.drawLine( h2p::toQPoint( p_subseg_a->m_subseg.source() ),
+                                       h2p::toQPoint( p_subseg_a->m_subseg.target() ));
           }
         }
       }
-      intsec_painter.end();
+      a_subseg_painter.end();
 
-      QPainter text_painter(device);
-      QPen text_pen( TEXT_COLOR );
-      text_painter.setPen(text_pen);
+      QPainter b_subseg_painter(device);
+      QPen b_subseg_pen( BETA_COLOR );
+      b_subseg_pen.setWidth( LINE_WIDTH );
+      b_subseg_painter.setPen( b_subseg_pen );
       for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
            it != obstacles.end(); it++ ) {
         h2p::Obstacle* p_obstacle = (*it);
-        if( p_obstacle ) {
-          int c_x = (p_obstacle->m_pgn.bbox().xmax() + p_obstacle->m_pgn.bbox().xmin() )/2;
-          int c_y = (p_obstacle->m_pgn.bbox().ymax() + p_obstacle->m_pgn.bbox().ymin() )/2;
-          text_painter.drawText( c_x, c_y, QString::number(p_obstacle->get_index()) );
+        if ( p_obstacle && p_obstacle->mp_beta_seg ) {
+          for( std::vector< h2p::LineSubSegment* >::iterator itbp = p_obstacle->mp_beta_seg->m_subsegs.begin();
+               itbp != p_obstacle->mp_beta_seg->m_subsegs.end(); itbp++ ) {
+            h2p::LineSubSegment* p_subseg_b = (*itbp);
+            b_subseg_painter.drawLine( h2p::toQPoint( p_subseg_b->m_subseg.source() ),
+                                       h2p::toQPoint( p_subseg_b->m_subseg.target() ));
+          }
         }
       }
-      text_painter.end();
+      b_subseg_painter.end();
+    }
 
-      StringClassMgr* p_cls_mgr = get_string_class_mgr();
-      if( p_cls_mgr ) {
-        if( p_cls_mgr->m_start_x >= 0 && p_cls_mgr->m_start_y >= 0 ) {
-          QPainter st_painter(device);
-          QPen st_paintpen( START_COLOR );
-          st_paintpen.setWidth( POINT_SIZE );
-          st_painter.setPen( st_paintpen );
-          st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
-          st_painter.end();
+    QPainter cp_painter(device);
+    QPen cp_pen( CENTER_POINT_COLOR );
+    cp_pen.setWidth( POINT_SIZE );
+    cp_painter.setPen( cp_pen );
+    cp_painter.drawPoint( h2p::toQPoint( get_world_map()->get_central_point() ) );
+    cp_painter.end();
+
+    QPainter bk_painter(device);
+    QPen bk_pen( BK_COLOR );
+    bk_pen.setWidth( POINT_SIZE );
+    bk_painter.setPen( bk_pen );
+    for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+         it != obstacles.end(); it++ ) {
+      h2p::Obstacle* p_obstacle = (*it);
+      if ( p_obstacle ) {
+        bk_painter.drawPoint( h2p::toQPoint( p_obstacle->m_bk ) );
+      }
+    }
+    bk_painter.end();
+
+    QPainter intsec_painter(device);
+    QPen intsec_pen( INTERSECTION_COLOR );
+    intsec_pen.setWidth( POINT_SIZE );
+    intsec_painter.setPen( intsec_pen );
+    for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+         it != obstacles.end(); it++ ) {
+      h2p::Obstacle* p_obstacle = (*it);
+      if ( p_obstacle ) {
+        for( std::vector< h2p::IntersectionPoint >::iterator itap = p_obstacle->m_alpha_intersection_points.begin();
+             itap != p_obstacle->m_alpha_intersection_points.end(); itap++ ) {
+          h2p::IntersectionPoint alpha_intsec = (*itap);
+          intsec_painter.drawPoint( h2p::toQPoint( alpha_intsec.m_point ) );
         }
-
-        if( p_cls_mgr->m_goal_x >= 0 && p_cls_mgr->m_goal_y >= 0 ) {
-          QPainter gt_painter(device);
-          QPen gt_paintpen( GOAL_COLOR );
-          gt_paintpen.setWidth( POINT_SIZE );
-          gt_painter.setPen( gt_paintpen );
-          gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
-          gt_painter.end();
+        for( std::vector< h2p::IntersectionPoint >::iterator itbp = p_obstacle->m_beta_intersection_points.begin();
+             itbp != p_obstacle->m_beta_intersection_points.end(); itbp++ ) {
+          h2p::IntersectionPoint beta_intsec = (*itbp);
+          intsec_painter.drawPoint( h2p::toQPoint( beta_intsec.m_point ) );
         }
       }
+    }
+    intsec_painter.end();
 
-      QPainter pos_ref_painter(device);
-      QPen pos_ref_paintpen( RULE_POS_COLOR );
-      pos_ref_paintpen.setWidth( RULE_LINE_WIDTH );
-      pos_ref_painter.setPen( pos_ref_paintpen );
-
-      for( vector< h2p::ReferenceFrame* >::iterator it =  m_viz_pos_refs.begin();
-           it != m_viz_pos_refs.end(); it++ ) {
-        h2p::ReferenceFrame* p_pos_ref = (*it);
-        pos_ref_painter.drawLine( h2p::toQPoint( p_pos_ref->m_segment.source() ),
-                                  h2p::toQPoint( p_pos_ref->m_segment.target() ));
+    QPainter text_painter(device);
+    QPen text_pen( TEXT_COLOR );
+    text_painter.setPen(text_pen);
+    for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+         it != obstacles.end(); it++ ) {
+      h2p::Obstacle* p_obstacle = (*it);
+      if( p_obstacle ) {
+        int c_x = (p_obstacle->m_pgn.bbox().xmax() + p_obstacle->m_pgn.bbox().xmin() )/2;
+        int c_y = (p_obstacle->m_pgn.bbox().ymax() + p_obstacle->m_pgn.bbox().ymin() )/2;
+        text_painter.drawText( c_x, c_y, QString::number(p_obstacle->get_index()) );
       }
-      pos_ref_painter.end();
+    }
+    text_painter.end();
 
-      QPainter neg_ref_painter(device);
-      QPen neg_ref_paintpen( RULE_NEG_COLOR );
-      neg_ref_paintpen.setWidth( RULE_LINE_WIDTH );
-      neg_ref_painter.setPen( neg_ref_paintpen );
-
-      for( vector< h2p::ReferenceFrame* >::iterator it =  m_viz_neg_refs.begin();
-           it != m_viz_neg_refs.end(); it++ ) {
-        h2p::ReferenceFrame* p_neg_ref = (*it);
-        neg_ref_painter.drawLine( h2p::toQPoint( p_neg_ref->m_segment.source() ),
-                                  h2p::toQPoint( p_neg_ref->m_segment.target() ));
+    StringClassMgr* p_cls_mgr = get_string_class_mgr();
+    if( p_cls_mgr ) {
+      if( p_cls_mgr->m_start_x >= 0 && p_cls_mgr->m_start_y >= 0 ) {
+        QPainter st_painter(device);
+        QPen st_paintpen( START_COLOR );
+        st_paintpen.setWidth( POINT_SIZE );
+        st_painter.setPen( st_paintpen );
+        st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
+        st_painter.end();
       }
-      neg_ref_painter.end();
 
-      if(m_show_string_class_reference_path) {
-        if( mp_viz_string_class ) {
-          QPainter st_cls_painter(device);
-          QPen st_cls_paintpen( STRING_CLASS_POINT_COLOR );
-          st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
-          st_cls_painter.setPen( st_cls_paintpen );
+      if( p_cls_mgr->m_goal_x >= 0 && p_cls_mgr->m_goal_y >= 0 ) {
+        QPainter gt_painter(device);
+        QPen gt_paintpen( GOAL_COLOR );
+        gt_paintpen.setWidth( POINT_SIZE );
+        gt_painter.setPen( gt_paintpen );
+        gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
+        gt_painter.end();
+      }
+    }
 
-          StringClassMgr* p_cls_mgr = get_string_class_mgr();
-          if(p_cls_mgr) {
-            if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
+    QPainter pos_ref_painter(device);
+    QPen pos_ref_paintpen( RULE_POS_COLOR );
+    pos_ref_paintpen.setWidth( RULE_LINE_WIDTH );
+    pos_ref_painter.setPen( pos_ref_paintpen );
 
-              st_cls_painter.drawLine( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ),
-                                       h2p::toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
-              for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
+    for( vector< h2p::ReferenceFrame* >::iterator it =  m_viz_pos_refs.begin();
+         it != m_viz_pos_refs.end(); it++ ) {
+      h2p::ReferenceFrame* p_pos_ref = (*it);
+      pos_ref_painter.drawLine( h2p::toQPoint( p_pos_ref->m_segment.source() ),
+                                h2p::toQPoint( p_pos_ref->m_segment.target() ));
+    }
+    pos_ref_painter.end();
 
-                h2p::ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
-                h2p::ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
-                if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
-                  st_cls_painter.drawLine( h2p::toQPoint( p_curr_rf_str_cls->m_mid_point ),
-                                           h2p::toQPoint( p_next_rf_str_cls->m_mid_point ) );
-                }
+    QPainter neg_ref_painter(device);
+    QPen neg_ref_paintpen( RULE_NEG_COLOR );
+    neg_ref_paintpen.setWidth( RULE_LINE_WIDTH );
+    neg_ref_painter.setPen( neg_ref_paintpen );
+
+    for( vector< h2p::ReferenceFrame* >::iterator it =  m_viz_neg_refs.begin();
+         it != m_viz_neg_refs.end(); it++ ) {
+      h2p::ReferenceFrame* p_neg_ref = (*it);
+      neg_ref_painter.drawLine( h2p::toQPoint( p_neg_ref->m_segment.source() ),
+                                h2p::toQPoint( p_neg_ref->m_segment.target() ));
+    }
+    neg_ref_painter.end();
+
+    if(m_show_string_class_reference_path) {
+      if( mp_viz_string_class ) {
+        QPainter st_cls_painter(device);
+        QPen st_cls_paintpen( STRING_CLASS_POINT_COLOR );
+        st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
+        st_cls_painter.setPen( st_cls_paintpen );
+
+        StringClassMgr* p_cls_mgr = get_string_class_mgr();
+        if(p_cls_mgr) {
+          if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
+            st_cls_painter.drawLine( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ),
+                                     h2p::toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
+            for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
+              h2p::ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
+              h2p::ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
+              if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
+                st_cls_painter.drawLine( h2p::toQPoint( p_curr_rf_str_cls->m_mid_point ),
+                                         h2p::toQPoint( p_next_rf_str_cls->m_mid_point ) );
               }
-              st_cls_painter.drawLine( h2p::toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
-                                       QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
             }
+            st_cls_painter.drawLine( h2p::toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
+                                     QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
           }
-
-          st_cls_painter.end();
         }
+        st_cls_painter.end();
       }
     }
   }
 
-  if(mp_tree) {
+  if( mp_tree ) {
     if(m_tree_show_type == START_TREE_SHOW || m_tree_show_type == BOTH_TREES_SHOW ) {
       QPainter st_tree_painter(device);
       QPen st_tree_paintpen;
@@ -449,6 +443,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
       }
     }
     else {
+      cout << p_str_cls->get_name() << endl;
       cout << "NULL PATH" << endl;
     }
 
@@ -541,13 +536,8 @@ void BIRRTstarViz::switch_tree_show_type() {
   }
 }
 
-StringClassMgr* BIRRTstarViz::get_string_class_mgr() {
-  //h2p::SpatialRelationMgr* p_spatial_relation_mgr = get_spatial_relation_mgr();
-  return static_cast<StringClassMgr*>(mp_mgr);
-}
-
 void BIRRTstarViz::prev_region() {
-  if( mp_mgr->mp_worldmap ) {
+  if( get_world_map() ) {
     if ( m_region_idx >= 0 ) {
       m_region_idx--;
       m_subregion_idx = 0;
@@ -555,7 +545,7 @@ void BIRRTstarViz::prev_region() {
       update_viz_line_subsegments();
     }
     else {
-      m_region_idx = static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size())-1;
+      m_region_idx = static_cast<int>(get_world_map()->get_subregion_set().size())-1;
       m_subregion_idx = 0;
       update_viz_subregions();
       update_viz_line_subsegments();
@@ -564,8 +554,8 @@ void BIRRTstarViz::prev_region() {
 }
 
 void BIRRTstarViz::next_region() {
-  if( mp_mgr->mp_worldmap ) {
-    if ( m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size())-1 ) {
+  if( get_world_map() ) {
+    if ( m_region_idx < static_cast<int>(get_world_map()->get_subregion_set().size())-1 ) {
       m_region_idx++;
       m_subregion_idx = 0;
       update_viz_subregions();
@@ -581,9 +571,12 @@ void BIRRTstarViz::next_region() {
 }
 
 void BIRRTstarViz::prev_subregion() {
-  if ( mp_mgr->mp_worldmap ) {
-    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size()) ) {
-      h2p::SubRegionSet* p_subregions = mp_mgr->mp_worldmap->get_subregion_set() [m_region_idx];
+    if (NULL == mp_tree) {
+        return;
+    }
+  if ( get_world_map()  ) {
+    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(get_world_map()->get_subregion_set().size()) ) {
+      h2p::SubRegionSet* p_subregions = get_world_map()->get_subregion_set() [m_region_idx];
       int sub_num = static_cast<int>( p_subregions->m_subregions.size() );
       if ( m_subregion_idx > 0) {
         m_subregion_idx --;
@@ -600,9 +593,12 @@ void BIRRTstarViz::prev_subregion() {
 }
 
 void BIRRTstarViz::next_subregion() {
-  if ( mp_mgr->mp_worldmap ) {
-    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(mp_mgr->mp_worldmap->get_subregion_set().size()) ) {
-         h2p::SubRegionSet* p_subregions = mp_mgr->mp_worldmap->get_subregion_set() [m_region_idx];
+  if (NULL == mp_tree) {
+      return;
+  }
+  if ( get_world_map()  ) {
+    if ( m_region_idx >= 0 && m_region_idx < static_cast<int>(get_world_map()->get_subregion_set().size()) ) {
+         h2p::SubRegionSet* p_subregions = get_world_map()->get_subregion_set() [m_region_idx];
       int sub_num = static_cast<int>( p_subregions->m_subregions.size() );
       if ( m_subregion_idx < sub_num-1) {
         m_subregion_idx ++;
@@ -619,7 +615,7 @@ void BIRRTstarViz::next_subregion() {
 }
 
 void BIRRTstarViz::prev_line_subsegment_set() {
-  if( mp_mgr->mp_worldmap ) {
+  if( get_world_map() ) {
     if ( m_subsegment_set_idx >= 0 ) {
       m_subsegment_set_idx--;
       m_subsegment_idx = 0;
@@ -627,7 +623,7 @@ void BIRRTstarViz::prev_line_subsegment_set() {
       update_viz_line_subsegments();
     }
     else {
-      m_subsegment_set_idx = static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size())-1;
+      m_subsegment_set_idx = static_cast<int>(get_world_map()->get_linesubsegment_set().size())-1;
       m_subsegment_idx = 0;
       update_viz_subregions();
       update_viz_line_subsegments();
@@ -636,8 +632,8 @@ void BIRRTstarViz::prev_line_subsegment_set() {
 }
 
 void BIRRTstarViz::next_line_subsegment_set() {
-  if( mp_mgr->mp_worldmap ) {
-    if ( m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size())-1 ) {
+  if( get_world_map() ) {
+    if ( m_subsegment_set_idx < static_cast<int>(get_world_map()->get_linesubsegment_set().size())-1 ) {
       m_subsegment_set_idx++;
       m_subsegment_idx = 0;
       update_viz_subregions();
@@ -653,7 +649,7 @@ void BIRRTstarViz::next_line_subsegment_set() {
 }
 
 void BIRRTstarViz::prev_string_class() {
-  if( mp_mgr ) {
+  if( get_string_class_mgr() ) {
     StringClassMgr* p_cls_mgr = get_string_class_mgr();
     if( p_cls_mgr ) {
       if( m_string_class_idx >= 0 ) {
@@ -669,7 +665,7 @@ void BIRRTstarViz::prev_string_class() {
 }
 
 void BIRRTstarViz::next_string_class() {
-  if( mp_mgr ) {
+  if( get_string_class_mgr() ) {
     StringClassMgr* p_cls_mgr = get_string_class_mgr();
     if( p_cls_mgr ) {
       if( m_string_class_idx < p_cls_mgr->mp_string_classes.size()-1 ) {
@@ -685,9 +681,9 @@ void BIRRTstarViz::next_string_class() {
 }
 
 void BIRRTstarViz::prev_line_subsegment() {
-  if ( mp_mgr->mp_worldmap ) {
-    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size()) ) {
-      h2p::LineSubSegmentSet* p_subsegment_set = mp_mgr->mp_worldmap->get_linesubsegment_set() [m_subsegment_set_idx];
+  if ( get_world_map() ) {
+    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(get_world_map()->get_linesubsegment_set().size()) ) {
+      h2p::LineSubSegmentSet* p_subsegment_set = get_world_map()->get_linesubsegment_set() [m_subsegment_set_idx];
       int sub_num = static_cast<int>( p_subsegment_set->m_subsegs.size() );
       if ( m_subsegment_idx > 0) {
         m_subsegment_idx --;
@@ -704,9 +700,9 @@ void BIRRTstarViz::prev_line_subsegment() {
 }
 
 void BIRRTstarViz::next_line_subsegment() {
-  if ( mp_mgr->mp_worldmap ) {
-    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(mp_mgr->mp_worldmap->get_linesubsegment_set().size()) ) {
-      h2p::LineSubSegmentSet* p_subsegment_set = mp_mgr->mp_worldmap->get_linesubsegment_set() [m_subsegment_set_idx];
+  if ( get_world_map() ) {
+    if ( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < static_cast<int>(get_world_map()->get_linesubsegment_set().size()) ) {
+      h2p::LineSubSegmentSet* p_subsegment_set = get_world_map()->get_linesubsegment_set() [m_subsegment_set_idx];
       int sub_num = static_cast<int>( p_subsegment_set->m_subsegs.size() );
       if ( m_subsegment_idx < sub_num-1) {
         m_subsegment_idx ++;
@@ -724,10 +720,10 @@ void BIRRTstarViz::next_line_subsegment() {
 
 h2p::SubRegionSet* BIRRTstarViz::get_selected_region() {
   h2p::SubRegionSet* p_region = NULL;
-  if ( mp_mgr->get_world_map() ) {
-    if ( mp_mgr->get_world_map()->get_subregion_set().size() > 0 ) {
-      if( m_region_idx >= 0 && m_region_idx < mp_mgr->get_world_map()->get_subregion_set().size() ) {
-        return mp_mgr->get_world_map()->get_subregion_set()[ m_region_idx ];
+  if ( get_world_map() ) {
+    if ( get_world_map()->get_subregion_set().size() > 0 ) {
+      if( m_region_idx >= 0 && m_region_idx < get_world_map()->get_subregion_set().size() ) {
+        return get_world_map()->get_subregion_set()[ m_region_idx ];
       }
     }
   }
@@ -764,10 +760,10 @@ StringClass* BIRRTstarViz::get_selected_string_class() {
 
 h2p::LineSubSegmentSet* BIRRTstarViz::get_selected_line_subsegment_set() {
   h2p::LineSubSegmentSet* p_subseg_set = NULL;
-  if ( mp_mgr->get_world_map() ) {
-    if ( mp_mgr->get_world_map()->get_linesubsegment_set().size() > 0 ) {
-      if( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < mp_mgr->get_world_map()->get_linesubsegment_set().size() ) {
-        return mp_mgr->get_world_map()->get_linesubsegment_set()[ m_subsegment_set_idx ];
+  if ( get_world_map() ) {
+    if ( get_world_map()->get_linesubsegment_set().size() > 0 ) {
+      if( m_subsegment_set_idx >= 0 && m_subsegment_set_idx < get_world_map()->get_linesubsegment_set().size() ) {
+        return get_world_map()->get_linesubsegment_set()[ m_subsegment_set_idx ];
       }
     }
   }
@@ -931,11 +927,10 @@ bool BIRRTstarViz::unselect_obstacle( h2p::Obstacle* p_obstacle ) {
   return false;
 }
 
-
 void BIRRTstarViz::update_viz_reference_frames() {
 
-  if( mp_mgr && mp_mgr->mp_rule ) {
-    mp_mgr->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
+  if( get_world_map() && get_string_class_mgr()->mp_rule ) {
+    get_string_class_mgr()->mp_rule->get_reference_frames( m_viz_pos_refs, m_viz_neg_refs );
     cout << "update Viz Reference Frames: POS " << m_viz_pos_refs.size();
     cout << " NEG " << m_viz_neg_refs.size() << endl;
   }
@@ -944,17 +939,27 @@ void BIRRTstarViz::update_viz_reference_frames() {
 
 void BIRRTstarViz::process_world( ) {
 
-  mp_reference_frame_set->process( mp_mgr->get_primary_obstacle() );
+  mp_reference_frame_set->process( get_string_class_mgr()->get_primary_obstacle() );
   //std::cout << "NUM OF OBS " << conts.size() << std::endl;
-  mp_mgr->mp_rule = mp_mgr->get_rule( mp_reference_frame_set );
+  get_string_class_mgr()->mp_rule = get_string_class_mgr()->get_rule( mp_reference_frame_set );
   update_viz_reference_frames();
 }
 
 bool BIRRTstarViz::save( QString filename ) {
-  if( mp_mgr->mp_worldmap ) {
-    mp_mgr->mp_worldmap->to_xml(filename.toStdString(
-));
+  if( get_world_map() ) {
+    get_world_map()->to_xml(filename.toStdString());
     return true;
   }
   return false;
+}
+
+StringClassMgr* BIRRTstarViz::get_string_class_mgr() {
+  return mp_mgr;
+}
+
+h2p::WorldMap* BIRRTstarViz::get_world_map() {
+  if( mp_reference_frame_set ) {
+    return mp_reference_frame_set->get_world_map();
+  }
+  return NULL;
 }
