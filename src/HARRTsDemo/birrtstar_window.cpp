@@ -585,12 +585,14 @@ void BIRRTstarWindow::keyPressEvent(QKeyEvent * event) {
   else if(event->key() == Qt::Key_PageDown ) {
     if(mpViz) {
       mpViz->next_string_class();
+      update_status();
       repaint();
     }
   }
   else if(event->key() == Qt::Key_PageUp ) {
     if(mpViz) {
       mpViz->prev_string_class();
+      update_status();
       repaint();
     }
   }
