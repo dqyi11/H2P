@@ -74,34 +74,27 @@ StringClassMgr::~StringClassMgr() {
 }
 
 bool StringClassMgr::import_path( Path* p_path ) {
-  cout << "add path " << p_path->m_cost << endl;
+  //cout << "add path " << p_path->m_cost << endl;
   vector< string > non_repeating_id_string = _p_grammar->get_non_repeating_form( p_path->m_string );
-  print( p_path->m_string );
-  print( non_repeating_id_string );
+  //print( p_path->m_string );
+  //print( non_repeating_id_string );
   if ( _p_grammar->is_valid_string( non_repeating_id_string ) == false ) {
-    cout << "INVALID STRING " << endl;
+    //cout << "INVALID STRING " << endl;
     return false;
   }
   StringClass* p_string_class = find_string_class( non_repeating_id_string );
   if( p_string_class ) {
-    cout << "STRING CLASS VAL " << p_string_class->m_cost << endl;
+    //cout << "STRING CLASS VAL " << p_string_class->m_cost << endl;
     if( p_string_class->mp_path==NULL || p_string_class->m_cost > p_path->m_cost ) {
       p_string_class->m_cost = p_path->m_cost;
       p_string_class->mp_path = p_path;    
-      cout << "ADDING TO EXISTING STRING CLASS " << p_string_class->get_name() << endl;  
+      //cout << "ADDING TO EXISTING STRING CLASS " << p_string_class->get_name() << endl;
     }
     else{
-      cout << "NOT A BETTER PATH" << endl;
+      //cout << "NOT A BETTER PATH" << endl;
     }
   }
-  else {
-    p_string_class = new StringClass( non_repeating_id_string ); 
-    p_string_class->m_cost = p_path->m_cost;
-    p_string_class->mp_path = p_path;
-    //_classes.push_back(p_string_class);
-    mp_string_classes.push_back( p_string_class );
-    cout << "ADDING TO NEW STRING CLASS " << p_string_class->get_name() << endl;  
-  }
+
   return true;
 }
 
