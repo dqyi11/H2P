@@ -126,7 +126,6 @@ void SpatialRelationMgr::remove_spatial_relation_function( string name ) {
   }
 }
 
-  
 vector< vector< string > > SpatialRelationMgr::get_strings( ReferenceFrameSet* p_rfs  ) {
   vector< vector< string > > string_set;
   
@@ -144,6 +143,8 @@ vector< vector< string > > SpatialRelationMgr::get_strings( ReferenceFrameSet* p
 }
 
 void SpatialRelationMgr::get_string_classes( ReferenceFrameSet* p_rfs  ) {
+
+  cout << "SpatialRelationMgr::get_string_classes" << endl;
   vector< vector< string > > string_set = get_strings( p_rfs );
   mp_string_classes.clear();
   for( vector< vector< string > >::iterator it = string_set.begin();

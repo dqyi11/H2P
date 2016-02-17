@@ -55,7 +55,7 @@ vector<Path*> StringClassMgr::export_paths() {
   for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
        it != mp_string_classes.end(); it++ ) {
     h2p::StringClass* p_tmp_str_cls = (*it);
-    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
+    StringClass* p_str_cls = static_cast<StringClass*>( p_tmp_str_cls );
     paths.push_back( p_str_cls->mp_path );
   }
   return paths;
@@ -67,7 +67,7 @@ StringClass* StringClassMgr::find_string_class( vector< string > str ) {
   for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
        it != mp_string_classes.end(); it++ ) {
     h2p::StringClass* p_tmp_str_cls = (*it);
-    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
+    StringClass* p_str_cls = static_cast<StringClass*>( p_tmp_str_cls );
     if( p_str_cls->m_string.size() == str.size()) {
       bool identical = true;
       for( unsigned int j = 0; j < p_str_cls->m_string.size(); j ++) {
@@ -90,7 +90,7 @@ vector< StringClass* > StringClassMgr::merge() {
   for( vector<h2p::StringClass*>::iterator it= mp_string_classes.begin();
        it != mp_string_classes.end(); it++ ) {
     h2p::StringClass* p_tmp_str_cls = (*it);
-    StringClass* p_str_cls = dynamic_cast<StringClass*>( p_tmp_str_cls );
+    StringClass* p_str_cls = static_cast<StringClass*>( p_tmp_str_cls );
     if( merged_classes.size() == 0 ) {
       merged_classes.push_back( p_str_cls );
     }
@@ -129,6 +129,7 @@ void StringClassMgr::export_grammar( string filename ) {
 
 void StringClassMgr::get_string_classes( h2p::ReferenceFrameSet* p_rfs ) {
 
+  cout << "StringClassMgr::get_string_classes" << endl;
   vector< vector< string > > string_set = get_strings( p_rfs );
   mp_string_classes.clear();
   for( vector< vector< string > >::iterator it = string_set.begin();

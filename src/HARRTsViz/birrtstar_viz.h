@@ -29,6 +29,8 @@ namespace birrts {
 
     tree_show_type_t get_tree_show_type() { return m_tree_show_type; }
     void switch_tree_show_type();
+
+    StringClassMgr* get_string_class_mgr();
     
     BIRRTstarPathPlanningInfo m_PPInfo;
     

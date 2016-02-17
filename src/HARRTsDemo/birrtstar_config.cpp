@@ -16,7 +16,7 @@ using namespace birrts;
 
 BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
   mpParentWindow = parent;
-  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+  BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
   mpCheckMinDist = new QCheckBox();  
   if (p_viz->m_PPInfo.m_min_dist_enabled==true) {
     mpCheckMinDist->setChecked(true);
@@ -123,7 +123,7 @@ void BIRRTstarConfig::onBtnAddClicked() {
 
 void BIRRTstarConfig::updateDisplay() {
   if(mpParentWindow) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
     if(p_viz) {
       if( p_viz->m_PPInfo.m_min_dist_enabled==true ) {
         mpCheckMinDist->setChecked(true);
@@ -144,7 +144,7 @@ void BIRRTstarConfig::updateDisplay() {
 void BIRRTstarConfig::updateConfiguration() {
   int numObj = 0;
   if(mpParentWindow) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
     if (mpCheckMinDist->isChecked()==true) {
       numObj += 1;
       p_viz->m_PPInfo.m_min_dist_enabled=true;
@@ -167,7 +167,7 @@ void BIRRTstarConfig::updateConfiguration() {
 bool BIRRTstarConfig::isCompatible(QString fitnessFile) {
   QPixmap pixmap(fitnessFile);
   if(mpParentWindow) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
     if (pixmap.width()==p_viz->m_PPInfo.m_map_width
             && pixmap.height()==p_viz->m_PPInfo.m_map_height) {
       return true;

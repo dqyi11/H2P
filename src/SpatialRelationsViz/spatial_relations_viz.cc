@@ -28,7 +28,7 @@
 #define RULE_POS_COLOR          QColor(0,255,0)
 #define RULE_NEG_COLOR          QColor(255,0,0)
 #define STRING_CLASS_POINT_SIZE 4
-#define STRING_CLASS_POINT_COLOR QColor(0,255,255)
+#define STRING_CLASS_POINT_COLOR QColor(255,127,80,100)
 
 using namespace std;
 using namespace h2p;
@@ -46,6 +46,7 @@ SpatialRelationsViz::SpatialRelationsViz(QWidget *parent) :
   m_subsegment_idx = -1;
   m_string_class_idx = -1;
   m_show_subsegment = true;
+  m_show_string_class_reference_path = true;
   m_viz_subregions.clear();
   m_viz_subsegments.clear();
   mp_viz_string_class = NULL;
@@ -343,32 +344,33 @@ void SpatialRelationsViz::paint(QPaintDevice * device ) {
       }
       neg_ref_painter.end();
 
-      if( mp_viz_string_class ) {
-        QPainter st_cls_painter(device);
-        QPen st_cls_paintpen( STRING_CLASS_POINT_COLOR );
-        st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
-        st_cls_painter.setPen( st_cls_paintpen ); 
+      if(m_show_string_class_reference_path) {
+        if( mp_viz_string_class ) {
+          QPainter st_cls_painter(device);
+          QPen st_cls_paintpen( STRING_CLASS_POINT_COLOR );
+          st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
+          st_cls_painter.setPen( st_cls_paintpen );
 
-        if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
+          if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
           
-          st_cls_painter.drawLine( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ),
-                                   toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
-          for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
+            st_cls_painter.drawLine( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ),
+                                     toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
+            for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
 
-            ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
-            ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
-            if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
-              st_cls_painter.drawLine( toQPoint( p_curr_rf_str_cls->m_mid_point ),
-                                       toQPoint( p_next_rf_str_cls->m_mid_point ) );
+              ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
+              ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
+              if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
+                st_cls_painter.drawLine( toQPoint( p_curr_rf_str_cls->m_mid_point ),
+                                         toQPoint( p_next_rf_str_cls->m_mid_point ) );
+              }
             }
+            st_cls_painter.drawLine( toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
+                                     QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
           }
-          st_cls_painter.drawLine( toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
-                                   QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
-        }
  
-        st_cls_painter.end();     
+          st_cls_painter.end();
+        }
       }
-
     } 
   }
 }
@@ -599,11 +601,13 @@ SubRegion* SpatialRelationsViz::get_selected_subregion() {
 
 StringClass* SpatialRelationsViz::get_selected_string_class() {
   StringClass* p_string_class = NULL;
-  if( mp_mgr->mp_string_classes.size() > 0 ) {
-    if( m_string_class_idx >= 0 && m_string_class_idx < mp_mgr->mp_string_classes.size() ) {
-      return mp_mgr->mp_string_classes[m_string_class_idx];
+  if( mp_mgr ) {
+    if( mp_mgr->mp_string_classes.size() > 0 ) {
+      if( m_string_class_idx >= 0 && m_string_class_idx < mp_mgr->mp_string_classes.size() ) {
+        return mp_mgr->mp_string_classes[m_string_class_idx];
+      }
     }
-  } 
+  }
   return p_string_class;
 }
 

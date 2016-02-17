@@ -20,6 +20,7 @@ namespace h2p {
     bool load_map( QString filename );
 
     bool m_show_subsegment;
+    bool m_show_string_class_reference_path;
     void prev_region();
     void next_region();
 

@@ -14,7 +14,6 @@
 #define LINE_WIDTH              2
 
 using namespace std;
-using namespace h2p;
 using namespace birrts;
 
 BIRRTstarViz::BIRRTstarViz( QWidget *parent ) :
@@ -95,29 +94,33 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
     }
   } 
 
-  if( mp_viz_string_class ) {
+  h2p::StringClass* p_new_str_cls = get_selected_string_class();
+  StringClass* p_str_cls = static_cast<StringClass*>(p_new_str_cls);
+  if( p_str_cls ) {
 
     QPainter pathpainter(device);
     QPen pathpaintpen(QColor(255,140,0));
     pathpaintpen.setWidth(2);
     pathpainter.setPen(pathpaintpen);
 
-    if( mp_viz_string_class ) {
-      StringClass* p_str_cls = dynamic_cast<StringClass*>( mp_viz_string_class );
-      if( p_str_cls ) {
-        Path* p = p_str_cls->mp_path;
-        if(p) {
-          int point_num = p->m_way_points.size();
+    Path* p = p_str_cls->mp_path;
+    if(p) {
+      int point_num = p->m_way_points.size();
 
-          if(point_num > 0) {
-            for(int i=0;i<point_num-1;i++) {
-              pathpainter.drawLine( QPoint(p->m_way_points[i][0], p->m_way_points[i][1]), QPoint(p->m_way_points[i+1][0], p->m_way_points[i+1][1]) );
-            }
-          }
+      if(point_num > 0) {
+        for(int i=0;i<point_num-1;i++) {
+          pathpainter.drawLine( QPoint(p->m_way_points[i][0], p->m_way_points[i][1]), QPoint(p->m_way_points[i+1][0], p->m_way_points[i+1][1]) );
         }
       }
     }
+    else {
+      cout << "NULL PATH" << endl;
+    }
+
     pathpainter.end();
+  }
+  else{
+    cout << "NULL STRING CLASS" << endl;
   }
 
   SpatialRelationsViz::paint(device);
@@ -202,4 +205,9 @@ void BIRRTstarViz::switch_tree_show_type() {
     m_tree_show_type = NONE_TREE_SHOW;
     break;
   }
+}
+
+StringClassMgr* BIRRTstarViz::get_string_class_mgr() {
+  h2p::SpatialRelationMgr* p_spatial_relation_mgr = get_spatial_relation_mgr();
+  return static_cast<StringClassMgr*>(p_spatial_relation_mgr);
 }

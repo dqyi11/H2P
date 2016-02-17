@@ -11,11 +11,10 @@
 //#include "expanding_tree.h"
 
 using namespace std;
-using namespace h2p;
 using namespace birrts;
 
 BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
-    : SpatialRelationsWindow((SpatialRelationsViz*)p_viz, parent) {
+    : h2p::SpatialRelationsWindow( p_viz, parent) {
 
   mpBIRRTstar = NULL;
 
@@ -72,7 +71,7 @@ void BIRRTstarWindow::onLoadObj() {
 
 bool BIRRTstarWindow::setup_planning(QString filename) {
   if(mpViz) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
     p_viz->m_PPInfo.load_from_file(filename);
     //openMap(p_viz->m_PPInfo.m_map_fullpath);
     if(mpBIRRTstarConfig) {
@@ -85,7 +84,7 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
 
 bool BIRRTstarWindow::export_paths() {
   if(mpViz) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
     bool success = false;
     success = p_viz->m_PPInfo.export_paths(p_viz->m_PPInfo.m_paths_output);
     success = p_viz->draw_path(p_viz->m_PPInfo.m_paths_output+".png");
@@ -97,7 +96,7 @@ bool BIRRTstarWindow::export_paths() {
 void BIRRTstarWindow::onRun() {
   cout << "BIRRTstarWindow::onRun" << endl;
   if(mpViz) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
     if (p_viz->m_PPInfo.m_map_width <= 0 || p_viz->m_PPInfo.m_map_height <= 0) {
       QMessageBox msgBox;
       msgBox.setText("Map is not initialized.");
@@ -132,7 +131,7 @@ void BIRRTstarWindow::plan_path() {
       return;
   }
 
-  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+  BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
   for( std::vector<Path*>::iterator it = p_viz->m_PPInfo.mp_found_paths.begin();
        it != p_viz->m_PPInfo.mp_found_paths.end(); it ++ ) {
     Path * p_path = (*it);
@@ -147,21 +146,22 @@ void BIRRTstarWindow::plan_path() {
   msg += "MaxIterationNum( " + QString::number(p_viz->m_PPInfo.m_max_iteration_num) + " ) \n";
   qDebug() << msg;
 
-  ReferenceFrameSet* pfs = p_viz->get_reference_frame_set();
-  WorldMap* p_map = pfs->get_world_map();
+  h2p::ReferenceFrameSet* pfs = p_viz->get_reference_frame_set();
+  h2p::WorldMap* p_map = pfs->get_world_map();
   mpBIRRTstar = new BIRRTstar(p_map->get_width(), p_map->get_height(), p_viz->m_PPInfo.m_segment_length);
   mpBIRRTstar->set_reference_frames( pfs );
   mpBIRRTstar->set_run_type( p_viz->m_PPInfo.m_run_type );
   POS2D start(p_viz->m_PPInfo.m_start.x(), p_viz->m_PPInfo.m_start.y());
   POS2D goal(p_viz->m_PPInfo.m_goal.x(), p_viz->m_PPInfo.m_goal.y());
 
-  p_viz->get_spatial_relation_mgr()->get_string_classes( p_viz->get_reference_frame_set() );
-    
+  StringClassMgr* p_str_cls_mgr = p_viz->get_string_class_mgr();
+  p_str_cls_mgr->get_string_classes( pfs );
+  cout << "string class num " << p_viz->get_string_class_mgr()->mp_string_classes.size() << endl;
+
   mpBIRRTstar->init(start, goal, p_viz->m_PPInfo.mp_func, p_viz->m_PPInfo.mCostDistribution, p_viz->m_PPInfo.m_grammar_type);
   p_viz->m_PPInfo.get_obstacle_info(mpBIRRTstar->get_map_info());
   p_viz->set_tree(mpBIRRTstar);
   p_viz->set_finished_planning( false );
-    
 
   //mpBIRRTstar->dump_distribution("dist.txt");
   while(mpBIRRTstar->get_current_iteration() <= p_viz->m_PPInfo.m_max_iteration_num) {
@@ -185,16 +185,16 @@ void BIRRTstarWindow::plan_path() {
 
 void BIRRTstarWindow::onSaveScreen() {
   QString tempFilename = QFileDialog::getSaveFileName(this, tr("Save PNG File"), "./", tr("PNG Files (*.png)"));
-  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+  BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
   p_viz->save_current_viz( tempFilename );
 }
 
 void BIRRTstarWindow::onAddStart() {
   if( mpViz ) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
-    if( p_viz->get_spatial_relation_mgr() ) {
-      p_viz->get_spatial_relation_mgr()->m_start_x = mCursorPoint.x();
-      p_viz->get_spatial_relation_mgr()->m_start_y = mCursorPoint.y();
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
+    if( p_viz->get_string_class_mgr() ) {
+      p_viz->get_string_class_mgr()->m_start_x = mCursorPoint.x();
+      p_viz->get_string_class_mgr()->m_start_y = mCursorPoint.y();
       p_viz->m_PPInfo.m_start = mCursorPoint;
       repaint();
     }
@@ -203,10 +203,10 @@ void BIRRTstarWindow::onAddStart() {
 
 void BIRRTstarWindow::onAddGoal() {
   if( mpViz ) {
-    BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
-    if( p_viz->get_spatial_relation_mgr() ) {
-      p_viz->get_spatial_relation_mgr()->m_goal_x = mCursorPoint.x();
-      p_viz->get_spatial_relation_mgr()->m_goal_y = mCursorPoint.y();
+    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
+    if( p_viz->get_string_class_mgr() ) {
+      p_viz->get_string_class_mgr()->m_goal_x = mCursorPoint.x();
+      p_viz->get_string_class_mgr()->m_goal_y = mCursorPoint.y();
       p_viz->m_PPInfo.m_goal = mCursorPoint;
       repaint();
     }
@@ -218,7 +218,7 @@ void BIRRTstarWindow::onLoadMap() {
             tr("Open File"), "./", tr("Map Files (*.*)"));
   if( tempFilename.isEmpty() == false ) {
     if( mpViz ) {
-      BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+      BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
       QFileInfo fileInfo(tempFilename);
       QString filename(fileInfo.fileName());
       p_viz->load_map(tempFilename);
@@ -235,7 +235,7 @@ void BIRRTstarWindow::update_status() {
   if(mpViz==NULL) {
     return;
   }
-  BIRRTstarViz* p_viz = dynamic_cast<BIRRTstarViz*>(mpViz);
+  BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
   if(mpStatusProgressBar) {
     if(mpBIRRTstar) {
       mpStatusProgressBar->setMinimum(0);
@@ -246,20 +246,23 @@ void BIRRTstarWindow::update_status() {
   if(mpStatusLabel) {
     QString status = "";
     if (p_viz->is_finished_planning() == false) {
-      SubRegion* p_rgn = p_viz->get_selected_subregion();
+      h2p::SubRegion* p_rgn = p_viz->get_selected_subregion();
       if(p_rgn) {
         status += QString::fromStdString(p_rgn->get_name());
       }
       status += " || ";
-      LineSubSegment* p_sgm = p_viz->get_selected_line_subsegment();
+      h2p::LineSubSegment* p_sgm = p_viz->get_selected_line_subsegment();
       if(p_sgm) {
         status += QString::fromStdString(p_sgm->get_name());
       }
     }
     else {
       h2p::StringClass* p_cls = p_viz->get_selected_string_class();
-      if( p_cls ) {
-        status += QString::fromStdString( p_cls->get_name() );
+      StringClass* p_new_cls = static_cast<StringClass*>(p_cls);
+      if( p_new_cls ) {
+        status += QString::fromStdString( p_new_cls->get_name() );
+        status += " = ";
+        status += QString::number( p_new_cls->m_cost );
       }
     }
     mpStatusLabel->setText(status);
