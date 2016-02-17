@@ -12,9 +12,9 @@
 using namespace std;
 using namespace h2p;
 
-SpatialRelationsWindow::SpatialRelationsWindow( SpatialRelationsViz* p_viz, QWidget *parent )
+SpatialRelationsWindow::SpatialRelationsWindow( QWidget *parent )
     : QMainWindow( parent ) {
-  mpViz = p_viz;
+  mpViz = new SpatialRelationsViz();
   mpMsgBox = new QMessageBox();
   createActions();
   createMenuBar();
@@ -251,8 +251,11 @@ void SpatialRelationsWindow::updateStatusBar() {
 void SpatialRelationsWindow::onAddStart() {
   if( mpViz ) {
     if( mpViz->get_spatial_relation_mgr() ) {
-      mpViz->get_spatial_relation_mgr()->m_start_x = mCursorPoint.x();
-      mpViz->get_spatial_relation_mgr()->m_start_y = mCursorPoint.y();
+      SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mpViz->get_spatial_relation_mgr() );
+      if( p_cls_mgr ) {
+        p_cls_mgr->m_start_x = mCursorPoint.x();
+        p_cls_mgr->m_start_y = mCursorPoint.y();
+      }
       repaint();
     }
   }
@@ -261,8 +264,11 @@ void SpatialRelationsWindow::onAddStart() {
 void SpatialRelationsWindow::onAddGoal() {
   if( mpViz ) {
     if( mpViz->get_spatial_relation_mgr() ) {
-      mpViz->get_spatial_relation_mgr()->m_goal_x = mCursorPoint.x();
-      mpViz->get_spatial_relation_mgr()->m_goal_y = mCursorPoint.y();
+      SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mpViz->get_spatial_relation_mgr() );
+      if( p_cls_mgr ) {
+        p_cls_mgr->m_goal_x = mCursorPoint.x();
+        p_cls_mgr->m_goal_y = mCursorPoint.y();
+      }
       repaint();
     }
   }
@@ -417,22 +423,27 @@ void SpatialRelationsWindow::onProcess() {
 
 void SpatialRelationsWindow::onExecute() {
   cout << "SpatialRelationsWindow::onExecute" << endl;
-  if( mpViz->get_spatial_relation_mgr()->m_start_x < 0 ||
-      mpViz->get_spatial_relation_mgr()->m_start_y < 0 ) {
-    if( mpMsgBox ) {
-      mpMsgBox->setText( "Start position not set" );
-      mpMsgBox->show();
+  if( mpViz->get_spatial_relation_mgr() ) {
+    SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mpViz->get_spatial_relation_mgr() );
+    if( p_cls_mgr ) {
+       if( p_cls_mgr->m_start_x < 0 ||
+           p_cls_mgr->m_start_y < 0 ) {
+         if( mpMsgBox ) {
+           mpMsgBox->setText( "Start position not set" );
+           mpMsgBox->show();
+         }
+       }
+
+      if( p_cls_mgr->m_goal_x < 0 ||
+          p_cls_mgr->m_goal_y < 0 ) {
+        if( mpMsgBox ) {
+          mpMsgBox->setText( "Goal position not set" );
+          mpMsgBox->show();
+        }
+      }
     }
-  } 
 
-  if( mpViz->get_spatial_relation_mgr()->m_goal_x < 0 ||
-      mpViz->get_spatial_relation_mgr()->m_goal_y < 0 ) {
-    if( mpMsgBox ) {
-      mpMsgBox->setText( "Goal position not set" );
-      mpMsgBox->show();
-    } 
+    p_cls_mgr->get_string_classes( mpViz->get_reference_frame_set() );
+    repaint();
   }
-
-  mpViz->get_spatial_relation_mgr()->get_string_classes( mpViz->get_reference_frame_set() ); 
-  repaint();
 }

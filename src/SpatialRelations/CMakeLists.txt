@@ -6,6 +6,7 @@ set(HDR    spatial_relation_function.h
            sideoof_relation_function.h
            avoid_relation_function.h
            spatial_relation_mgr.h
+           spatial_relation_string_class_mgr.h
            rule.h
    )
 
@@ -14,6 +15,7 @@ add_library(${LIB} SHARED
             sideof_relation_function.cc
             avoid_relation_function.cc
             spatial_relation_mgr.cc
+            spatial_relation_string_class_mgr.cc
             rule.cc
            )
 

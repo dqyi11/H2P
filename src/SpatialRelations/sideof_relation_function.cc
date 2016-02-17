@@ -50,7 +50,7 @@ Rule* SideOfRelationFunction::get_rule( ReferenceFrameSet* p_reference_frame_set
             }
             break;
           case SIDE_TYPE_BOTTOM:
-            // [0.45PI , 0.75PI)
+            // [0.45PI, 0.75PI)
             if( radius>=0.45*PI && radius<0.75*PI ) {
               refs.push_back( p_ref );
             }

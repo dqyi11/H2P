@@ -6,7 +6,6 @@
 #include <QMenuBar>
 #include <QAction>
 #include <QPixmap>
-#include <QProgressBar>
 #include <QMessageBox>
 #include "spatial_relations_viz.h"
 
@@ -18,7 +17,7 @@ namespace h2p {
     Q_OBJECT
     
   public:
-    SpatialRelationsWindow(SpatialRelationsViz* p_viz = new SpatialRelationsViz(), QWidget *parent = 0);
+    SpatialRelationsWindow(QWidget *parent = 0);
     ~SpatialRelationsWindow();
 
     SpatialRelationsViz * mpViz;

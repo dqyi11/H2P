@@ -16,7 +16,7 @@ using namespace birrts;
 
 BIRRTstarConfig::BIRRTstarConfig(BIRRTstarWindow * parent) {
   mpParentWindow = parent;
-  BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpParentWindow->mpViz);
+  BIRRTstarViz* p_viz = mpParentWindow->mpViz;
   mpCheckMinDist = new QCheckBox();  
   if (p_viz->m_PPInfo.m_min_dist_enabled==true) {
     mpCheckMinDist->setChecked(true);

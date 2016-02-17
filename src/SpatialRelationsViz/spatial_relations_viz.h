@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <QLabel>
-#include "spatial_relation_mgr.h"
+#include "spatial_relation_string_class_mgr.h"
 #include "reference_frames.h"
 
 namespace h2p {
@@ -17,7 +17,7 @@ namespace h2p {
     Q_OBJECT
   public:
     explicit SpatialRelationsViz( QWidget *parent = 0 );
-    virtual bool load_map( QString filename );
+    bool load_map( QString filename );
 
     bool m_show_subsegment;
     bool m_show_string_class_reference_path;

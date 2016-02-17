@@ -81,7 +81,7 @@ bool SpatialRelationsViz::init_world(QString filename) {
   //std::cout << "CREATE WORLD " << map_width << " * " << map_height << std::endl;
   mp_reference_frame_set = new ReferenceFrameSet();
   mp_reference_frame_set->init( m_world_width, m_world_height, conts );
-  mp_mgr = new SpatialRelationMgr( mp_reference_frame_set->get_world_map() );
+  mp_mgr = new SpatialRelationStringClassMgr( mp_reference_frame_set->get_world_map() );
   return true;
 }
 
@@ -299,22 +299,25 @@ void SpatialRelationsViz::paint(QPaintDevice * device ) {
       text_painter.end();
 
       if( mp_mgr ) {
-        if( mp_mgr->m_start_x >= 0 && mp_mgr->m_start_y >= 0 ) {
-          QPainter st_painter(device);
-          QPen st_paintpen( START_COLOR );
-          st_paintpen.setWidth( POINT_SIZE );
-          st_painter.setPen( st_paintpen );
-          st_painter.drawPoint( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ) );
-          st_painter.end();
-        }
+        SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mp_mgr );
+        if( p_cls_mgr ) {
+          if( p_cls_mgr->m_start_x >= 0 && p_cls_mgr->m_start_y >= 0 ) {
+            QPainter st_painter(device);
+            QPen st_paintpen( START_COLOR );
+            st_paintpen.setWidth( POINT_SIZE );
+            st_painter.setPen( st_paintpen );
+            st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
+            st_painter.end();
+          }
 
-        if( mp_mgr->m_goal_x >= 0 && mp_mgr->m_goal_y >= 0 ) {
-          QPainter gt_painter(device);
-          QPen gt_paintpen( GOAL_COLOR );
-          gt_paintpen.setWidth( POINT_SIZE );
-          gt_painter.setPen( gt_paintpen );
-          gt_painter.drawPoint( QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
-          gt_painter.end();
+          if( p_cls_mgr->m_goal_x >= 0 && p_cls_mgr->m_goal_y >= 0 ) {
+            QPainter gt_painter(device);
+            QPen gt_paintpen( GOAL_COLOR );
+            gt_paintpen.setWidth( POINT_SIZE );
+            gt_painter.setPen( gt_paintpen );
+            gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
+            gt_painter.end();
+          }
         }
       }
 
@@ -351,21 +354,24 @@ void SpatialRelationsViz::paint(QPaintDevice * device ) {
           st_cls_paintpen.setWidth( STRING_CLASS_POINT_SIZE );
           st_cls_painter.setPen( st_cls_paintpen );
 
-          if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
+          SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mp_mgr );
+          if(p_cls_mgr) {
+            if( mp_viz_string_class->mp_reference_frames.size() > 0 ) {
           
-            st_cls_painter.drawLine( QPoint( mp_mgr->m_start_x, mp_mgr->m_start_y ),
-                                     toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
-            for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
+              st_cls_painter.drawLine( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ),
+                                       toQPoint( mp_viz_string_class->mp_reference_frames[0]->m_mid_point ) );
+              for( unsigned int i=0; i < mp_viz_string_class->mp_reference_frames.size()-1; i++ ) {
 
-              ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
-              ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
-              if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
-                st_cls_painter.drawLine( toQPoint( p_curr_rf_str_cls->m_mid_point ),
-                                         toQPoint( p_next_rf_str_cls->m_mid_point ) );
+                ReferenceFrame* p_curr_rf_str_cls = mp_viz_string_class->mp_reference_frames[i];
+                ReferenceFrame* p_next_rf_str_cls = mp_viz_string_class->mp_reference_frames[i+1];
+                if( p_curr_rf_str_cls && p_next_rf_str_cls ) {
+                  st_cls_painter.drawLine( toQPoint( p_curr_rf_str_cls->m_mid_point ),
+                                           toQPoint( p_next_rf_str_cls->m_mid_point ) );
+                }
               }
+              st_cls_painter.drawLine( toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
+                                       QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
             }
-            st_cls_painter.drawLine( toQPoint( mp_viz_string_class->mp_reference_frames.back()->m_mid_point ),
-                                     QPoint( mp_mgr->m_goal_x, mp_mgr->m_goal_y ) );
           }
  
           st_cls_painter.end();
@@ -483,26 +489,32 @@ void SpatialRelationsViz::next_line_subsegment_set() {
 
 void SpatialRelationsViz::prev_string_class() {
   if( mp_mgr ) {
-    if( m_string_class_idx >= 0 ) {
-      m_string_class_idx --;
-      update_viz_string_class();
-    }
-    else {
-      m_string_class_idx = mp_mgr->mp_string_classes.size()-1;
-      update_viz_string_class();
+    SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>(mp_mgr);
+    if( p_cls_mgr ) {
+      if( m_string_class_idx >= 0 ) {
+        m_string_class_idx --;
+        update_viz_string_class();
+      }
+      else {
+        m_string_class_idx = p_cls_mgr->mp_string_classes.size()-1;
+        update_viz_string_class();
+      }
     }
   }
 }
 
 void SpatialRelationsViz::next_string_class() {
   if( mp_mgr ) {
-    if( m_string_class_idx < mp_mgr->mp_string_classes.size()-1 ) {
-      m_string_class_idx ++;
-      update_viz_string_class();
-    }
-    else {
-      m_string_class_idx = -1;
-      update_viz_string_class();
+    SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>(mp_mgr);
+    if( p_cls_mgr ) {
+      if( m_string_class_idx < p_cls_mgr->mp_string_classes.size()-1 ) {
+        m_string_class_idx ++;
+        update_viz_string_class();
+      }
+      else {
+        m_string_class_idx = -1;
+        update_viz_string_class();
+      }
     }
   }
 }
@@ -600,15 +612,17 @@ SubRegion* SpatialRelationsViz::get_selected_subregion() {
 }
 
 StringClass* SpatialRelationsViz::get_selected_string_class() {
-  StringClass* p_string_class = NULL;
   if( mp_mgr ) {
-    if( mp_mgr->mp_string_classes.size() > 0 ) {
-      if( m_string_class_idx >= 0 && m_string_class_idx < mp_mgr->mp_string_classes.size() ) {
-        return mp_mgr->mp_string_classes[m_string_class_idx];
-      }
+    SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>(mp_mgr);
+    if( p_cls_mgr ) {
+        if( p_cls_mgr->mp_string_classes.size() > 0 ) {
+          if( m_string_class_idx >= 0 && m_string_class_idx < p_cls_mgr->mp_string_classes.size() ) {
+            return p_cls_mgr->mp_string_classes[m_string_class_idx];
+          }
+        }
     }
   }
-  return p_string_class;
+  return NULL;
 }
 
 LineSubSegmentSet* SpatialRelationsViz::get_selected_line_subsegment_set() {

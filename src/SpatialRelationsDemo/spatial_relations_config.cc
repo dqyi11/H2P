@@ -44,7 +44,12 @@ void SpatialRelationsConfig::onBtnRemoveClicked() {
     if( p_item ) {
       if( mpParentWindow ) {
         if( mpParentWindow->mpViz ) {
-          mpParentWindow->mpViz->get_spatial_relation_mgr()->remove_spatial_relation_function( p_item->text().toStdString() );
+          if( mpParentWindow->mpViz->get_spatial_relation_mgr() ) {
+            SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mpParentWindow->mpViz->get_spatial_relation_mgr() );
+            if( p_cls_mgr ) {
+              p_cls_mgr->remove_spatial_relation_function( p_item->text().toStdString() );
+            }
+          }
         }
       }
     } 
@@ -56,9 +61,14 @@ void SpatialRelationsConfig::updateDisplay() {
   mpListWidget->clear();
   if( mpParentWindow ) {
     if( mpParentWindow->mpViz ) {
-      vector< string > names = mpParentWindow->mpViz->get_spatial_relation_mgr()->get_spatial_relation_function_names();
-      for( unsigned int i = 0; i < names.size(); i++ ) {
-        mpListWidget->addItem( QString::fromStdString( names[i] ) );
+      if( mpParentWindow->mpViz->get_spatial_relation_mgr() ) {
+        SpatialRelationStringClassMgr* p_cls_mgr = dynamic_cast<SpatialRelationStringClassMgr*>( mpParentWindow->mpViz->get_spatial_relation_mgr() );
+        if( p_cls_mgr ) {
+          vector< string > names = p_cls_mgr->get_spatial_relation_function_names();
+          for( unsigned int i = 0; i < names.size(); i++ ) {
+            mpListWidget->addItem( QString::fromStdString( names[i] ) );
+          }
+        }
       }
     }
   }

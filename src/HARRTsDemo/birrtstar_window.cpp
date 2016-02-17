@@ -14,41 +14,25 @@
 using namespace std;
 using namespace birrts;
 
-BIRRTstarWindow::BIRRTstarWindow(BIRRTstarViz* p_viz, QWidget *parent)
-    : h2p::SpatialRelationsWindow( p_viz, parent) {
+BIRRTstarWindow::BIRRTstarWindow(QWidget *parent) : QMainWindow(parent) {
 
   mpBIRRTstar = NULL;
-
+  mpViz = new BIRRTstarViz();
   mpBIRRTstarConfig = new BIRRTstarConfig(this);
   mpBIRRTstarConfig->hide();
 
   setCentralWidget(mpViz);
 
   mpStatusLabel = new QLabel();
-  mpStatusLabel->setFixedWidth(120);
+  mpStatusLabel->setFixedWidth(240);
 
   mpStatusProgressBar = new QProgressBar();
   statusBar()->addWidget(mpStatusLabel);
   statusBar()->addWidget(mpStatusProgressBar);
 
-  disconnect(mpLoadAction, SIGNAL(triggered()), 0, 0);
-  connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
-  mpLoadObjAction = new QAction("Config Objective", this);
-  connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
 
-  disconnect(mpExecuteAction, SIGNAL(triggered()), 0, 0);
-  connect(mpExecuteAction, SIGNAL(triggered()), this, SLOT(onRun()));
-  mpSaveScreenAction = new QAction("Save Screen", this);
-  connect(mpSaveScreenAction, SIGNAL(triggered()), this, SLOT(onSaveScreen()));
 
-  mpToolMenu = menuBar()->addMenu("&Tool");
-  mpToolMenu->addAction(mpLoadObjAction);
-  mpToolMenu->addAction(mpSaveScreenAction);
 
-  disconnect(mpAddStartAction, SIGNAL(triggered()), 0, 0);
-  disconnect(mpAddGoalAction, SIGNAL(triggered()), 0, 0);
-  connect(mpAddStartAction, SIGNAL(triggered()), this, SLOT(onAddStart()));
-  connect(mpAddGoalAction, SIGNAL(triggered()), this, SLOT(onAddGoal()));
 }
 
 BIRRTstarWindow::~BIRRTstarWindow() {
@@ -64,6 +48,78 @@ BIRRTstarWindow::~BIRRTstarWindow() {
     delete mpViz;
     mpViz = NULL;
   }
+}
+
+void BIRRTstarWindow::createMenuBar() {
+  mpFileMenu = menuBar()->addMenu("&File");
+  mpFileMenu->addAction( mpOpenAction );
+  mpFileMenu->addAction( mpSaveAction );
+  mpFileMenu->addAction( mpLoadAction );
+
+  mpAddMenu = menuBar()->addMenu("&Add");
+  mpAddMenu->addAction( mpAddInbetweenSpatialRelationAction );
+  mpAddSideofRelationMenu = mpAddMenu->addMenu("&Side-of Relation");
+  mpAddSideofRelationMenu->addAction( mpAddLeftofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddRightofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddTopofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddBottomofSpatialRelationAction );
+  mpAddMenu->addAction( mpAddAvoidSpatialRelationAction );
+
+  mpManageMenu = menuBar()->addMenu("&Manage");
+  mpManageMenu->addAction( mpShowConfigAction );
+  mpManageMenu->addAction( mpProcessAction );
+  mpManageMenu->addAction( mpExecuteAction );
+
+  mpToolMenu = menuBar()->addMenu("&Tool");
+  mpToolMenu->addAction(mpLoadObjAction);
+  mpToolMenu->addAction(mpSaveScreenAction);
+
+  mpContextMenu = new QMenu();
+  setContextMenuPolicy( Qt::CustomContextMenu );
+  mpContextMenu->addAction( mpAddStartAction );
+  mpContextMenu->addAction( mpAddGoalAction );
+}
+
+void BIRRTstarWindow::createActions() {
+  mpOpenAction = new QAction("Open", this);
+  connect(mpOpenAction, SIGNAL(triggered()), this, SLOT(onOpen()));
+  mpSaveAction = new QAction("Save", this);
+  connect(mpSaveAction, SIGNAL(triggered()), this, SLOT(onSave()));
+  mpLoadAction = new QAction("Load Map", this);
+  connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
+
+
+  mpAddStartAction = new QAction("Add Start", this);
+  mpAddGoalAction = new QAction("Add Goal", this);
+  connect( mpAddStartAction, SIGNAL(triggered()), this, SLOT(onAddStart()) );
+  connect( mpAddGoalAction, SIGNAL(triggered()), this, SLOT(onAddGoal()) );
+
+  mpAddInbetweenSpatialRelationAction = new QAction("In-between Relation", this);
+  connect(mpAddInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddInbetweenSpatialRelation()));
+  mpAddAvoidSpatialRelationAction = new QAction("Avoid Relation", this);
+  connect(mpAddAvoidSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidSpatialRelation()));
+  mpAddLeftofSpatialRelationAction = new QAction("Left-of Relation", this);
+  connect(mpAddLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddLeftofSpatialRelation()));
+  mpAddRightofSpatialRelationAction = new QAction("Right-of Relation", this);
+  connect(mpAddRightofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddRightofSpatialRelation()));
+  mpAddTopofSpatialRelationAction = new QAction("Top-of Relation", this);
+  connect(mpAddTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddTopofSpatialRelation()));
+  mpAddBottomofSpatialRelationAction = new QAction("Bottom-of Relation", this);
+  connect(mpAddBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddBottomofSpatialRelation()));
+
+  mpShowConfigAction = new QAction("Show", this);
+  connect(mpShowConfigAction, SIGNAL(triggered()), this, SLOT(onShowConfig()));
+  mpLoadObjAction = new QAction("Config Objective", this);
+  connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
+  mpProcessAction = new QAction("Process", this);
+  connect(mpProcessAction, SIGNAL(triggered()), this, SLOT(onProcess()));
+  mpExecuteAction = new QAction("Execute", this);
+  connect(mpExecuteAction, SIGNAL(triggered()), this, SLOT(onRun()));
+
+  mpSaveScreenAction = new QAction("Save Screen", this);
+  connect(mpSaveScreenAction, SIGNAL(triggered()), this, SLOT(onSaveScreen()));
+
+  connect( this, SIGNAL(customContextMenuRequested(const QPoint)), this, SLOT(contextMenuRequested(QPoint)) );
 }
 
 void BIRRTstarWindow::onLoadObj() {
@@ -228,7 +284,7 @@ void BIRRTstarWindow::onLoadMap() {
       p_viz->m_PPInfo.m_map_fullpath = tempFilename;
       p_viz->m_PPInfo.m_map_width = p_viz->get_width();
       p_viz->m_PPInfo.m_map_height = p_viz->get_height();
-      updateStatusBar();
+      update_status();
     }
   }
 }
@@ -259,12 +315,11 @@ void BIRRTstarWindow::update_status() {
       }
     }
     else {
-      h2p::StringClass* p_cls = p_viz->get_selected_string_class();
-      StringClass* p_new_cls = static_cast<StringClass*>(p_cls);
-      if( p_new_cls ) {
-        status += QString::fromStdString( p_new_cls->get_name() );
+      StringClass* p_cls = p_viz->get_selected_string_class();
+      if( p_cls ) {
+        status += QString::fromStdString( p_cls->get_name() );
         status += " = ";
-        status += QString::number( p_new_cls->m_cost );
+        status += QString::number( p_cls->m_cost );
       }
     }
     mpStatusLabel->setText(status);
@@ -272,7 +327,90 @@ void BIRRTstarWindow::update_status() {
   repaint();
 }
 
-void BIRRTstarWindow::keyPressEvent(QKeyEvent * e) {
-  SpatialRelationsWindow::keyPressEvent(e);
-  update_status();
+void BIRRTstarWindow::keyPressEvent(QKeyEvent * event) {
+  if (event->key() == Qt::Key_Space  ) {
+    if(mpViz) {
+      if(mpViz->get_mode() == SUBREGION ) {
+        mpViz->set_mode( LINE_SUBSEGMENT );
+      }
+      else {
+        mpViz->set_mode( SUBREGION );
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if (event->key() == Qt::Key_S  ) {
+    if(mpViz) {
+      if(mpViz->m_show_subsegment == true) {
+        mpViz->m_show_subsegment = false;
+      }
+      else {
+        mpViz->m_show_subsegment = true;
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_Up ) {
+    if(mpViz) {
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->next_region();
+      }
+      else {
+        mpViz->next_line_subsegment_set();
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_Down ) {
+    if(mpViz) {
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->prev_region();
+      }
+      else {
+        mpViz->prev_line_subsegment_set();
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_Right ) {
+    if(mpViz) {
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->next_subregion();
+      }
+      else {
+        mpViz->next_line_subsegment();
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_Left ) {
+    if(mpViz) {
+      if( mpViz->get_mode() == SUBREGION ) {
+        mpViz->prev_subregion();
+      }
+      else {
+        mpViz->prev_line_subsegment();
+      }
+      update_status();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_PageDown ) {
+    if(mpViz) {
+      mpViz->next_string_class();
+      repaint();
+    }
+  }
+  else if(event->key() == Qt::Key_PageUp ) {
+    if(mpViz) {
+      mpViz->prev_string_class();
+      repaint();
+    }
+  }
+
 }

@@ -1,45 +1,80 @@
 #ifndef BIRRTSTARMAINWINDOW_H
 #define BIRRTSTARMAINWINDOW_H
 
+#include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
 #include <QPixmap>
 #include <QProgressBar>
+#include <QMessageBox>
+#include <QPixmap>
 #include "birrtstar_viz.h"
 #include "reference_frames.h"
-#include "spatial_relations_window.h"
+#include "spatial_relations_config.h"
 
 namespace birrts {
 
   class BIRRTstarConfig;
 
-  class BIRRTstarWindow : public h2p::SpatialRelationsWindow {
+  class BIRRTstarWindow : public QMainWindow {
     Q_OBJECT
     
   public:
-    BIRRTstarWindow(BIRRTstarViz* p_viz = new BIRRTstarViz(), QWidget *parent = 0);
+    BIRRTstarWindow(QWidget *parent = 0);
     ~BIRRTstarWindow();
 
     bool export_paths();
     void plan_path();
     bool setup_planning(QString filename);
 
+    BIRRTstarViz* mpViz;
+
   protected:
-    void keyPressEvent(QKeyEvent * e);
+    void keyPressEvent(QKeyEvent * event);
     void update_status();
 
-    QAction* mpLoadObjAction;
+    BIRRTstarConfig*   mpBIRRTstarConfig;
+    BIRRTstar*         mpBIRRTstar;
+
+    virtual void createMenuBar();
+    virtual void createActions();
+
+    QMessageBox*  mpMsgBox;
+    QMenu*        mpFileMenu;
+    QMenu*        mpAddMenu;
+    QMenu*        mpAddSideofRelationMenu;
+    QMenu*        mpManageMenu;
+    QAction*      mpOpenAction;
+    QAction*      mpSaveAction;
+    QAction*      mpLoadAction;
+    QAction*      mpLoadObjAction;
+    QLabel*       mpStatusLabel;
+    QProgressBar* mpStatusProgressBar;
+
+    QAction*      mpAddStartAction;
+    QAction*      mpAddGoalAction;
+    QMenu*        mpContextMenu;
+
+    QAction*      mpAddInbetweenSpatialRelationAction;
+    QAction*      mpAddAvoidSpatialRelationAction;
+    QAction*      mpAddLeftofSpatialRelationAction;
+    QAction*      mpAddRightofSpatialRelationAction;
+    QAction*      mpAddTopofSpatialRelationAction;
+    QAction*      mpAddBottomofSpatialRelationAction;
+
+    QAction*      mpShowConfigAction;
+    QAction*      mpProcessAction;
+    QAction*      mpExecuteAction;
 
     QMenu*   mpToolMenu;
     QAction* mpSaveScreenAction;
     QAction* mpExportGrammarGraphAction;
     QAction* mpExportAllSimpleStringsAction;
 
-    BIRRTstarConfig*   mpBIRRTstarConfig;
-    BIRRTstar*         mpBIRRTstar;
+    h2p::SpatialRelationsConfig* mpConfig;
 
-    QProgressBar* mpStatusProgressBar;
+    QPoint        mCursorPoint;
 
   protected slots:
     void onRun();

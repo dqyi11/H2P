@@ -96,8 +96,8 @@ bool WorldMap::init( Obstacle* p_obstacle, bool rand_init_points ) {
 bool WorldMap::_init_points( Obstacle* p_obstacle ) {
   // select random point for each obstacle
   for( std::vector<Obstacle*>::iterator it = _obstacles.begin(); it != _obstacles.end(); it++ ) {
-    Obstacle * p_obstacle = (*it);
-    p_obstacle->m_bk = p_obstacle->sample_position();
+    Obstacle * p_curr_obstacle = (*it);
+    p_curr_obstacle->m_bk = p_curr_obstacle->sample_position();
   }
 
   _obs_bk_pair_lines.clear();
@@ -110,6 +110,9 @@ bool WorldMap::_init_points( Obstacle* p_obstacle ) {
 
   // select central point c
   bool found_cp = false;
+  if(p_obstacle) {
+    _central_point = p_obstacle->get_centroid();
+  }
   while( found_cp == false ) {
     if( p_obstacle == NULL ) {
       if ( (false == is_in_obstacle(_central_point)) && (false == is_in_obs_bk_lines(_central_point)) ) {
@@ -124,9 +127,11 @@ bool WorldMap::_init_points( Obstacle* p_obstacle ) {
       }
     }
     else {
-      _central_point = p_obstacle->sample_position();
       if ( false == is_in_obs_bk_lines(_central_point) ) {
         found_cp = true;
+      }
+      else{
+          _central_point = p_obstacle->sample_position();
       }
     }
   }
