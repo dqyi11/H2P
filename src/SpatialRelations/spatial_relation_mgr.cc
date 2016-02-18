@@ -99,3 +99,46 @@ Obstacle* SpatialRelationMgr::get_primary_obstacle() {
   }
   return p_obstacle;
 }
+
+string SpatialRelationMgr::typeToString( SpatialRelationFuncType type ) {
+  switch( type ) {
+    case SPATIAL_REL_IN_BETWEEN:
+      return "in_between";
+    case SPATIAL_REL_LEFT_OF:
+      return "left_of";
+    case SPATIAL_REL_RIGHT_OF:
+      return "right_of";
+    case SPATIAL_REL_TOP_OF:
+      return "top_of";
+    case SPATIAL_REL_BOTTOM_OF:
+      return "bottom_of";
+    case SPATIAL_REL_AVOID:
+      return "avoid";
+    case SPATIAL_REL_UNKNOWN:
+    default:
+      return "unknown";
+  }
+  return "unknown";
+}
+
+SpatialRelationFuncType SpatialRelationMgr::stringToType( string name ) {
+  if( name == "in_between" ) {
+    return SPATIAL_REL_IN_BETWEEN;
+  }
+  else if( name == "left_of" ) {
+    return SPATIAL_REL_LEFT_OF;
+  }
+  else if( name == "right_of" ) {
+    return SPATIAL_REL_RIGHT_OF;
+  }
+  else if( name == "top_of" ) {
+    return SPATIAL_REL_TOP_OF;
+  }
+  else if( name == "bottom_of" ) {
+    return SPATIAL_REL_BOTTOM_OF;
+  }
+  else if( name == "avoid" ) {
+    return SPATIAL_REL_AVOID;
+  }
+  return SPATIAL_REL_UNKNOWN;
+}

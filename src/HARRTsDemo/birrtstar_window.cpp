@@ -294,7 +294,10 @@ void BIRRTstarWindow::onOpen() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
           tr("Save File"), "./", tr("XML Files (*.xml)"));
   if( tempFilename.isEmpty() == false ) {
-      mpViz->load(tempFilename);
+      //mpViz->load(tempFilename);
+      if(setup_planning(tempFilename)) {
+        repaint();
+      }
   }
 }
 
@@ -302,7 +305,8 @@ void BIRRTstarWindow::onSave() {
   QString tempFilename = QFileDialog::getSaveFileName(this,
           tr("Save File"), "./", tr("XML Files (*.xml)"));
   if( tempFilename.isEmpty() == false ) {
-      mpViz->save(tempFilename);
+      //mpViz->save(tempFilename);
+      mpViz->m_PPInfo.save_to_file(tempFilename);
   }
 }
 

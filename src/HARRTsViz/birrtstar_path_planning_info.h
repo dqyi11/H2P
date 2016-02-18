@@ -8,10 +8,15 @@
 #include <vector>
 #include <QDebug>
 #include <math.h>
-
+#include "spatial_relation_mgr.h"
 #include "birrtstar.h"
 
 namespace birrts {
+
+  struct SpatialRelationInfo{
+    h2p::SpatialRelationFuncType type;
+    std::vector<std::string> obs;
+  };
 
   class BIRRTstarPathPlanningInfo {
   public:
@@ -129,6 +134,7 @@ namespace birrts {
     int m_max_iteration_num;
     double m_segment_length;
 
+    std::vector<SpatialRelationInfo> m_spatial_rel_info_list;
     std::vector<Path*> mp_found_paths;
   };
 
