@@ -13,9 +13,15 @@
 
 namespace birrts {
 
-  struct SpatialRelationInfo{
-    h2p::SpatialRelationFuncType type;
+  struct SpatialRelationInfo {
+    std::string type;
     std::vector<std::string> obs;
+  };
+
+  struct ObsInfo {
+    std::string name;
+    int center_x;
+    int center_y;
   };
 
   class BIRRTstarPathPlanningInfo {
@@ -134,7 +140,8 @@ namespace birrts {
     int m_max_iteration_num;
     double m_segment_length;
 
-    std::vector<SpatialRelationInfo> m_spatial_rel_info_list;
+    std::vector< SpatialRelationInfo > m_spatial_rel_info_list;
+    std::vector< ObsInfo > m_obs_info_list;
     std::vector<Path*> mp_found_paths;
   };
 

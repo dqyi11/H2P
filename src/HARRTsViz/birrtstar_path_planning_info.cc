@@ -251,6 +251,24 @@ void BIRRTstarPathPlanningInfo::write( xmlDocPtr doc, xmlNodePtr root ) const {
   xmlNewProp( node, ( const xmlChar* )( "segment_length" ), ( const xmlChar* )( seg_len_str.str().c_str() ) );
     
   xmlAddChild( root, node );
+
+  xmlNodePtr obs_list_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obstacles" ), NULL );
+  for( unsigned int i = 0; i < m_obs_info_list.size(); i++ ) {
+    ObsInfo obs_info = m_obs_info_list[i];
+    xmlNodePtr obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
+    xmlNewProp( obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_info.name.c_str() ) );
+    xmlAddChild( obs_list_node, obs_node );
+  }
+  xmlAddChild( node, obs_list_node );
+
+  xmlNodePtr spatial_rel_list_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relations" ), NULL );
+  for( unsigned int i = 0; i < m_spatial_rel_info_list.size(); i++ ) {
+    SpatialRelationInfo spatial_rel_info = m_spatial_rel_info_list[i];
+    xmlNodePtr spatial_rel_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relation" ), NULL );
+    xmlNewProp( spatial_rel_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( spatial_rel_info.type.c_str() ) );
+    xmlAddChild( spatial_rel_list_node, spatial_rel_node );
+  }
+  xmlAddChild( node, spatial_rel_list_node );
 }
 
 bool BIRRTstarPathPlanningInfo::save_to_file(QString filename) {
