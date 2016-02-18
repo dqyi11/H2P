@@ -89,13 +89,13 @@ namespace birrts {
     BIRRTstarPathPlanningInfo m_PPInfo;
     int get_width() { return m_world_width; }
     int get_height() { return m_world_height; }
+
+    bool init_world(QString filename);
   signals:
     
   public slots:
 
   protected:
-    virtual bool init_world(QString filename);
-
     void update_viz_subregions();
     void update_viz_line_subsegments();
     void update_viz_string_class();

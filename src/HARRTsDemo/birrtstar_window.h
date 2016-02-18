@@ -40,6 +40,7 @@ namespace birrts {
 
     virtual void createMenuBar();
     virtual void createActions();
+    void open_map(QString filename);
 
     QMessageBox*  mpMsgBox;
     QMenu*        mpFileMenu;

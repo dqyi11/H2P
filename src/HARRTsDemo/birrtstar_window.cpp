@@ -142,12 +142,22 @@ void BIRRTstarWindow::onLoadObj() {
 
 bool BIRRTstarWindow::setup_planning(QString filename) {
   if(mpViz) {
-    BIRRTstarViz* p_viz = static_cast<BIRRTstarViz*>(mpViz);
-    p_viz->m_PPInfo.load_from_file(filename);
-    //openMap(p_viz->m_PPInfo.m_map_fullpath);
+    mpViz->m_PPInfo.load_from_file(filename);
+    open_map(mpViz->m_PPInfo.m_map_fullpath);
+    if(mpViz->get_string_class_mgr()) {
+      if( mpViz->m_PPInfo.m_start.x() >= 0 && mpViz->m_PPInfo.m_start.y() ) {
+        mpViz->get_string_class_mgr()->m_start_x = mpViz->m_PPInfo.m_start.x();
+        mpViz->get_string_class_mgr()->m_start_y = mpViz->m_PPInfo.m_start.y();
+      }
+      if( mpViz->m_PPInfo.m_goal.x() >= 0 && mpViz->m_PPInfo.m_goal.y() ) {
+        mpViz->get_string_class_mgr()->m_goal_x = mpViz->m_PPInfo.m_goal.x();
+        mpViz->get_string_class_mgr()->m_goal_y = mpViz->m_PPInfo.m_goal.y();
+      }
+    }
     if(mpBIRRTstarConfig) {
       mpBIRRTstarConfig->updateDisplay();
     }
+    repaint();
     return true;
   }
   return false;
@@ -609,4 +619,15 @@ void BIRRTstarWindow::keyPressEvent(QKeyEvent * event) {
     repaint();
   }
 
+}
+
+void BIRRTstarWindow::open_map(QString filename) {
+  QPixmap pixmap( filename );
+  if(mpViz) {
+    mpViz->m_PPInfo.m_map_width = pixmap.width();
+    mpViz->m_PPInfo.m_map_height = pixmap.height();
+    mpViz->setPixmap(pixmap);
+
+    mpViz->init_world(filename);
+  }
 }
