@@ -15,7 +15,7 @@ namespace birrts {
 
   struct SpatialRelationInfo {
     std::string type;
-    std::vector<std::string> obs;
+    std::vector<std::string> obstacles;
   };
 
   struct ObsInfo {

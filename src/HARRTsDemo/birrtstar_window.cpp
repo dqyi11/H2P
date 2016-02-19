@@ -627,7 +627,7 @@ void BIRRTstarWindow::open_map(QString filename) {
     mpViz->m_PPInfo.m_map_width = pixmap.width();
     mpViz->m_PPInfo.m_map_height = pixmap.height();
     mpViz->setPixmap(pixmap);
-
+    cout << "open_map " << filename.toStdString() << endl;
     mpViz->init_world(filename);
   }
 }

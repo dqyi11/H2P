@@ -203,39 +203,56 @@ void BIRRTstarPathPlanningInfo::read( xmlNodePtr root ) {
     xmlNodePtr l1 = NULL;
     for( l1 = root->children; l1; l1 = l1->next ) {
       if( l1->type == XML_ELEMENT_NODE ) {
-        if( xmlStrcmp( l1->name, ( const xmlChar* )( "obstacles" ) ) ) {
-          xmlNodePtr l2 = NULL;
-          for( l2 = l1->children; l2; l2 = l2->next ) {
-            ObsInfo obs_info;
-            xmlChar* tmp_obs_name = xmlGetProp( l2, ( const xmlChar* )( "name" ) );
-            string obs_name_string = (char*)( tmp_obs_name );
-            obs_info.name =  obs_name_string;
-            xmlChar* tmp_center_x = xmlGetProp( l2, ( const xmlChar* )( "center_x" ) );
-            xmlChar* tmp_center_y = xmlGetProp( l2, ( const xmlChar* )( "center_y" ) );
-            string obs_center_x_string = (char*)( tmp_center_x );
-            string obs_center_y_string = (char*)( tmp_center_y );
-            obs_info.center_x = strtol( obs_center_x_string.c_str(), NULL, 10 );
-            obs_info.center_y = strtol( obs_center_y_string.c_str(), NULL, 10 );
-            m_obs_info_list.push_back( obs_info );
-          }
-        }
-        else if( xmlStrcmp( l1->name, ( const xmlChar* )( "spatial_relations" ) ) ) {
+        if( xmlStrcmp( l1->name, ( const xmlChar* )( "obstacles" ) )  == 0 ) {
           xmlNodePtr l2 = NULL;
           for( l2 = l1->children; l2; l2 = l2->next ) {
             if( l2->type == XML_ELEMENT_NODE ) {
-              if( xmlStrcmp( l2->name, ( const xmlChar* )( "spatial_relation" ) ) ) {
+              if( xmlStrcmp( l2->name, ( const xmlChar* )( "obs" ) )  == 0 ) {
+                ObsInfo obs_info;
+                xmlChar* tmp_obs_name = xmlGetProp( l2, ( const xmlChar* )( "name" ) );
+                if( tmp_obs_name != NULL ) {
+                  string obs_name_string =  ( char* )( tmp_obs_name ) ;
+                  obs_info.name =  obs_name_string;
+                }
+                xmlChar* tmp_center_x = xmlGetProp( l2, ( const xmlChar* )( "center_x" ) );
+                if( tmp_center_x != NULL ) {
+                  string obs_center_x_string = (char*)( tmp_center_x );
+                  obs_info.center_x = strtol( obs_center_x_string.c_str(), NULL, 10 );
+                }
+                xmlChar* tmp_center_y = xmlGetProp( l2, ( const xmlChar* )( "center_y" ) );
+                if( tmp_center_y != NULL ) {
+                  string obs_center_y_string = (char*)( tmp_center_y );
+                  obs_info.center_y = strtol( obs_center_y_string.c_str(), NULL, 10 );
+                }
+                m_obs_info_list.push_back( obs_info );
+              }
+            }
+          }
+        }
+        else if( xmlStrcmp( l1->name, ( const xmlChar* )( "spatial_relations" ) ) == 0 ) {
+          xmlNodePtr l2 = NULL;
+          for( l2 = l1->children; l2; l2 = l2->next ) {
+            if( l2->type == XML_ELEMENT_NODE ) {
+              if( xmlStrcmp( l2->name, ( const xmlChar* )( "spatial_relation" ) )  == 0 ) {
                 SpatialRelationInfo spatial_rel_info;
-                xmlChar* tmp = xmlGetProp( root, ( const xmlChar* )( "type" ) );
-                string type_string = (char*)( tmp );
-                spatial_rel_info.type = type_string;
+                xmlChar* tmp_type = xmlGetProp( l2, ( const xmlChar* )( "type" ) );
+                if( tmp_type != NULL ) {
+                  string type_string = (char*)( tmp_type );
+                  spatial_rel_info.type = type_string;
+                }
                 xmlNodePtr l3 = NULL;
                 for( l3 = l2->children; l3; l3 = l3->next ) {
-                  xmlChar* tmp_obs_name = xmlGetProp( l3, ( const xmlChar* )( "name" ) );
-                  string obs_name_string = (char*)( tmp_obs_name );
-                  spatial_rel_info.obs.push_back( obs_name_string );
+                  if( l3->type == XML_ELEMENT_NODE ) {
+                    if( xmlStrcmp( l3->name, ( const xmlChar* )( "obs" ) )  == 0 ) {
+                      xmlChar* tmp_obs_name = xmlGetProp( l3, ( const xmlChar* )( "name" ) );
+                      if( tmp_obs_name != NULL ) {
+                        string obs_name_string = (char*)( tmp_obs_name );
+                        spatial_rel_info.obstacles.push_back( obs_name_string );
+                      }
+                    }
+                  }
                 }
                 m_spatial_rel_info_list.push_back( spatial_rel_info );
-
               }
             }
           }
@@ -313,7 +330,13 @@ void BIRRTstarPathPlanningInfo::write( xmlDocPtr doc, xmlNodePtr root ) const {
   for( unsigned int i = 0; i < m_spatial_rel_info_list.size(); i++ ) {
     SpatialRelationInfo spatial_rel_info = m_spatial_rel_info_list[i];
     xmlNodePtr spatial_rel_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relation" ), NULL );
-    xmlNewProp( spatial_rel_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( spatial_rel_info.type.c_str() ) );
+    xmlNewProp( spatial_rel_node, ( const xmlChar* )( "type" ), ( const xmlChar* )( spatial_rel_info.type.c_str() ) );
+    for( unsigned int j = 0; j < spatial_rel_info.obstacles.size(); j++ ) {
+      string obs_name = spatial_rel_info.obstacles[j];
+      xmlNodePtr spatial_rel_obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
+      xmlNewProp( spatial_rel_obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_name.c_str() ) );
+      xmlAddChild( spatial_rel_node, spatial_rel_obs_node );
+    }
     xmlAddChild( spatial_rel_list_node, spatial_rel_node );
   }
   xmlAddChild( node, spatial_rel_list_node );

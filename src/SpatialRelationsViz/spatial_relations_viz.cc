@@ -754,15 +754,17 @@ void SpatialRelationsViz::set_mode( SpatialRelationsVizMode mode ) {
 void SpatialRelationsViz::mousePressEvent( QMouseEvent * event ) {
   if( event->button() == Qt::LeftButton ) {
     Point2D clicked_point( event->x(), event->y() );
-    Obstacle* p_selected_obstacle = mp_reference_frame_set->get_world_map()->find_obstacle( clicked_point );
-    if( p_selected_obstacle ) {
-      if( is_selected_obstacle( p_selected_obstacle ) ) {
-        unselect_obstacle( p_selected_obstacle );
+    if( mp_reference_frame_set && mp_reference_frame_set->get_world_map() ) {
+      Obstacle* p_selected_obstacle = mp_reference_frame_set->get_world_map()->find_obstacle( clicked_point );
+      if( p_selected_obstacle ) {
+        if( is_selected_obstacle( p_selected_obstacle ) ) {
+          unselect_obstacle( p_selected_obstacle );
+        }
+        else{
+          m_selected_obstacles.push_back( p_selected_obstacle );
+        }
+        repaint();
       }
-      else{ 
-        m_selected_obstacles.push_back( p_selected_obstacle );
-      }
-      repaint(); 
     }
   }
 }
