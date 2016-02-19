@@ -790,6 +790,19 @@ Obstacle* WorldMap::find_obstacle( Point2D point ) {
   return p_obstacle;
 }
 
+Obstacle* WorldMap::find_obstacle( std::string name ) {
+  Obstacle* p_obstacle = NULL;
+  for( unsigned int i=0; i < _obstacles.size(); i++ ) {
+    Obstacle* p_current_obstacle = _obstacles[i];
+    if( p_current_obstacle ) {
+      if( p_current_obstacle->get_name() == name ) {
+        return p_current_obstacle;
+      }
+    }
+  }
+  return p_obstacle;
+}
+
 std::ostream& operator<<( std::ostream& out, const WorldMap& other ) {
 
   out << "Size[" << other.get_width() << "*" << other.get_height() << "]  " << std::endl;

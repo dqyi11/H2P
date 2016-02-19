@@ -85,6 +85,7 @@ namespace birrts {
     StringClassMgr* get_string_class_mgr();
 
     h2p::ReferenceFrameSet* get_reference_frame_set() {  return mp_reference_frame_set; }
+    h2p::WorldMap* get_world_map();
     
     BIRRTstarPathPlanningInfo m_PPInfo;
     int get_width() { return m_world_width; }
@@ -107,8 +108,6 @@ namespace birrts {
     void draw_current_viz(QPixmap& map);
 
     void paint(QPaintDevice * device);
-
-    h2p::WorldMap* get_world_map();
 
     StringClassMgr* mp_mgr;
     h2p::ReferenceFrameSet*  mp_reference_frame_set;

@@ -31,10 +31,12 @@ namespace h2p {
     WorldMap* get_world_map() {  return mp_worldmap; }
     Obstacle* get_primary_obstacle();
  
-    inline std::string typeToString( SpatialRelationFuncType type );
-    inline SpatialRelationFuncType stringToType( std::string name );
+    std::string typeToString( SpatialRelationFuncType type );
+    SpatialRelationFuncType stringToType( std::string name );
 
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
+
+    bool add_function( SpatialRelationFuncType type, std::vector<Obstacle*> obstacles );
 
     Rule*                                 mp_rule;
     std::vector<SpatialRelationFunction*> mp_functions; 

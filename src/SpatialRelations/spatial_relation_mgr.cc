@@ -1,9 +1,10 @@
+#include "inbetween_relation_function.h"
+#include "sideof_relation_function.h"
+#include "avoid_relation_function.h"
 #include "spatial_relation_mgr.h"
 
 using namespace std;
 using namespace h2p;
-
-
 
 SpatialRelationMgr::SpatialRelationMgr( WorldMap* p_worldmap ) {
   mp_worldmap = p_worldmap;
@@ -73,8 +74,6 @@ void SpatialRelationMgr::remove_spatial_relation_function( string name ) {
   }
 }
 
-
-
 vector< vector< string > > SpatialRelationMgr::filter( vector< vector< string > > string_set, Rule* rule ) {
   vector< vector < string > > output_set;
   for( vector< vector< string > >::iterator it = string_set.begin();
@@ -141,4 +140,62 @@ SpatialRelationFuncType SpatialRelationMgr::stringToType( string name ) {
     return SPATIAL_REL_AVOID;
   }
   return SPATIAL_REL_UNKNOWN;
+}
+
+bool SpatialRelationMgr::add_function( SpatialRelationFuncType type, std::vector<Obstacle*> obstacles ) {
+
+  switch( type ) {
+    case SPATIAL_REL_IN_BETWEEN:
+      if( obstacles.size() == 2 ) {
+        InBetweenRelationFunction* p_func = new InBetweenRelationFunction();
+        p_func->mp_obstacles = obstacles;
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_LEFT_OF:
+      if( obstacles.size() == 1 ) {
+        SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_LEFT);
+        p_func->mp_obstacle = obstacles[0];
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_RIGHT_OF:
+      if( obstacles.size() == 1 ) {
+        SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_RIGHT);
+        p_func->mp_obstacle = obstacles[0];
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_TOP_OF:
+      if( obstacles.size() == 1 ) {
+        SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_TOP);
+        p_func->mp_obstacle = obstacles[0];
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_BOTTOM_OF:
+      if( obstacles.size() == 1 ) {
+        SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_BOTTOM);
+        p_func->mp_obstacle = obstacles[0];
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_AVOID:
+      if( obstacles.size() != 1 ) {
+        AvoidRelationFunction* p_func = new AvoidRelationFunction();
+        p_func->mp_obstacle = obstacles[0];
+        mp_functions.push_back( p_func );
+        return true;
+      }
+      return false;
+    case SPATIAL_REL_UNKNOWN:
+    default:
+      return false;
+  }
+  return false;
 }

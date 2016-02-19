@@ -153,6 +153,20 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
         mpViz->get_string_class_mgr()->m_goal_x = mpViz->m_PPInfo.m_goal.x();
         mpViz->get_string_class_mgr()->m_goal_y = mpViz->m_PPInfo.m_goal.y();
       }
+      for( unsigned int i = 0; i < mpViz->m_PPInfo.m_spatial_rel_info_list.size(); i++ ) {
+        SpatialRelationInfo spatial_rel_info = mpViz->m_PPInfo.m_spatial_rel_info_list[i];
+        vector<h2p::Obstacle*> obstacles;
+        for( unsigned int j = 0; j < spatial_rel_info.obstacles.size(); j++ ) {
+          string obs_name = spatial_rel_info.obstacles[j];
+          h2p::Obstacle* p_obs = mpViz->get_world_map()->find_obstacle(obs_name);
+          if( p_obs ) {
+            obstacles.push_back(p_obs);
+          }
+        }
+        mpViz->get_string_class_mgr()->add_function( mpViz->get_string_class_mgr()->stringToType(spatial_rel_info.type),
+                                                     obstacles );
+
+      }
     }
     if(mpBIRRTstarConfig) {
       mpBIRRTstarConfig->updateDisplay();

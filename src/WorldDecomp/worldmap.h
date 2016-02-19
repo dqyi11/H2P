@@ -35,6 +35,7 @@ namespace h2p {
     SubRegion* find_subregion( Point2D point );
     LineSubSegment* find_linesubsegment( Point2D point );
     Obstacle* find_obstacle( Point2D point );
+    Obstacle* find_obstacle( std::string name );
  
     Point2D get_central_point() const { return _central_point; }
     std::vector<Obstacle*> get_obstacles() const { return _obstacles; }
