@@ -302,7 +302,7 @@ void BIRRTstarWindow::contextMenuRequested( QPoint point ) {
 
 void BIRRTstarWindow::onOpen() {
   QString tempFilename = QFileDialog::getOpenFileName(this,
-          tr("Save File"), "./", tr("XML Files (*.xml)"));
+          tr("Open File"), "./", tr("XML Files (*.xml)"));
   if( tempFilename.isEmpty() == false ) {
       //mpViz->load(tempFilename);
       if(setup_planning(tempFilename)) {
