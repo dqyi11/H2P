@@ -473,11 +473,13 @@ bool BIRRTstarViz::draw_path(QString filename) {
 }
 
 bool BIRRTstarViz::save_current_viz(QString filename) {
-  QPixmap pix(m_PPInfo.m_map_fullpath);
   QFile file(filename);
+  QPixmap emptyPix(m_PPInfo.m_map_width, m_PPInfo.m_map_height);
+  emptyPix.fill(QColor("white"));
+
   if(file.open(QIODevice::WriteOnly)) {
-    paint( dynamic_cast<QPaintDevice*>(&pix) );
-    pix.save(&file, "PNG");
+    paint( dynamic_cast<QPaintDevice*>(&emptyPix) );
+    emptyPix.save(&file, "PNG");
     return true;
   }
   return false;
