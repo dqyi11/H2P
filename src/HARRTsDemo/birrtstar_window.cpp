@@ -153,6 +153,15 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
         mpViz->get_string_class_mgr()->m_goal_x = mpViz->m_PPInfo.m_goal.x();
         mpViz->get_string_class_mgr()->m_goal_y = mpViz->m_PPInfo.m_goal.y();
       }
+
+      for( unsigned int i = 0; i < mpViz->m_PPInfo.m_obs_info_list.size(); i++ ) {
+        ObsInfo obs_info = mpViz->m_PPInfo.m_obs_info_list[i];
+        h2p::Obstacle* p_obs = mpViz->get_world_map()->find_obstacle( Point2D( obs_info.center_x, obs_info.center_y ) );
+        if( p_obs ) {
+          p_obs->set_name( obs_info.name );
+        }
+      }
+
       for( unsigned int i = 0; i < mpViz->m_PPInfo.m_spatial_rel_info_list.size(); i++ ) {
         SpatialRelationInfo spatial_rel_info = mpViz->m_PPInfo.m_spatial_rel_info_list[i];
         vector<h2p::Obstacle*> obstacles;
@@ -348,6 +357,18 @@ void BIRRTstarWindow::onLoadMap() {
       mpViz->m_PPInfo.m_map_fullpath = tempFilename;
       mpViz->m_PPInfo.m_map_width = mpViz->get_width();
       mpViz->m_PPInfo.m_map_height = mpViz->get_height();
+
+      mpViz->m_PPInfo.m_obs_info_list.clear();
+      for( unsigned int i=0; i < mpViz->get_world_map()->get_obstacles().size(); i++ ) {
+        h2p::Obstacle* p_obs = mpViz->get_world_map()->get_obstacles()[i];
+        if( p_obs ) {
+          ObsInfo obs_info;
+          obs_info.name = p_obs->get_name();
+          obs_info.center_x = (int)(CGAL::to_double(p_obs->get_centroid().x()));
+          obs_info.center_y = (int)(CGAL::to_double(p_obs->get_centroid().y()));
+          mpViz->m_PPInfo.m_obs_info_list.push_back(obs_info);
+        }
+      }
       update_status();
     }
   }

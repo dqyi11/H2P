@@ -31,6 +31,7 @@ namespace h2p {
     WorldMap* get_world() { return _p_world; }
     int get_index () { return _index; }
     std::string get_name();
+    void set_name( std::string name );
     
     std::vector<Point2D> m_points;
     Polygon2D m_pgn;
@@ -53,6 +54,7 @@ namespace h2p {
     int _max_y;
     Point2D _centroid;
     WorldMap* _p_world;
+    std::string _name;
 
   };
 

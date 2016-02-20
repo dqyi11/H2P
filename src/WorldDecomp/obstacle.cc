@@ -45,6 +45,10 @@ Obstacle::Obstacle(vector<Point2D> points, int index, WorldMap* world ){
   _max_y = m_pgn.bbox().ymax();
 
   _centroid = Point2D( (_min_x + _max_x)/2 , (_min_y + _max_y)/2 );
+
+  stringstream ss;
+  ss << "OBS" << _index;
+  _name = ss.str();
 }
 
 Obstacle::~Obstacle() {
@@ -99,9 +103,11 @@ Point2D Obstacle::sample_position() {
 }
 
 string Obstacle::get_name() {
-  stringstream ss;
-  ss << "OBS" << _index;
-  return ss.str(); 
+  return _name;
+}
+
+void Obstacle::set_name( std::string name ) {
+  _name = name;
 }
 
 void Obstacle::to_xml( const string& filename )const {
