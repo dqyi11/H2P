@@ -292,7 +292,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
       if( p_obstacle ) {
         int c_x = (p_obstacle->m_pgn.bbox().xmax() + p_obstacle->m_pgn.bbox().xmin() )/2;
         int c_y = (p_obstacle->m_pgn.bbox().ymax() + p_obstacle->m_pgn.bbox().ymin() )/2;
-        text_painter.drawText( c_x, c_y, QString::number(p_obstacle->get_index()) );
+        text_painter.drawText( c_x, c_y, QString::fromStdString(p_obstacle->get_name()) );
       }
     }
     text_painter.end();
