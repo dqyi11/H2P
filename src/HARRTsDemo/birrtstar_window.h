@@ -26,6 +26,7 @@ namespace birrts {
 
     bool export_paths();
     void plan_path();
+    void process();
     bool setup_planning(QString filename);
 
     BIRRTstarViz* mpViz;

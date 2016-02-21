@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
         if(w.setup_planning(filename)) {
             qDebug() << "CONFIG FILE LOADED";
         }
+        w.process();
         w.plan_path();
         if(w.export_paths()) {
             qDebug() << "PATH EXPORTED";

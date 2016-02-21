@@ -719,3 +719,9 @@ void BIRRTstarWindow::open_map(QString filename) {
     mpViz->load_map(filename);
   }
 }
+
+void BIRRTstarWindow::process() {
+  if(mpViz) {
+    mpViz->process_world();
+  }
+}
