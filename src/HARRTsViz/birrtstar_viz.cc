@@ -407,7 +407,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
   if( p_str_cls ) {
 
     QPainter pathpainter(device);
-    QPen pathpaintpen(QColor(255,140,0));
+    QPen pathpaintpen(PATH_COLOR);
     pathpaintpen.setWidth(2);
     pathpainter.setPen(pathpaintpen);
 
@@ -494,6 +494,44 @@ bool BIRRTstarViz::save_current_viz(QString filename) {
 void BIRRTstarViz::draw_path_on_map(QPixmap& map, Path* p_path) {
 
   if(p_path) {
+
+    if( get_world_map() ) {
+      std::vector<h2p::Obstacle*> obstacles = get_world_map()->get_obstacles();
+
+      QPainter obstacle_painter(&map);
+      obstacle_painter.setRenderHint(QPainter::Antialiasing);
+      QPen obstacle_pen( OBSTACLE_COLOR );
+      obstacle_painter.setPen(obstacle_pen);
+      for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+           it != obstacles.end(); it++ ) {
+        h2p::Obstacle* p_obstacle = (*it);
+        if (p_obstacle) {
+          QPolygon poly;
+          for( Polygon2D::Vertex_iterator itP=p_obstacle->m_pgn.vertices_begin();
+               itP != p_obstacle->m_pgn.vertices_end(); itP++ ) {
+            Point2D p = (*itP);
+            poly << h2p::toQPoint( p );
+          }
+          obstacle_painter.drawPolygon(poly);
+        }
+      }
+      obstacle_painter.end();
+
+      QPainter text_painter(&map);
+      QPen text_pen( TEXT_COLOR );
+      text_painter.setPen(text_pen);
+      for( std::vector<h2p::Obstacle*>::iterator it = obstacles.begin();
+           it != obstacles.end(); it++ ) {
+        h2p::Obstacle* p_obstacle = (*it);
+        if( p_obstacle ) {
+          int c_x = (p_obstacle->m_pgn.bbox().xmax() + p_obstacle->m_pgn.bbox().xmin() )/2;
+          int c_y = (p_obstacle->m_pgn.bbox().ymax() + p_obstacle->m_pgn.bbox().ymin() )/2;
+          text_painter.drawText( c_x, c_y, QString::fromStdString(p_obstacle->get_name()) );
+        }
+      }
+      text_painter.end();
+    }
+
     QPainter painter(&map);
     QPen paintpen(QColor(255,140,0));
     paintpen.setWidth(2);

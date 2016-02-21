@@ -194,10 +194,13 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
 
 bool BIRRTstarWindow::export_paths() {
   if(mpViz) {
-    bool success = false;
-    success = mpViz->m_PPInfo.export_paths(mpViz->m_PPInfo.m_paths_output);
-    success = mpViz->draw_path(mpViz->m_PPInfo.m_paths_output+".png");
-    return success;
+    QString txtFilename = mpViz->m_PPInfo.m_paths_output + ".txt";
+    mpViz->m_PPInfo.export_paths(txtFilename);
+    for( unsigned int i = 0; i < mpViz->m_PPInfo.mp_found_paths.size(); i++ ) {
+      QString drawPathFilename = mpViz->m_PPInfo.m_paths_output + "-" + QString::number(i) + ".png";
+      mpViz->draw_path(drawPathFilename, mpViz->m_PPInfo.mp_found_paths[i]);
+    }
+    return true;
   }
   return false;
 }
@@ -381,12 +384,8 @@ void BIRRTstarWindow::onExportPaths() {
               tr("Export Paths to File"), "./", tr("Path Files (*.*)"));
    if( tempFilename.isEmpty() == false ) {
      if( mpViz ) {
-       QString txtFilename = tempFilename + ".txt";
-       mpViz->m_PPInfo.export_paths(mpViz->m_PPInfo.m_paths_output);
-       for( unsigned int i = 0; i < mpViz->m_PPInfo.mp_found_paths.size(); i++ ) {
-         QString drawPathFilename = tempFilename + "-" + QString::number(i) + ".png";
-         mpViz->draw_path(drawPathFilename, mpViz->m_PPInfo.mp_found_paths[i]);
-       }
+       mpViz->m_PPInfo.m_paths_output = tempFilename;
+       export_paths();
      }
    }
 }
