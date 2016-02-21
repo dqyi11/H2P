@@ -439,7 +439,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
       QPen st_paintpen( START_COLOR );
       st_paintpen.setWidth( POINT_SIZE );
       st_painter.setPen( st_paintpen );
-      st_painter.drawPoint( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ) );
+      st_painter.drawEllipse( QPoint( p_cls_mgr->m_start_x, p_cls_mgr->m_start_y ), 4, 4 );
       st_painter.end();
     }
 
@@ -448,7 +448,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
       QPen gt_paintpen( GOAL_COLOR );
       gt_paintpen.setWidth( POINT_SIZE );
       gt_painter.setPen( gt_paintpen );
-      gt_painter.drawPoint( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ) );
+      gt_painter.drawEllipse( QPoint( p_cls_mgr->m_goal_x, p_cls_mgr->m_goal_y ), 4, 4 );
       gt_painter.end();
     }
   }
@@ -549,17 +549,17 @@ void BIRRTstarViz::draw_path_on_map(QPixmap& map, Path* p_path) {
 
     QPainter startPainter(&map);
     QPen paintpen1(QColor(255,0,0));
-    paintpen.setWidth(10);
+    paintpen1.setWidth(POINT_SIZE);
     startPainter.setPen(paintpen1);
+    startPainter.drawEllipse( QPoint(p_path->m_way_points[0][0], p_path->m_way_points[0][1]), 4, 4 );
     startPainter.end();
 
-    startPainter.drawPoint( QPoint(p_path->m_way_points[0][0], p_path->m_way_points[0][1]) );
     int lastIdx = p_path->m_way_points.size() - 1;
     QPainter endPainter(&map);
     QPen paintpen2(QColor(0,0,255));
-    paintpen.setWidth(10);
+    paintpen2.setWidth(POINT_SIZE);
     endPainter.setPen(paintpen2);
-    endPainter.drawPoint( QPoint(p_path->m_way_points[lastIdx][0], p_path->m_way_points[lastIdx][1]) );
+    endPainter.drawEllipse( QPoint(p_path->m_way_points[lastIdx][0], p_path->m_way_points[lastIdx][1]), 4, 4 );
     endPainter.end();
 
   }

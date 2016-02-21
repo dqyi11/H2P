@@ -69,6 +69,7 @@ void BIRRTstarWindow::createMenuBar() {
   mpFileMenu->addAction( mpOpenAction );
   mpFileMenu->addAction( mpSaveAction );
   mpFileMenu->addAction( mpLoadAction );
+  mpFileMenu->addAction( mpExportAction );
 
   mpAddMenu = menuBar()->addMenu("&Add");
   mpAddMenu->addAction( mpAddInbetweenSpatialRelationAction );
