@@ -455,16 +455,22 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
 
 }
 
-bool BIRRTstarViz::draw_path(QString filename) {
+bool BIRRTstarViz::draw_path(QString filename, Path* p_path) {
 
-  QPixmap pix(m_PPInfo.m_objective_file);
 
+  QPixmap pix(m_PPInfo.m_map_width, m_PPInfo.m_map_height);
+  if( m_PPInfo.m_objective_file == "" ) {
+    pix.fill(QColor(255,255,255));
+  }
+  else {
+    pix = QPixmap( m_PPInfo.m_objective_file );
+  }
   cout << "DUMP PATH IMG " << pix.width() << " " << pix.height() << endl;
 
   QFile file(filename);
   if(file.open(QIODevice::WriteOnly)) {
-    if( get_selected_string_class() ) {
-      draw_path_on_map(pix);
+    if( p_path ) {
+      draw_path_on_map(pix, p_path);
     }
     pix.save(&file, "PNG");
     return true;
@@ -485,38 +491,40 @@ bool BIRRTstarViz::save_current_viz(QString filename) {
   return false;
 }
 
-void BIRRTstarViz::draw_path_on_map(QPixmap& map) {
+void BIRRTstarViz::draw_path_on_map(QPixmap& map, Path* p_path) {
 
-  Path * p = get_selected_string_class()->mp_path;
-  QPainter painter(&map);
-  QPen paintpen(QColor(255,140,0));
-  paintpen.setWidth(2);
-  painter.setPen(paintpen);
+  if(p_path) {
+    QPainter painter(&map);
+    QPen paintpen(QColor(255,140,0));
+    paintpen.setWidth(2);
+    painter.setPen(paintpen);
 
-  int point_num = p->m_way_points.size();
+    int point_num = p_path->m_way_points.size();
 
-  if(point_num > 0) {
-    for(int i=0;i<point_num-1;i++) {
-      painter.drawLine( QPoint(p->m_way_points[i][0], p->m_way_points[i][1]), QPoint(p->m_way_points[i+1][0], p->m_way_points[i+1][1]) );
+    if(point_num > 0) {
+      for(int i=0;i<point_num-1;i++) {
+        painter.drawLine( QPoint(p_path->m_way_points[i][0], p_path->m_way_points[i][1]), QPoint(p_path->m_way_points[i+1][0], p_path->m_way_points[i+1][1]) );
+      }
     }
+
+    painter.end();
+
+    QPainter startPainter(&map);
+    QPen paintpen1(QColor(255,0,0));
+    paintpen.setWidth(10);
+    startPainter.setPen(paintpen1);
+    startPainter.end();
+
+    startPainter.drawPoint( QPoint(p_path->m_way_points[0][0], p_path->m_way_points[0][1]) );
+    int lastIdx = p_path->m_way_points.size() - 1;
+    QPainter endPainter(&map);
+    QPen paintpen2(QColor(0,0,255));
+    paintpen.setWidth(10);
+    endPainter.setPen(paintpen2);
+    endPainter.drawPoint( QPoint(p_path->m_way_points[lastIdx][0], p_path->m_way_points[lastIdx][1]) );
+    endPainter.end();
+
   }
-
-  painter.end();
-
-  QPainter startPainter(&map);
-  QPen paintpen1(QColor(255,0,0));
-  paintpen.setWidth(10);
-  startPainter.setPen(paintpen1);
-  startPainter.end();
-
-  startPainter.drawPoint( QPoint(p->m_way_points[0][0], p->m_way_points[0][1]) );
-  int lastIdx = p->m_way_points.size() - 1;
-  QPainter endPainter(&map);
-  QPen paintpen2(QColor(0,0,255));
-  paintpen.setWidth(10);
-  endPainter.setPen(paintpen2);
-  endPainter.drawPoint( QPoint(p->m_way_points[lastIdx][0], p->m_way_points[lastIdx][1]) );
-  endPainter.end();
         
 }
 

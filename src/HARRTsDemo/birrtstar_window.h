@@ -50,6 +50,7 @@ namespace birrts {
     QAction*      mpOpenAction;
     QAction*      mpSaveAction;
     QAction*      mpLoadAction;
+    QAction*      mpExportAction;
     QAction*      mpLoadObjAction;
     QLabel*       mpStatusLabel;
     QProgressBar* mpStatusProgressBar;
@@ -77,11 +78,11 @@ namespace birrts {
     QPoint        mCursorPoint;
 
   protected slots:
-
     void contextMenuRequested( QPoint point );
     void onOpen();
     void onSave();
     void onLoadMap();
+    void onExportPaths();
     void onAddStart();
     void onAddGoal();
     void onLoadObj();
@@ -97,7 +98,6 @@ namespace birrts {
     void onProcess();
     void onRun();
     void onSaveScreen();
-
   };
 
 }

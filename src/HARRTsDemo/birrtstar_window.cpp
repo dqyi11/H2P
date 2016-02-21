@@ -101,6 +101,8 @@ void BIRRTstarWindow::createActions() {
   connect(mpSaveAction, SIGNAL(triggered()), this, SLOT(onSave()));
   mpLoadAction = new QAction("Load Map", this);
   connect(mpLoadAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
+  mpExportAction = new QAction("Export", this);
+  connect(mpExportAction, SIGNAL(triggered()), this, SLOT(onExportPaths()));
 
 
   mpAddStartAction = new QAction("Add Start", this);
@@ -372,6 +374,21 @@ void BIRRTstarWindow::onLoadMap() {
       update_status();
     }
   }
+}
+
+void BIRRTstarWindow::onExportPaths() {
+   QString tempFilename = QFileDialog::getSaveFileName(this,
+              tr("Export Paths to File"), "./", tr("Path Files (*.*)"));
+   if( tempFilename.isEmpty() == false ) {
+     if( mpViz ) {
+       QString txtFilename = tempFilename + ".txt";
+       mpViz->m_PPInfo.export_paths(mpViz->m_PPInfo.m_paths_output);
+       for( unsigned int i = 0; i < mpViz->m_PPInfo.mp_found_paths.size(); i++ ) {
+         QString drawPathFilename = tempFilename + "-" + QString::number(i) + ".png";
+         mpViz->draw_path(drawPathFilename, mpViz->m_PPInfo.mp_found_paths[i]);
+       }
+     }
+   }
 }
 
 void BIRRTstarWindow::onAddInbetweenSpatialRelation() {

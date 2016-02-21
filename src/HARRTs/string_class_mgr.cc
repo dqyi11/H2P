@@ -104,7 +104,9 @@ vector<Path*> StringClassMgr::export_paths() {
   for( vector<StringClass*>::iterator it= mp_string_classes.begin();
        it != mp_string_classes.end(); it++ ) {
     StringClass* p_str_cls = (*it);
-    paths.push_back( p_str_cls->mp_path );
+    if( p_str_cls->mp_path ) {
+      paths.push_back( p_str_cls->mp_path );
+    }
   }
   return paths;
 }

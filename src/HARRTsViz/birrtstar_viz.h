@@ -73,7 +73,7 @@ namespace birrts {
     std::vector<h2p::Obstacle*> get_selected_obstacles() { return m_selected_obstacles; }
     void clear_selected_obstacles() { m_selected_obstacles.clear(); }
 
-    bool draw_path(QString filename);
+    bool draw_path(QString filename, Path* path);
     bool save_current_viz(QString filename);
 
     void set_finished_planning( bool finished ) { m_finished_planning = finished; }
@@ -104,7 +104,7 @@ namespace birrts {
 
     void mousePressEvent( QMouseEvent * event );
 
-    void draw_path_on_map(QPixmap& map);
+    void draw_path_on_map(QPixmap& map, Path* p_path);
     void draw_current_viz(QPixmap& map);
 
     void paint(QPaintDevice * device);
