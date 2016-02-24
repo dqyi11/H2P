@@ -13,16 +13,16 @@
 
 namespace birrts {
 
-  struct SpatialRelationInfo {
+  typedef struct {
     std::string type;
     std::vector<std::string> obstacles;
-  };
+  } SpatialRelationInfo;
 
-  struct ObsInfo {
+  typedef struct {
     std::string name;
     int center_x;
     int center_y;
-  };
+  } ObsInfo;
 
   class BIRRTstarPathPlanningInfo {
   public:

@@ -207,7 +207,7 @@ void BIRRTstarPathPlanningInfo::read( xmlNodePtr root ) {
           xmlNodePtr l2 = NULL;
           for( l2 = l1->children; l2; l2 = l2->next ) {
             if( l2->type == XML_ELEMENT_NODE ) {
-              if( xmlStrcmp( l2->name, ( const xmlChar* )( "obs" ) )  == 0 ) {
+              if( xmlStrcmp( l2->name, ( const xmlChar* )( "obstacle" ) )  == 0 ) {
                 ObsInfo obs_info;
                 xmlChar* tmp_obs_name = xmlGetProp( l2, ( const xmlChar* )( "name" ) );
                 if( tmp_obs_name != NULL ) {
@@ -243,7 +243,7 @@ void BIRRTstarPathPlanningInfo::read( xmlNodePtr root ) {
                 xmlNodePtr l3 = NULL;
                 for( l3 = l2->children; l3; l3 = l3->next ) {
                   if( l3->type == XML_ELEMENT_NODE ) {
-                    if( xmlStrcmp( l3->name, ( const xmlChar* )( "obs" ) )  == 0 ) {
+                    if( xmlStrcmp( l3->name, ( const xmlChar* )( "obstacle" ) )  == 0 ) {
                       xmlChar* tmp_obs_name = xmlGetProp( l3, ( const xmlChar* )( "name" ) );
                       if( tmp_obs_name != NULL ) {
                         string obs_name_string = (char*)( tmp_obs_name );
