@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QKeyEvent>
 #include <QStatusBar>
+#include <QApplication>
 #include "birrtstar_config.h"
 #include "birrtstar_spatial_relations_config.h"
 #include "birrtstar_window.h"
@@ -283,6 +284,7 @@ void BIRRTstarWindow::plan_path() {
     qDebug() << msg;
 
     update_status();
+    QApplication::processEvents();
     repaint();
   }
   qDebug() << "START MERGE ";

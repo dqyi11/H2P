@@ -323,6 +323,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
     }
     neg_ref_painter.end();
 
+    /*
     if(m_show_string_class_reference_path) {
       if( mp_viz_string_class ) {
         QPainter st_cls_painter(device);
@@ -349,7 +350,7 @@ void BIRRTstarViz::paint(QPaintDevice * device) {
         }
         st_cls_painter.end();
       }
-    }
+    } */
   }
 
   if( mp_tree ) {
