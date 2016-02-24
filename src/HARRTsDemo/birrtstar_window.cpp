@@ -5,7 +5,6 @@
 #include <QtDebug>
 #include <QKeyEvent>
 #include <QStatusBar>
-#include <QApplication>
 #include "birrtstar_config.h"
 #include "birrtstar_spatial_relations_config.h"
 #include "birrtstar_window.h"
