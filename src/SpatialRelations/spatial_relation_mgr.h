@@ -7,7 +7,7 @@
 
 namespace h2p {
 
-  enum SpatialRelationFuncType{
+  enum SpatialRelationType{
     SPATIAL_REL_UNKNOWN,
     SPATIAL_REL_IN_BETWEEN,
     SPATIAL_REL_LEFT_OF,
@@ -31,12 +31,15 @@ namespace h2p {
     WorldMap* get_world_map() {  return mp_worldmap; }
     Obstacle* get_primary_obstacle();
  
-    std::string typeToString( SpatialRelationFuncType type );
-    SpatialRelationFuncType stringToType( std::string name );
+    static std::string typeToString( SpatialRelationType type );
+    static SpatialRelationType stringToType( std::string name );
 
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
 
-    bool add_function( SpatialRelationFuncType type, std::vector<Obstacle*> obstacles );
+    SpatialRelationFunction* add_function( SpatialRelationType type, std::vector<Obstacle*> obstacles );
+    SpatialRelationFunction* create_function( SpatialRelationType type, std::vector<Obstacle*> obstacles );
+    SpatialRelationFunction* add_avoid_function( SpatialRelationFunction* p_func );
+    SpatialRelationFunction* add_function( SpatialRelationFunction* p_func );
 
     Rule*                                 mp_rule;
     std::vector<SpatialRelationFunction*> mp_functions; 

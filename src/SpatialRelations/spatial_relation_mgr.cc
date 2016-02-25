@@ -99,7 +99,7 @@ Obstacle* SpatialRelationMgr::get_primary_obstacle() {
   return p_obstacle;
 }
 
-string SpatialRelationMgr::typeToString( SpatialRelationFuncType type ) {
+string SpatialRelationMgr::typeToString( SpatialRelationType type ) {
   switch( type ) {
     case SPATIAL_REL_IN_BETWEEN:
       return "in_between";
@@ -120,7 +120,7 @@ string SpatialRelationMgr::typeToString( SpatialRelationFuncType type ) {
   return "unknown";
 }
 
-SpatialRelationFuncType SpatialRelationMgr::stringToType( string name ) {
+SpatialRelationType SpatialRelationMgr::stringToType( string name ) {
   if( name == "in_between" ) {
     return SPATIAL_REL_IN_BETWEEN;
   }
@@ -142,60 +142,75 @@ SpatialRelationFuncType SpatialRelationMgr::stringToType( string name ) {
   return SPATIAL_REL_UNKNOWN;
 }
 
-bool SpatialRelationMgr::add_function( SpatialRelationFuncType type, std::vector<Obstacle*> obstacles ) {
+SpatialRelationFunction*  SpatialRelationMgr::add_function( SpatialRelationType type, std::vector<Obstacle*> obstacles ) {
+  SpatialRelationFunction* p_func = create_function( type, obstacles );
+  if( p_func ) {
+     mp_functions.push_back( p_func );
+     return p_func;
+  }
+  return NULL;
+}
 
+SpatialRelationFunction* SpatialRelationMgr::create_function( SpatialRelationType type, std::vector<Obstacle*> obstacles ) {
   switch( type ) {
     case SPATIAL_REL_IN_BETWEEN:
       if( obstacles.size() == 2 ) {
         InBetweenRelationFunction* p_func = new InBetweenRelationFunction();
         p_func->mp_obstacles = obstacles;
-        mp_functions.push_back( p_func );
-        return true;
+        return p_func;
       }
-      return false;
+      return NULL;
     case SPATIAL_REL_LEFT_OF:
       if( obstacles.size() == 1 ) {
         SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_LEFT);
         p_func->mp_obstacle = obstacles[0];
-        mp_functions.push_back( p_func );
-        return true;
+        return p_func;
       }
-      return false;
+      return NULL;
     case SPATIAL_REL_RIGHT_OF:
       if( obstacles.size() == 1 ) {
         SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_RIGHT);
         p_func->mp_obstacle = obstacles[0];
-        mp_functions.push_back( p_func );
-        return true;
+        return p_func;
       }
-      return false;
+      return NULL;
     case SPATIAL_REL_TOP_OF:
       if( obstacles.size() == 1 ) {
         SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_TOP);
         p_func->mp_obstacle = obstacles[0];
-        mp_functions.push_back( p_func );
-        return true;
+        return p_func;
       }
-      return false;
+      return NULL;
     case SPATIAL_REL_BOTTOM_OF:
       if( obstacles.size() == 1 ) {
         SideOfRelationFunction* p_func = new SideOfRelationFunction(SIDE_TYPE_BOTTOM);
         p_func->mp_obstacle = obstacles[0];
-        mp_functions.push_back( p_func );
-        return true;
+        return p_func;
       }
-      return false;
+      return NULL;
     case SPATIAL_REL_AVOID:
-      if( obstacles.size() != 1 ) {
-        AvoidRelationFunction* p_func = new AvoidRelationFunction();
-        p_func->mp_obstacle = obstacles[0];
-        mp_functions.push_back( p_func );
-        return true;
-      }
-      return false;
     case SPATIAL_REL_UNKNOWN:
     default:
-      return false;
+      return NULL;
   }
-  return false;
+  return NULL;
+}
+
+SpatialRelationFunction*  SpatialRelationMgr::add_avoid_function( SpatialRelationFunction* p_func ) {
+
+  if( p_func ) {
+    AvoidRelationFunction* p_avoid_func = new AvoidRelationFunction();
+    p_avoid_func->mp_child_func = p_func;
+    mp_functions.push_back( p_avoid_func );
+    return p_avoid_func;
+  }
+  return NULL;
+}
+
+SpatialRelationFunction*  SpatialRelationMgr::add_function( SpatialRelationFunction* p_func ) {
+    if( p_func ) {
+      mp_functions.push_back( p_func );
+      return p_func;
+    }
+    return NULL;
 }

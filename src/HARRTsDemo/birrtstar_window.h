@@ -61,11 +61,16 @@ namespace birrts {
     QMenu*        mpContextMenu;
 
     QAction*      mpAddInbetweenSpatialRelationAction;
-    QAction*      mpAddAvoidSpatialRelationAction;
     QAction*      mpAddLeftofSpatialRelationAction;
     QAction*      mpAddRightofSpatialRelationAction;
     QAction*      mpAddTopofSpatialRelationAction;
     QAction*      mpAddBottomofSpatialRelationAction;
+
+    QAction*      mpAddAvoidInbetweenSpatialRelationAction;
+    QAction*      mpAddAvoidLeftofSpatialRelationAction;
+    QAction*      mpAddAvoidRightofSpatialRelationAction;
+    QAction*      mpAddAvoidTopofSpatialRelationAction;
+    QAction*      mpAddAvoidBottomofSpatialRelationAction;
 
     QAction*      mpShowConfigAction;
     QAction*      mpProcessAction;
@@ -89,11 +94,16 @@ namespace birrts {
     void onLoadObj();
 
     void onAddInbetweenSpatialRelation();
-    void onAddAvoidSpatialRelation();
     void onAddLeftofSpatialRelation();
     void onAddRightofSpatialRelation();
     void onAddTopofSpatialRelation();
     void onAddBottomofSpatialRelation();
+
+    void onAddAvoidInbetweenSpatialRelation();
+    void onAddAvoidLeftofSpatialRelation();
+    void onAddAvoidRightofSpatialRelation();
+    void onAddAvoidTopofSpatialRelation();
+    void onAddAvoidBottomofSpatialRelation();
 
     void onShowConfig();
     void onProcess();

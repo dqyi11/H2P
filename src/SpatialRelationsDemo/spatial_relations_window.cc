@@ -49,12 +49,16 @@ void SpatialRelationsWindow::createMenuBar() {
 
   mpAddMenu = menuBar()->addMenu("&Add");
   mpAddMenu->addAction( mpAddInbetweenSpatialRelationAction );
+  mpAddMenu->addAction( mpAddAvoidInbetweenSpatialRelationAction );
   mpAddSideofRelationMenu = mpAddMenu->addMenu("&Side-of Relation");
   mpAddSideofRelationMenu->addAction( mpAddLeftofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddRightofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddTopofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddBottomofSpatialRelationAction );
-  mpAddMenu->addAction( mpAddAvoidSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidLeftofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidRightofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidTopofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidBottomofSpatialRelationAction );
 
   mpManageMenu = menuBar()->addMenu("&Manage");
   mpManageMenu->addAction( mpShowConfigAction ); 
@@ -82,8 +86,6 @@ void SpatialRelationsWindow::createActions() {
  
   mpAddInbetweenSpatialRelationAction = new QAction("In-between Relation", this);
   connect(mpAddInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddInbetweenSpatialRelation()));
-  mpAddAvoidSpatialRelationAction = new QAction("Avoid Relation", this);
-  connect(mpAddAvoidSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidSpatialRelation()));
   mpAddLeftofSpatialRelationAction = new QAction("Left-of Relation", this);
   connect(mpAddLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddLeftofSpatialRelation()));
   mpAddRightofSpatialRelationAction = new QAction("Right-of Relation", this);
@@ -92,6 +94,17 @@ void SpatialRelationsWindow::createActions() {
   connect(mpAddTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddTopofSpatialRelation()));
   mpAddBottomofSpatialRelationAction = new QAction("Bottom-of Relation", this);
   connect(mpAddBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddBottomofSpatialRelation()));
+
+  mpAddAvoidInbetweenSpatialRelationAction = new QAction("Avoid In-between Relation", this);
+  connect(mpAddAvoidInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidInbetweenSpatialRelation()));
+  mpAddAvoidLeftofSpatialRelationAction = new QAction("Avoid Left-of Relation", this);
+  connect(mpAddAvoidLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidLeftofSpatialRelation()));
+  mpAddAvoidRightofSpatialRelationAction = new QAction("Avoid Right-of Relation", this);
+  connect(mpAddAvoidRightofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidRightofSpatialRelation()));
+  mpAddAvoidTopofSpatialRelationAction = new QAction("Avoid Top-of Relation", this);
+  connect(mpAddAvoidTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidTopofSpatialRelation()));
+  mpAddAvoidBottomofSpatialRelationAction = new QAction("Avoid Bottom-of Relation", this);
+  connect(mpAddAvoidBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidBottomofSpatialRelation()));
 
   mpShowConfigAction = new QAction("Show", this);
   connect(mpShowConfigAction, SIGNAL(triggered()), this, SLOT(onShowConfig()));
@@ -286,34 +299,28 @@ void SpatialRelationsWindow::onAddInbetweenSpatialRelation() {
     } 
     return;
   }
-  InBetweenRelationFunction* p_func = new InBetweenRelationFunction();
-  for( unsigned int i=0; i < selected_obstacles.size(); i++ ) {
-    Obstacle* p_obs = selected_obstacles[i];
-    p_func->mp_obstacles.push_back( p_obs );
-  }
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_spatial_relation_mgr()->add_function( SPATIAL_REL_IN_BETWEEN, selected_obstacles );
   } 
   mpViz->clear_selected_obstacles();
   repaint(); 
 }
 
-void SpatialRelationsWindow::onAddAvoidSpatialRelation() {
+void SpatialRelationsWindow::onAddAvoidInbetweenSpatialRelation() {
   vector<Obstacle*> selected_obstacles;
   if( mpViz) {
     selected_obstacles = mpViz->get_selected_obstacles();
   }
-  if( selected_obstacles.size() != 1 ) {
+  if( selected_obstacles.size() != 2 ) {
     if( mpMsgBox ) {
-      mpMsgBox->setText( "Add Avoid Spatial : Number of obstacles mismatch " );
+      mpMsgBox->setText( "Add Avoid Inbetween Spatial : Number of obstacles mismatch " );
       mpMsgBox->show();
     } 
     return;
   }
-  AvoidRelationFunction* p_func = new AvoidRelationFunction();
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    SpatialRelationFunction* p_child_func = mpViz->get_spatial_relation_mgr()->create_function( SPATIAL_REL_IN_BETWEEN, selected_obstacles );
+    mpViz->get_spatial_relation_mgr()->add_avoid_function( p_child_func ); 
   } 
   mpViz->clear_selected_obstacles();
   repaint();
@@ -335,10 +342,28 @@ void SpatialRelationsWindow::onAddLeftofSpatialRelation() {
     } 
     return;
   }
-  SideOfRelationFunction* p_func = new SideOfRelationFunction( SIDE_TYPE_LEFT );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_spatial_relation_mgr()->add_function( SPATIAL_REL_LEFT_OF, selected_obstacles );
+  } 
+  mpViz->clear_selected_obstacles();
+  repaint(); 
+}
+
+void SpatialRelationsWindow::onAddAvoidLeftofSpatialRelation() {
+  vector<Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Avoid Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    } 
+    return;
+  }
+  if( mpViz ) {
+    SpatialRelationFunction* p_child_func = mpViz->get_spatial_relation_mgr()->create_function( SPATIAL_REL_LEFT_OF, selected_obstacles );
+    mpViz->get_spatial_relation_mgr()->add_avoid_function( p_child_func );
   } 
   mpViz->clear_selected_obstacles();
   repaint(); 
@@ -356,10 +381,28 @@ void SpatialRelationsWindow::onAddRightofSpatialRelation() {
     } 
     return;
   }
-  SideOfRelationFunction* p_func = new SideOfRelationFunction( SIDE_TYPE_RIGHT );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_spatial_relation_mgr()->add_function( SPATIAL_REL_RIGHT_OF, selected_obstacles );
+  } 
+  mpViz->clear_selected_obstacles();
+  repaint(); 
+}
+
+void SpatialRelationsWindow::onAddAvoidRightofSpatialRelation() {
+  vector<Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Avoid Right-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    } 
+    return;
+  }
+  if( mpViz ) {
+    SpatialRelationFunction* p_child_func = mpViz->get_spatial_relation_mgr()->create_function( SPATIAL_REL_RIGHT_OF, selected_obstacles );
+    mpViz->get_spatial_relation_mgr()->add_avoid_function( p_child_func );
   } 
   mpViz->clear_selected_obstacles();
   repaint(); 
@@ -377,10 +420,28 @@ void SpatialRelationsWindow::onAddTopofSpatialRelation() {
     } 
     return;
   }
-  SideOfRelationFunction* p_func = new SideOfRelationFunction( SIDE_TYPE_TOP );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_spatial_relation_mgr()->add_function( SPATIAL_REL_TOP_OF, selected_obstacles );
+  } 
+  mpViz->clear_selected_obstacles();
+  repaint(); 
+}
+
+void SpatialRelationsWindow::onAddAvoidTopofSpatialRelation() {
+  vector<Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Avoid Top-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    } 
+    return;
+  }
+  if( mpViz ) {
+    SpatialRelationFunction* p_child_func = mpViz->get_spatial_relation_mgr()->create_function( SPATIAL_REL_TOP_OF, selected_obstacles );
+    mpViz->get_spatial_relation_mgr()->add_avoid_function( p_child_func );
   } 
   mpViz->clear_selected_obstacles();
   repaint(); 
@@ -398,10 +459,28 @@ void SpatialRelationsWindow::onAddBottomofSpatialRelation() {
     } 
     return;
   }
-  SideOfRelationFunction* p_func = new SideOfRelationFunction( SIDE_TYPE_BOTTOM );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_spatial_relation_mgr()->mp_functions.push_back( p_func );
+    mpViz->get_spatial_relation_mgr()->add_function( SPATIAL_REL_BOTTOM_OF, selected_obstacles );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint(); 
+}
+
+void SpatialRelationsWindow::onAddAvoidBottomofSpatialRelation() {
+  vector<Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Avoid Bottom-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    } 
+    return;
+  }
+  if( mpViz ) {
+    SpatialRelationFunction* p_child_func = mpViz->get_spatial_relation_mgr()->create_function( SPATIAL_REL_BOTTOM_OF, selected_obstacles );
+    mpViz->get_spatial_relation_mgr()->add_avoid_function( p_child_func );
   }
   mpViz->clear_selected_obstacles();
   repaint(); 

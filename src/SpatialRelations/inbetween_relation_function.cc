@@ -56,3 +56,7 @@ string InBetweenRelationFunction::get_name() {
   name += ")";
   return name;
 }
+
+SpatialRelationFuncType InBetweenRelationFunction::get_type() {
+  return SPATIAL_REL_FUNC_IN_BETWEEN;
+}

@@ -74,12 +74,16 @@ void BIRRTstarWindow::createMenuBar() {
 
   mpAddMenu = menuBar()->addMenu("&Add");
   mpAddMenu->addAction( mpAddInbetweenSpatialRelationAction );
+  mpAddMenu->addAction( mpAddAvoidInbetweenSpatialRelationAction );
   mpAddSideofRelationMenu = mpAddMenu->addMenu("&Side-of Relation");
   mpAddSideofRelationMenu->addAction( mpAddLeftofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddRightofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddTopofSpatialRelationAction );
   mpAddSideofRelationMenu->addAction( mpAddBottomofSpatialRelationAction );
-  mpAddMenu->addAction( mpAddAvoidSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidLeftofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidRightofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidTopofSpatialRelationAction );
+  mpAddSideofRelationMenu->addAction( mpAddAvoidBottomofSpatialRelationAction );
 
   mpManageMenu = menuBar()->addMenu("&Manage");
   mpManageMenu->addAction( mpShowConfigAction );
@@ -114,8 +118,6 @@ void BIRRTstarWindow::createActions() {
 
   mpAddInbetweenSpatialRelationAction = new QAction("In-between Relation", this);
   connect(mpAddInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddInbetweenSpatialRelation()));
-  mpAddAvoidSpatialRelationAction = new QAction("Avoid Relation", this);
-  connect(mpAddAvoidSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidSpatialRelation()));
   mpAddLeftofSpatialRelationAction = new QAction("Left-of Relation", this);
   connect(mpAddLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddLeftofSpatialRelation()));
   mpAddRightofSpatialRelationAction = new QAction("Right-of Relation", this);
@@ -124,6 +126,17 @@ void BIRRTstarWindow::createActions() {
   connect(mpAddTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddTopofSpatialRelation()));
   mpAddBottomofSpatialRelationAction = new QAction("Bottom-of Relation", this);
   connect(mpAddBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddBottomofSpatialRelation()));
+
+  mpAddAvoidInbetweenSpatialRelationAction = new QAction("Avoid In-between Relation", this);
+  connect(mpAddAvoidInbetweenSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidInbetweenSpatialRelation()));
+  mpAddAvoidLeftofSpatialRelationAction = new QAction("Avoid Left-of Relation", this);
+  connect(mpAddAvoidLeftofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidLeftofSpatialRelation()));
+  mpAddAvoidRightofSpatialRelationAction = new QAction("Avoid Right-of Relation", this);
+  connect(mpAddAvoidRightofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidRightofSpatialRelation()));
+  mpAddAvoidTopofSpatialRelationAction = new QAction("Avoid Top-of Relation", this);
+  connect(mpAddAvoidTopofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidTopofSpatialRelation()));
+  mpAddAvoidBottomofSpatialRelationAction = new QAction("Avoid Bottom-of Relation", this);
+  connect(mpAddAvoidBottomofSpatialRelationAction, SIGNAL(triggered()), this, SLOT(onAddAvoidBottomofSpatialRelation()));
 
   mpShowConfigAction = new QAction("Show", this);
   connect(mpShowConfigAction, SIGNAL(triggered()), this, SLOT(onShowConfig()));
@@ -166,17 +179,17 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
         }
       }
 
-      for( unsigned int i = 0; i < mpViz->m_PPInfo.m_spatial_rel_info_list.size(); i++ ) {
-        SpatialRelationInfo spatial_rel_info = mpViz->m_PPInfo.m_spatial_rel_info_list[i];
+      for( unsigned int i = 0; i < mpViz->m_PPInfo.mp_spatial_rel_info_list.size(); i++ ) {
+        SpatialRelationInfo* p_spatial_rel_info = mpViz->m_PPInfo.mp_spatial_rel_info_list[i];
         vector<h2p::Obstacle*> obstacles;
-        for( unsigned int j = 0; j < spatial_rel_info.obstacles.size(); j++ ) {
-          string obs_name = spatial_rel_info.obstacles[j];
+        for( unsigned int j = 0; j < p_spatial_rel_info->m_obstacles.size(); j++ ) {
+          string obs_name = p_spatial_rel_info->m_obstacles[j];
           h2p::Obstacle* p_obs = mpViz->get_world_map()->find_obstacle(obs_name);
           if( p_obs ) {
             obstacles.push_back(p_obs);
           }
         }
-        bool var = mpViz->get_string_class_mgr()->add_function( mpViz->get_string_class_mgr()->stringToType(spatial_rel_info.type),
+        bool var = mpViz->get_string_class_mgr()->add_function( mpViz->get_string_class_mgr()->stringToType(p_spatial_rel_info->m_type),
                                                                 obstacles );
         cout << "ADD FUNC " << var << " OBS=" << obstacles.size() << endl;
 
@@ -405,28 +418,17 @@ void BIRRTstarWindow::onAddInbetweenSpatialRelation() {
     }
     return;
   }
-  h2p::InBetweenRelationFunction* p_func = new h2p::InBetweenRelationFunction();
-  for( unsigned int i=0; i < selected_obstacles.size(); i++ ) {
-    h2p::Obstacle* p_obs = selected_obstacles[i];
-    p_func->mp_obstacles.push_back( p_obs );
-  }
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
-
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_IN_BETWEEN );
-    for( vector<h2p::Obstacle*>::iterator it = p_func->mp_obstacles.begin();
-         it != p_func->mp_obstacles.end(); it ++ ) {
-      h2p::Obstacle* p_obs = (*it);
-      spatial_rel_info.obstacles.push_back( p_obs->get_name() );
-    }
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+    h2p::SpatialRelationFunction* p_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_IN_BETWEEN, selected_obstacles );
+    mpViz->get_string_class_mgr()->add_function( p_func );
+    SpatialRelationInfo* p_spatial_rel_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
   }
   mpViz->clear_selected_obstacles();
   repaint();
 }
 
-void BIRRTstarWindow::onAddAvoidSpatialRelation() {
+void BIRRTstarWindow::onAddAvoidInbetweenSpatialRelation() {
   vector<h2p::Obstacle*> selected_obstacles;
   if( mpViz) {
     selected_obstacles = mpViz->get_selected_obstacles();
@@ -438,16 +440,13 @@ void BIRRTstarWindow::onAddAvoidSpatialRelation() {
     }
     return;
   }
-  h2p::AvoidRelationFunction* p_func = new h2p::AvoidRelationFunction();
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
-
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_AVOID );
-    spatial_rel_info.obstacles.push_back( p_func->mp_obstacle->get_name() );
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+    h2p::SpatialRelationFunction* p_child_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_IN_BETWEEN, selected_obstacles );
+    h2p::SpatialRelationFunction*  p_avoid_func = mpViz->get_string_class_mgr()->add_avoid_function( p_child_func );
+    SpatialRelationInfo* p_spatial_rel_info  = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
   }
+  mpViz->clear_selected_obstacles();
   mpViz->clear_selected_obstacles();
   repaint();
 
@@ -468,15 +467,34 @@ void BIRRTstarWindow::onAddLeftofSpatialRelation() {
     }
     return;
   }
-  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_LEFT );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
+    h2p::SpatialRelationFunction* p_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_LEFT_OF, selected_obstacles );
+    mpViz->get_string_class_mgr()->add_function( p_func );
+    SpatialRelationInfo* p_spatial_rel_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
 
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_LEFT_OF );
-    spatial_rel_info.obstacles.push_back( p_func->mp_obstacle->get_name() );
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+void BIRRTstarWindow::onAddAvoidLeftofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  if( mpViz ) {
+    h2p::SpatialRelationFunction* p_child_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_LEFT_OF, selected_obstacles );
+    h2p::SpatialRelationFunction*  p_avoid_func = mpViz->get_string_class_mgr()->add_avoid_function( p_child_func );
+    SpatialRelationInfo* p_spatial_rel_info  = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -494,15 +512,34 @@ void BIRRTstarWindow::onAddRightofSpatialRelation() {
     }
     return;
   }
-  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_RIGHT );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
+    h2p::SpatialRelationFunction* p_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_RIGHT_OF, selected_obstacles );
+    mpViz->get_string_class_mgr()->add_function( p_func );
+    SpatialRelationInfo* p_spatial_rel_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
 
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_RIGHT_OF );
-    spatial_rel_info.obstacles.push_back( p_func->mp_obstacle->get_name() );
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+void BIRRTstarWindow::onAddAvoidRightofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  if( mpViz ) {
+    h2p::SpatialRelationFunction* p_child_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_RIGHT_OF, selected_obstacles );
+    h2p::SpatialRelationFunction*  p_avoid_func = mpViz->get_string_class_mgr()->add_avoid_function( p_child_func );
+    SpatialRelationInfo* p_spatial_rel_info  = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -520,15 +557,34 @@ void BIRRTstarWindow::onAddTopofSpatialRelation() {
     }
     return;
   }
-  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_TOP );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
+    h2p::SpatialRelationFunction* p_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_TOP_OF, selected_obstacles );
+    mpViz->get_string_class_mgr()->add_function( p_func );
+    SpatialRelationInfo* p_spatial_rel_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
 
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_TOP_OF );
-    spatial_rel_info.obstacles.push_back( p_func->mp_obstacle->get_name() );
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+void BIRRTstarWindow::onAddAvoidTopofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  if( mpViz ) {
+    h2p::SpatialRelationFunction* p_child_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_TOP_OF, selected_obstacles );
+    h2p::SpatialRelationFunction*  p_avoid_func = mpViz->get_string_class_mgr()->add_avoid_function( p_child_func );
+    SpatialRelationInfo* p_spatial_rel_info  = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+
   }
   mpViz->clear_selected_obstacles();
   repaint();
@@ -546,15 +602,34 @@ void BIRRTstarWindow::onAddBottomofSpatialRelation() {
     }
     return;
   }
-  h2p::SideOfRelationFunction* p_func = new h2p::SideOfRelationFunction( h2p::SIDE_TYPE_BOTTOM );
-  p_func->mp_obstacle = selected_obstacles[0];
   if( mpViz ) {
-    mpViz->get_string_class_mgr()->mp_functions.push_back( p_func );
+    h2p::SpatialRelationFunction* p_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_BOTTOM_OF, selected_obstacles );
+    mpViz->get_string_class_mgr()->add_function( p_func );
+    SpatialRelationInfo* p_spatial_rel_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+  }
+  mpViz->clear_selected_obstacles();
+  repaint();
+}
 
-    SpatialRelationInfo spatial_rel_info;
-    spatial_rel_info.type = mpViz->get_string_class_mgr()->typeToString( h2p::SPATIAL_REL_BOTTOM_OF );
-    spatial_rel_info.obstacles.push_back( p_func->mp_obstacle->get_name() );
-    mpViz->m_PPInfo.m_spatial_rel_info_list.push_back( spatial_rel_info );
+void BIRRTstarWindow::onAddAvoidBottomofSpatialRelation() {
+  vector<h2p::Obstacle*> selected_obstacles;
+  if( mpViz) {
+    selected_obstacles = mpViz->get_selected_obstacles();
+  }
+  if( selected_obstacles.size() != 1 ) {
+    if( mpMsgBox ) {
+      mpMsgBox->setText( "Add Left-of Spatial : Number of obstacles mismatch " );
+      mpMsgBox->show();
+    }
+    return;
+  }
+  if( mpViz ) {
+    h2p::SpatialRelationFunction* p_child_func = mpViz->get_string_class_mgr()->create_function( h2p::SPATIAL_REL_BOTTOM_OF, selected_obstacles );
+    h2p::SpatialRelationFunction*  p_avoid_func = mpViz->get_string_class_mgr()->add_avoid_function( p_child_func );
+    SpatialRelationInfo* p_spatial_rel_info  = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func );
+    mpViz->m_PPInfo.mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
+
   }
   mpViz->clear_selected_obstacles();
   repaint();

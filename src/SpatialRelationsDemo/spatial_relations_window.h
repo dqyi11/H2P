@@ -28,6 +28,7 @@ namespace h2p {
     virtual void updateStatusBar();
 
     void keyPressEvent(QKeyEvent * e);
+
   
     QMessageBox*  mpMsgBox;
     QMenu*        mpFileMenu;
@@ -44,11 +45,16 @@ namespace h2p {
     QMenu*        mpContextMenu;
 
     QAction*      mpAddInbetweenSpatialRelationAction;
-    QAction*      mpAddAvoidSpatialRelationAction;
     QAction*      mpAddLeftofSpatialRelationAction;
     QAction*      mpAddRightofSpatialRelationAction;
     QAction*      mpAddTopofSpatialRelationAction;
     QAction*      mpAddBottomofSpatialRelationAction;
+
+    QAction*      mpAddAvoidInbetweenSpatialRelationAction;
+    QAction*      mpAddAvoidLeftofSpatialRelationAction;
+    QAction*      mpAddAvoidRightofSpatialRelationAction;
+    QAction*      mpAddAvoidTopofSpatialRelationAction;
+    QAction*      mpAddAvoidBottomofSpatialRelationAction;
 
     QAction*      mpShowConfigAction;
     QAction*      mpProcessAction;
@@ -66,12 +72,17 @@ namespace h2p {
     void onAddGoal();
 
     void onAddInbetweenSpatialRelation();
-    void onAddAvoidSpatialRelation();
     void onAddLeftofSpatialRelation();
     void onAddRightofSpatialRelation();
     void onAddTopofSpatialRelation();
     void onAddBottomofSpatialRelation();
 
+    void onAddAvoidInbetweenSpatialRelation();
+    void onAddAvoidLeftofSpatialRelation();
+    void onAddAvoidRightofSpatialRelation();
+    void onAddAvoidTopofSpatialRelation();
+    void onAddAvoidBottomofSpatialRelation();
+    
     void onShowConfig();
     void onProcess();
     void onExecute();

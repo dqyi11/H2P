@@ -13,10 +13,14 @@
 
 namespace birrts {
 
-  typedef struct {
-    std::string type;
-    std::vector<std::string> obstacles;
-  } SpatialRelationInfo;
+  class SpatialRelationInfo {
+  public:
+    SpatialRelationInfo();
+    virtual ~SpatialRelationInfo();
+    std::string              m_type;
+    std::vector<std::string> m_obstacles;
+    SpatialRelationInfo*     mp_child_info;
+  };
 
   typedef struct {
     std::string name;
@@ -27,6 +31,7 @@ namespace birrts {
   class BIRRTstarPathPlanningInfo {
   public:
     BIRRTstarPathPlanningInfo();
+    virtual ~BIRRTstarPathPlanningInfo();
 
     bool get_obstacle_info( int** pp_obstacle_info );
     bool get_cost_distribution( double** pp_cost_distribution );
@@ -45,6 +50,9 @@ namespace birrts {
 
     void load_paths( std::vector<Path*> paths );
     bool export_paths( QString filename );
+
+    static SpatialRelationInfo* spatialRelationFuncToInfo( h2p::SpatialRelationFunction* p_func );
+    static h2p::SpatialRelationFunction* spatialRelationInfoToFunc( SpatialRelationInfo* p_info, h2p::SpatialRelationMgr* p_mgr );
 
     static double calc_dist( POS2D pos_a, POS2D pos_b, double** pp_distribution, void* tree ) {
       double dist = 0.0;
@@ -140,7 +148,7 @@ namespace birrts {
     int m_max_iteration_num;
     double m_segment_length;
 
-    std::vector< SpatialRelationInfo > m_spatial_rel_info_list;
+    std::vector< SpatialRelationInfo* > mp_spatial_rel_info_list;
     std::vector< ObsInfo > m_obs_info_list;
     std::vector<Path*> mp_found_paths;
   };

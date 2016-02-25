@@ -95,3 +95,7 @@ string SideOfRelationFunction::get_name() {
   }
   return name;
 }
+
+SpatialRelationFuncType SideOfRelationFunction::get_type() {
+  return SPATIAL_REL_FUNC_SIDE_OF;
+}
