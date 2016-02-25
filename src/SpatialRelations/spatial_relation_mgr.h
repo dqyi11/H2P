@@ -31,8 +31,8 @@ namespace h2p {
     WorldMap* get_world_map() {  return mp_worldmap; }
     Obstacle* get_primary_obstacle();
  
-    static std::string typeToString( SpatialRelationType type );
-    static SpatialRelationType stringToType( std::string name );
+    static std::string type_to_string( SpatialRelationType type );
+    static SpatialRelationType string_to_type( std::string name );
 
     std::vector< std::vector< std::string > > filter( std::vector< std::vector< std::string > > string_set, Rule* rule );
 

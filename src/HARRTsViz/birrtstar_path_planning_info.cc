@@ -266,24 +266,8 @@ void BIRRTstarPathPlanningInfo::read( xmlNodePtr root ) {
           for( l2 = l1->children; l2; l2 = l2->next ) {
             if( l2->type == XML_ELEMENT_NODE ) {
               if( xmlStrcmp( l2->name, ( const xmlChar* )( "spatial_relation" ) )  == 0 ) {
-                SpatialRelationInfo*  p_spatial_rel_info;
-                xmlChar* tmp_type = xmlGetProp( l2, ( const xmlChar* )( "type" ) );
-                if( tmp_type != NULL ) {
-                  string type_string = (char*)( tmp_type );
-                  p_spatial_rel_info->m_type = type_string;
-                }
-                xmlNodePtr l3 = NULL;
-                for( l3 = l2->children; l3; l3 = l3->next ) {
-                  if( l3->type == XML_ELEMENT_NODE ) {
-                    if( xmlStrcmp( l3->name, ( const xmlChar* )( "obstacle" ) )  == 0 ) {
-                      xmlChar* tmp_obs_name = xmlGetProp( l3, ( const xmlChar* )( "name" ) );
-                      if( tmp_obs_name != NULL ) {
-                        string obs_name_string = (char*)( tmp_obs_name );
-                        p_spatial_rel_info->m_obstacles.push_back( obs_name_string );
-                      }
-                    }
-                  }
-                }
+                SpatialRelationInfo*  p_spatial_rel_info = load_spatial_relation_info( l2 );
+
                 mp_spatial_rel_info_list.push_back( p_spatial_rel_info );
               }
             }
@@ -292,7 +276,31 @@ void BIRRTstarPathPlanningInfo::read( xmlNodePtr root ) {
       }
     }
   }
+}
 
+SpatialRelationInfo* BIRRTstarPathPlanningInfo::load_spatial_relation_info( xmlNodePtr node ) {
+  SpatialRelationInfo*  p_spatial_rel_info= new SpatialRelationInfo();
+  xmlChar* tmp_type = xmlGetProp( node, ( const xmlChar* )( "type" ) );
+  if( tmp_type != NULL ) {
+    string type_string = (char*)( tmp_type );
+    p_spatial_rel_info->m_type = type_string;
+  }
+  xmlNodePtr l3 = NULL;
+  for( l3 = node->children; l3; l3 = l3->next ) {
+    if( l3->type == XML_ELEMENT_NODE ) {
+      if( xmlStrcmp( l3->name, ( const xmlChar* )( "obstacle" ) )  == 0 ) {
+        xmlChar* tmp_obs_name = xmlGetProp( l3, ( const xmlChar* )( "name" ) );
+        if( tmp_obs_name != NULL ) {
+          string obs_name_string = (char*)( tmp_obs_name );
+          p_spatial_rel_info->m_obstacles.push_back( obs_name_string );
+        }
+      }
+      else if( xmlStrcmp( l3->name, ( const xmlChar* )( "spatial_relation" ) )  == 0 ) {
+        p_spatial_rel_info->mp_child_info = load_spatial_relation_info( l3 );
+      }
+    }
+  }
+  return p_spatial_rel_info;
 }
 
 void BIRRTstarPathPlanningInfo::write( xmlDocPtr doc, xmlNodePtr root ) const {
@@ -360,24 +368,36 @@ void BIRRTstarPathPlanningInfo::write( xmlDocPtr doc, xmlNodePtr root ) const {
 
   xmlNodePtr spatial_rel_list_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relations" ), NULL );
   for( unsigned int i = 0; i < mp_spatial_rel_info_list.size(); i++ ) {
-    SpatialRelationInfo* p_spatial_rel_info = mp_spatial_rel_info_list[i];
-    xmlNodePtr spatial_rel_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relation" ), NULL );
-    xmlNewProp( spatial_rel_node, ( const xmlChar* )( "type" ), ( const xmlChar* )( p_spatial_rel_info->m_type.c_str() ) );
-    for( unsigned int j = 0; j < p_spatial_rel_info->m_obstacles.size(); j++ ) {
-      string obs_name = p_spatial_rel_info->m_obstacles[j];
-      xmlNodePtr spatial_rel_obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
-      xmlNewProp( spatial_rel_obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_name.c_str() ) );
-      xmlAddChild( spatial_rel_node, spatial_rel_obs_node );
-    }
+    xmlNodePtr spatial_rel_node = save_spatial_relation_info( doc, mp_spatial_rel_info_list[i] );
     xmlAddChild( spatial_rel_list_node, spatial_rel_node );
   }
   xmlAddChild( node, spatial_rel_list_node );
 }
 
+xmlNodePtr BIRRTstarPathPlanningInfo::save_spatial_relation_info( xmlDocPtr doc, SpatialRelationInfo* p_info ) const {
+  if( p_info ) {
+    xmlNodePtr spatial_rel_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "spatial_relation" ), NULL );
+    xmlNewProp( spatial_rel_node, ( const xmlChar* )( "type" ), ( const xmlChar* )( p_info->m_type.c_str() ) );
+    for( unsigned int j = 0; j < p_info->m_obstacles.size(); j++ ) {
+      string obs_name = p_info->m_obstacles[j];
+      xmlNodePtr spatial_rel_obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
+      xmlNewProp( spatial_rel_obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_name.c_str() ) );
+      xmlAddChild( spatial_rel_node, spatial_rel_obs_node );
+    }
+    if( p_info->mp_child_info ) {
+      xmlNodePtr child_spatial_rel_node = save_spatial_relation_info( doc, p_info->mp_child_info );
+      xmlAddChild( spatial_rel_node, child_spatial_rel_node );
+    }
+    return spatial_rel_node;
+  }
+  return NULL;
+}
+
 bool BIRRTstarPathPlanningInfo::save_to_file(QString filename) {
     
   xmlDocPtr doc = xmlNewDoc( ( xmlChar* )( "1.0" ) );
-  xmlNodePtr root = xmlNewDocNode( doc, NULL, ( xmlChar* )( "root" ), NULL );    xmlDocSetRootElement( doc, root );
+  xmlNodePtr root = xmlNewDocNode( doc, NULL, ( xmlChar* )( "root" ), NULL );
+  xmlDocSetRootElement( doc, root );
   write( doc, root );
   xmlSaveFormatFileEnc( filename.toStdString().c_str(), doc, "UTF-8", 1 );
   xmlFreeDoc( doc );
@@ -445,12 +465,12 @@ void BIRRTstarPathPlanningInfo::dump_cost_distribution( QString filename ) {
   }
 }
 
-SpatialRelationInfo* BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( SpatialRelationFunction* p_func ) {
+SpatialRelationInfo* BIRRTstarPathPlanningInfo::spatial_relation_func_to_info( SpatialRelationFunction* p_func ) {
   SpatialRelationInfo* p_spatial_rel_info = NULL;
   if( dynamic_cast<InBetweenRelationFunction*>( p_func ) ) {
     InBetweenRelationFunction* p_in_between_func = dynamic_cast<InBetweenRelationFunction*>( p_func ) ;
     p_spatial_rel_info = new SpatialRelationInfo();
-    p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_IN_BETWEEN );
+    p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_IN_BETWEEN );
     for( vector<h2p::Obstacle*>::iterator it = p_in_between_func->mp_obstacles.begin();
          it != p_in_between_func->mp_obstacles.end(); it ++ ) {
       h2p::Obstacle* p_obs = (*it);
@@ -462,16 +482,16 @@ SpatialRelationInfo* BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( Spati
     p_spatial_rel_info = new SpatialRelationInfo();
     switch( p_side_of_func->m_type ) {
       case SIDE_TYPE_LEFT:
-        p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_LEFT_OF);
+        p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_LEFT_OF);
         break;
       case SIDE_TYPE_RIGHT:
-        p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_RIGHT_OF );
+        p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_RIGHT_OF );
         break;
       case SIDE_TYPE_TOP:
-        p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_TOP_OF );
+        p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_TOP_OF );
         break;
       case SIDE_TYPE_BOTTOM:
-        p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_BOTTOM_OF );
+        p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_BOTTOM_OF );
         break;
     }
     p_spatial_rel_info->m_obstacles.push_back( p_side_of_func->mp_obstacle->get_name() );
@@ -479,16 +499,16 @@ SpatialRelationInfo* BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( Spati
   else if( dynamic_cast<AvoidRelationFunction*>( p_func ) ) {
     AvoidRelationFunction* p_avoid_func = dynamic_cast<AvoidRelationFunction*>( p_func );
     p_spatial_rel_info = new SpatialRelationInfo();
-    p_spatial_rel_info->m_type = SpatialRelationMgr::typeToString( h2p::SPATIAL_REL_AVOID );
-    p_spatial_rel_info->mp_child_info = BIRRTstarPathPlanningInfo::spatialRelationFuncToInfo( p_avoid_func->mp_child_func );
+    p_spatial_rel_info->m_type = SpatialRelationMgr::type_to_string( h2p::SPATIAL_REL_AVOID );
+    p_spatial_rel_info->mp_child_info = BIRRTstarPathPlanningInfo::spatial_relation_func_to_info( p_avoid_func->mp_child_func );
   }
   return p_spatial_rel_info;
 }
 
-SpatialRelationFunction* spatialRelationInfoToFunc( SpatialRelationInfo* p_info, SpatialRelationMgr* p_mgr ) {
+SpatialRelationFunction* BIRRTstarPathPlanningInfo::spatial_relation_info_to_func( SpatialRelationInfo* p_info, SpatialRelationMgr* p_mgr ) {
   SpatialRelationFunction* p_func = NULL;
   if( p_info ) {
-    SpatialRelationType type = SpatialRelationMgr::stringToType( p_info->m_type );
+    SpatialRelationType type = SpatialRelationMgr::string_to_type( p_info->m_type );
     switch( type ) {
       case h2p::SPATIAL_REL_IN_BETWEEN:
       {
@@ -535,7 +555,7 @@ SpatialRelationFunction* spatialRelationInfoToFunc( SpatialRelationInfo* p_info,
       case h2p::SPATIAL_REL_AVOID:
       {
         AvoidRelationFunction* p_avoid_func = new AvoidRelationFunction();
-        p_avoid_func->mp_child_func = spatialRelationInfoToFunc( p_info->mp_child_info, p_mgr );
+        p_avoid_func->mp_child_func = spatial_relation_info_to_func( p_info->mp_child_info, p_mgr );
         break;
       }
     }

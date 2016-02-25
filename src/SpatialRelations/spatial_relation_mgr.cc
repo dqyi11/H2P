@@ -99,7 +99,7 @@ Obstacle* SpatialRelationMgr::get_primary_obstacle() {
   return p_obstacle;
 }
 
-string SpatialRelationMgr::typeToString( SpatialRelationType type ) {
+string SpatialRelationMgr::type_to_string( SpatialRelationType type ) {
   switch( type ) {
     case SPATIAL_REL_IN_BETWEEN:
       return "in_between";
@@ -120,7 +120,7 @@ string SpatialRelationMgr::typeToString( SpatialRelationType type ) {
   return "unknown";
 }
 
-SpatialRelationType SpatialRelationMgr::stringToType( string name ) {
+SpatialRelationType SpatialRelationMgr::string_to_type( string name ) {
   if( name == "in_between" ) {
     return SPATIAL_REL_IN_BETWEEN;
   }

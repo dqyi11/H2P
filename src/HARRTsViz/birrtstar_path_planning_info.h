@@ -48,11 +48,14 @@ namespace birrts {
     void read( xmlNodePtr root );
     void write( xmlDocPtr doc, xmlNodePtr root ) const;
 
+    SpatialRelationInfo* load_spatial_relation_info( xmlNodePtr node );
+    xmlNodePtr           save_spatial_relation_info( xmlDocPtr doc, SpatialRelationInfo* p_info ) const;
+
     void load_paths( std::vector<Path*> paths );
     bool export_paths( QString filename );
 
-    static SpatialRelationInfo* spatialRelationFuncToInfo( h2p::SpatialRelationFunction* p_func );
-    static h2p::SpatialRelationFunction* spatialRelationInfoToFunc( SpatialRelationInfo* p_info, h2p::SpatialRelationMgr* p_mgr );
+    static SpatialRelationInfo* spatial_relation_func_to_info( h2p::SpatialRelationFunction* p_func );
+    static h2p::SpatialRelationFunction* spatial_relation_info_to_func( SpatialRelationInfo* p_info, h2p::SpatialRelationMgr* p_mgr );
 
     static double calc_dist( POS2D pos_a, POS2D pos_b, double** pp_distribution, void* tree ) {
       double dist = 0.0;
@@ -149,8 +152,8 @@ namespace birrts {
     double m_segment_length;
 
     std::vector< SpatialRelationInfo* > mp_spatial_rel_info_list;
-    std::vector< ObsInfo > m_obs_info_list;
-    std::vector<Path*> mp_found_paths;
+    std::vector< ObsInfo >              m_obs_info_list;
+    std::vector< Path* >                mp_found_paths;
   };
 
 }
