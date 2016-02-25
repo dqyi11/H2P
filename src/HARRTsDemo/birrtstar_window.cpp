@@ -179,13 +179,15 @@ bool BIRRTstarWindow::setup_planning(QString filename) {
         }
       }
 
+      cout << "SPATIAL REL NUM " << mpViz->m_PPInfo.mp_spatial_rel_info_list.size() << endl;
       for( unsigned int i = 0; i < mpViz->m_PPInfo.mp_spatial_rel_info_list.size(); i++ ) {
         SpatialRelationInfo* p_spatial_rel_info = mpViz->m_PPInfo.mp_spatial_rel_info_list[i];
-
         h2p::SpatialRelationFunction* p_spatial_rel_func = BIRRTstarPathPlanningInfo::spatial_relation_info_to_func( p_spatial_rel_info, mpViz->get_string_class_mgr() );
-        mpViz->get_string_class_mgr()->add_function( p_spatial_rel_func );
-
+        if( p_spatial_rel_func ) {
+          mpViz->get_string_class_mgr()->add_function( p_spatial_rel_func );
+        }
       }
+      cout << "SPATIAL FUNC NUM " << mpViz->get_string_class_mgr()->mp_functions.size() << endl;
     }
     if(mpBIRRTstarConfig) {
       mpBIRRTstarConfig->updateDisplay();

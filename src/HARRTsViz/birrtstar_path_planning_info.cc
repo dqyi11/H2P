@@ -355,7 +355,7 @@ void BIRRTstarPathPlanningInfo::write( xmlDocPtr doc, xmlNodePtr root ) const {
   xmlNodePtr obs_list_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obstacles" ), NULL );
   for( unsigned int i = 0; i < m_obs_info_list.size(); i++ ) {
     ObsInfo obs_info = m_obs_info_list[i];
-    xmlNodePtr obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
+    xmlNodePtr obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obstacle" ), NULL );
     xmlNewProp( obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_info.name.c_str() ) );
     stringstream center_x_str, center_y_str;
     center_x_str << (int)obs_info.center_x;
@@ -380,7 +380,7 @@ xmlNodePtr BIRRTstarPathPlanningInfo::save_spatial_relation_info( xmlDocPtr doc,
     xmlNewProp( spatial_rel_node, ( const xmlChar* )( "type" ), ( const xmlChar* )( p_info->m_type.c_str() ) );
     for( unsigned int j = 0; j < p_info->m_obstacles.size(); j++ ) {
       string obs_name = p_info->m_obstacles[j];
-      xmlNodePtr spatial_rel_obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obs" ), NULL );
+      xmlNodePtr spatial_rel_obs_node = xmlNewDocNode( doc, NULL, ( const xmlChar* )( "obstacle" ), NULL );
       xmlNewProp( spatial_rel_obs_node, ( const xmlChar* )( "name" ), ( const xmlChar* )( obs_name.c_str() ) );
       xmlAddChild( spatial_rel_node, spatial_rel_obs_node );
     }
@@ -516,47 +516,48 @@ SpatialRelationFunction* BIRRTstarPathPlanningInfo::spatial_relation_info_to_fun
         if( p_mgr ) {
           for(unsigned int i=0; i<p_info->m_obstacles.size();i++) {
             string obs_name = p_info->m_obstacles[i];
+            cout << "OBS " << obs_name << endl;
             h2p::Obstacle* p_obs = p_mgr->get_world_map()->find_obstacle(obs_name);
             if( p_obs ) {
               p_in_between_func->mp_obstacles.push_back( p_obs );
             }
           }
         }
-        break;
+        return (SpatialRelationFunction*)p_in_between_func;
       }
       case h2p::SPATIAL_REL_LEFT_OF:
       {
         SideOfRelationFunction* p_side_of_func = new SideOfRelationFunction();
         p_side_of_func->m_type = SIDE_TYPE_LEFT;
         p_side_of_func->mp_obstacle = p_mgr->get_world_map()->find_obstacle( p_info->m_obstacles[0] );
-        break;
+        return (SpatialRelationFunction*)p_side_of_func;
       }
       case h2p::SPATIAL_REL_RIGHT_OF:
       {
         SideOfRelationFunction* p_side_of_func = new SideOfRelationFunction();
         p_side_of_func->m_type = SIDE_TYPE_RIGHT;
         p_side_of_func->mp_obstacle = p_mgr->get_world_map()->find_obstacle( p_info->m_obstacles[0] );
-        break;
+        return (SpatialRelationFunction*)p_side_of_func;
       }
       case h2p::SPATIAL_REL_TOP_OF:
       {
         SideOfRelationFunction* p_side_of_func = new SideOfRelationFunction();
         p_side_of_func->m_type = SIDE_TYPE_TOP;
         p_side_of_func->mp_obstacle = p_mgr->get_world_map()->find_obstacle( p_info->m_obstacles[0] );
-        break;
+        return (SpatialRelationFunction*)p_side_of_func;
       }
       case h2p::SPATIAL_REL_BOTTOM_OF:
       {
         SideOfRelationFunction* p_side_of_func = new SideOfRelationFunction();
         p_side_of_func->m_type = SIDE_TYPE_BOTTOM;
         p_side_of_func->mp_obstacle = p_mgr->get_world_map()->find_obstacle( p_info->m_obstacles[0] );
-        break;
+        return (SpatialRelationFunction*)p_side_of_func;
       }
       case h2p::SPATIAL_REL_AVOID:
       {
         AvoidRelationFunction* p_avoid_func = new AvoidRelationFunction();
         p_avoid_func->mp_child_func = spatial_relation_info_to_func( p_info->mp_child_info, p_mgr );
-        break;
+        return (AvoidRelationFunction*)p_avoid_func;
       }
     }
   }
